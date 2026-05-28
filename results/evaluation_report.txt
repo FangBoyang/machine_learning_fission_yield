@@ -1,0 +1,32 @@
+============================================================
+KAN Model Evaluation Report
+============================================================
+
+1. MODEL INFORMATION
+   Model Architecture: KAN[[3, 0], [8, 0], [6, 0], [4, 0], [1, 0]]
+   Parameters: 2,170
+   Training Epochs: 120
+
+2. PERFORMANCE METRICS
+   Mean Squared Error (MSE): 1.700e-03
+   Root Mean Squared Error (RMSE): 4.124e-02
+   Mean Absolute Error (MAE): 1.508e-02
+   Coefficient of Determination (R²): 0.9218
+   Relative Improvement: +89.8%
+
+3. ZERO-VALUE ANALYSIS
+   Zero values in test set: 89
+   Average prediction in zero regions: 2.87e-10
+   False positive rate: 2.2%
+
+4. NON-ZERO REGION PERFORMANCE
+   Non-zero MSE: 1.906e-03
+   Non-zero R²: 0.9203
+
+5. DATA INFORMATION
+   Test set size: 826
+   Features: Z, A, E
+   Data transformation: log10(y + 1e-12)
+
+6. GENERATED FILES
+   - results/kan_evaluation_results.png

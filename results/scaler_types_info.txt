@@ -1,0 +1,20 @@
+Z: <class 'sklearn.preprocessing._data.MinMaxScaler'>
+  Content: MinMaxScaler(feature_range=(-0.9, 0.9))
+  Scale: [0.0375]
+  Min: [-1.7625]
+
+A: <class 'sklearn.preprocessing._data.MinMaxScaler'>
+  Content: MinMaxScaler(feature_range=(-0.9, 0.9))
+  Scale: [0.01666667]
+  Min: [-1.96666667]
+
+E: <class 'sklearn.preprocessing._data.MinMaxScaler'>
+  Content: MinMaxScaler(feature_range=(0.2, 0.4))
+  Scale: [0.01428571]
+  Min: [0.2]
+
+Yield: <class 'sklearn.preprocessing._data.MinMaxScaler'>
+  Content: MinMaxScaler(feature_range=(0, 0.9))
+  Scale: [0.15440836]
+  Min: [0.]
+

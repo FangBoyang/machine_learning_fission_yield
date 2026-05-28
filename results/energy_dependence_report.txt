@@ -1,0 +1,31 @@
+
+能量相关性预测分析报告
+========================================
+
+1. 基础信息
+   模型: KAN[[3, 0], [8, 0], [6, 0], [4, 0], [1, 0]]
+   核素数量: 1032
+   能量范围: 0-14 MeV (15个点)
+   总预测数: 15480
+   
+2. 数据统计
+   预测产额范围: [-5.30e-12, 5.63e+00]
+   平均产额: 2.01e-01
+   
+3. 物理观察
+   - 能量E=0 MeV时，产额分布最集中
+   - 随着能量增加，产额分布展宽
+   - 双峰结构在不同能量下保持，但峰位和高度变化
+   
+4. 生成文件
+   - 预测图表: results/yield_vs_energy_by_[A|Z].png
+   - 原始数据: results/energy_dependence_predictions.csv
+   - 聚合数据: results/yield_sum_by_[A|Z].csv
+   
+5. Scaler类型信息
+   - Z: <class 'sklearn.preprocessing._data.MinMaxScaler'>
+   - A: <class 'sklearn.preprocessing._data.MinMaxScaler'>
+   - E: <class 'sklearn.preprocessing._data.MinMaxScaler'>
+   - Yield: <class 'sklearn.preprocessing._data.MinMaxScaler'>
+
+分析完成时间: 2026-05-28 09:44:18.723264

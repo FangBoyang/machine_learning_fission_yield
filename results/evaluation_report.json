@@ -1,0 +1,58 @@
+{
+  "model_info": {
+    "name": "Improved KAN Model",
+    "architecture": [
+      [
+        3,
+        0
+      ],
+      [
+        8,
+        0
+      ],
+      [
+        6,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        1,
+        0
+      ]
+    ],
+    "parameters": 2170,
+    "training_epochs": 120
+  },
+  "performance_metrics": {
+    "mse": 0.0017004844585167859,
+    "rmse": 0.04123693076014249,
+    "mae": 0.015083665950396837,
+    "r2": 0.9218299002843016,
+    "improvement_vs_baseline": 89.75611771977839
+  },
+  "zero_value_analysis": {
+    "zero_count_test": 89,
+    "mean_prediction_zero": 2.8713809108182886e-10,
+    "false_positive_rate": 2.247191011235955
+  },
+  "non_zero_performance": {
+    "mse": 0.0019058346848505625,
+    "r2": 0.9203061787573774
+  },
+  "data_info": {
+    "test_set_size": 826,
+    "feature_names": [
+      "Z",
+      "A",
+      "E"
+    ],
+    "log_transform": "log10(y + 1e-12)",
+    "epsilon": 1e-12
+  },
+  "visualization_files": [
+    "results/kan_evaluation_results.png"
+  ]
+}
