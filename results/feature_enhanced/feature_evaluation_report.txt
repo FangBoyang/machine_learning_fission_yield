@@ -1,0 +1,42 @@
+============================================================
+FEATURE-ENHANCED KAN MODEL EVALUATION REPORT
+============================================================
+
+1. MODEL INFORMATION
+   Model Architecture: KAN[[8, 0], [10, 0], [8, 0], [6, 0], [1, 0]]
+   Parameters: 4,154
+   Selected Features: N_over_Z, symmetry_energy, Z_magic_dist, any_shell, Z_parity
+   Total Features: 8
+
+2. PERFORMANCE METRICS
+   Mean Squared Error (MSE): 1.799e-03
+   Root Mean Squared Error (RMSE): 4.242e-02
+   Mean Absolute Error (MAE): 1.520e-02
+   Coefficient of Determination (R²): 0.9173
+   MSE Improvement vs Baseline: +89.2%
+   R² Change vs Baseline: -0.5%
+
+3. ZERO-VALUE ANALYSIS
+   Zero values in test set: 89
+   Average prediction in zero regions: 2.59e-11
+   False positive rate: 1.1%
+
+4. HIGH-YIELD REGION PERFORMANCE
+   High-yield threshold: 6.579e-03
+   High-yield samples: 248
+   High-yield MSE: 5.983e-03
+   High-yield MAE: 4.950e-02
+   High-yield R²: 0.8702
+
+5. NON-ZERO REGION PERFORMANCE
+   Non-zero MSE: 2.016e-03
+   Non-zero R²: 0.9157
+
+6. DATA INFORMATION
+   Test set size: 826
+   Base features: Z, A, E
+   Enhanced features: N_over_Z, symmetry_energy, Z_magic_dist, any_shell, Z_parity
+   Data transformation: log10(y + 1e-12)
+
+7. GENERATED FILES
+   - results/feature_enhanced/kan_feature_evaluation_results.png

@@ -1,0 +1,71 @@
+{
+  "model_info": {
+    "name": "Feature-Enhanced KAN Model",
+    "architecture": [
+      [
+        8,
+        0
+      ],
+      [
+        10,
+        0
+      ],
+      [
+        8,
+        0
+      ],
+      [
+        6,
+        0
+      ],
+      [
+        1,
+        0
+      ]
+    ],
+    "parameters": 4154,
+    "selected_features": [
+      "N_over_Z",
+      "symmetry_energy",
+      "Z_magic_dist",
+      "any_shell",
+      "Z_parity"
+    ],
+    "total_features": 8
+  },
+  "performance_metrics": {
+    "mse": 0.0017991434113194672,
+    "rmse": 0.04241631067548741,
+    "mae": 0.015196739918817719,
+    "r2": 0.9172946161540609,
+    "improvement_vs_baseline_mse": 89.16178667879838,
+    "improvement_vs_baseline_r2": -0.4887593671012167
+  },
+  "zero_value_analysis": {
+    "zero_count_test": 89,
+    "mean_prediction_zero": 2.5948911422379872e-11,
+    "false_positive_rate": 1.1235955056179776
+  },
+  "high_yield_performance": {
+    "threshold": 0.0065788705,
+    "sample_count": 248,
+    "mse": 0.005983371070408127,
+    "mae": 0.049497562622231456,
+    "r2": 0.8701860751725592
+  },
+  "non_zero_performance": {
+    "mse": 0.0020164076767298237,
+    "r2": 0.9156824911316174
+  },
+  "data_info": {
+    "test_set_size": 826,
+    "enhanced_feature_count": 5,
+    "total_feature_count": 8,
+    "log_transform": "log10(y + 1e-12)",
+    "epsilon": 1e-12
+  },
+  "visualization_files": [
+    "results/feature_enhanced/kan_feature_evaluation_results.png"
+  ],
+  "timestamp": "2026-05-30 23:17:17"
+}

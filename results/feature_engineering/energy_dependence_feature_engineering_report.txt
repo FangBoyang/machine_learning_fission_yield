@@ -1,0 +1,31 @@
+
+特征增强模型 - 能量相关性预测分析报告
+==================================================
+
+1. 模型信息
+   模型结构: KAN[[8, 0], [10, 0], [8, 0], [6, 0], [1, 0]]
+   输入维度: [8, 0]
+   基础特征: Z, A, E
+   增强特征: N_over_Z, symmetry_energy, Z_magic_dist, any_shell, Z_parity
+   总特征数: 8
+   
+2. 预测信息
+   核素数量: 1032
+   能量范围: 0-14 MeV (15个点)
+   总预测数: 15480
+   
+3. 数据统计
+   预测产额范围: [-4.35e-12, 4.34e+00]
+   平均产额: 2.30e-01
+   
+4. 可视化特点
+   - 使用线性坐标，专注于高产额区域
+   - 显示0-14 MeV的能量相关性
+   - 按质量数(A)和电荷数(Z)分别求和
+   
+5. 生成文件
+   - 预测图表: results/feature_engineering/yield_vs_energy_by_[A|Z]_linear.png
+   - 原始数据: results/feature_engineering/energy_dependence_feature_engineering.csv
+   - 聚合数据: results/feature_engineering/yield_sum_by_[A|Z]_feature_engineering.csv
+   
+分析完成时间: 2026-05-30 23:29:13.211149
