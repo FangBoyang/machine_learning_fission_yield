@@ -7,7 +7,11 @@
         0
       ],
       [
-        10,
+        16,
+        0
+      ],
+      [
+        12,
         0
       ],
       [
@@ -15,7 +19,7 @@
         0
       ],
       [
-        6,
+        4,
         0
       ],
       [
@@ -23,7 +27,7 @@
         0
       ]
     ],
-    "parameters": 4154,
+    "parameters": 8972,
     "selected_features": [
       "N_over_Z",
       "symmetry_energy",
@@ -34,31 +38,31 @@
     "total_features": 8
   },
   "performance_metrics": {
-    "mse": 0.0017991434113194672,
-    "rmse": 0.04241631067548741,
-    "mae": 0.015196739918817719,
-    "r2": 0.9172946161540609,
-    "improvement_vs_baseline_mse": 89.16178667879838,
-    "improvement_vs_baseline_r2": -0.4887593671012167
+    "mse": 0.0015571702271050675,
+    "rmse": 0.03946099627613408,
+    "mae": 0.01346342082270404,
+    "r2": 0.9240837566209643,
+    "improvement_vs_baseline_mse": 90.61945646322248,
+    "improvement_vs_baseline_r2": 0.24774968767241934
   },
   "zero_value_analysis": {
-    "zero_count_test": 89,
-    "mean_prediction_zero": 2.5948911422379872e-11,
-    "false_positive_rate": 1.1235955056179776
+    "zero_count_test": 69,
+    "mean_prediction_zero": 1.5568058994719358e-11,
+    "false_positive_rate": 1.4492753623188406
   },
   "high_yield_performance": {
-    "threshold": 0.0065788705,
-    "sample_count": 248,
-    "mse": 0.005983371070408127,
-    "mae": 0.049497562622231456,
-    "r2": 0.8701860751725592
+    "threshold": 0.006359957599999995,
+    "sample_count": 180,
+    "mse": 0.005186160028953033,
+    "mae": 0.04414918126591469,
+    "r2": 0.8799887239185603
   },
   "non_zero_performance": {
-    "mse": 0.0020164076767298237,
-    "r2": 0.9156824911316174
+    "mse": 0.001759514380909681,
+    "r2": 0.922472443111585
   },
   "data_info": {
-    "test_set_size": 826,
+    "test_set_size": 600,
     "enhanced_feature_count": 5,
     "total_feature_count": 8,
     "log_transform": "log10(y + 1e-12)",
@@ -67,5 +71,5 @@
   "visualization_files": [
     "results/feature_enhanced/kan_feature_evaluation_results.png"
   ],
-  "timestamp": "2026-05-30 23:17:17"
+  "timestamp": "2026-05-31 14:02:16"
 }
