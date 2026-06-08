@@ -1,0 +1,50 @@
+{
+  "model_info": {
+    "name": "Warm-up KAN (GEF)",
+    "architecture": [
+      [
+        9,
+        0
+      ],
+      [
+        20,
+        0
+      ],
+      [
+        1,
+        0
+      ]
+    ],
+    "parameters": 4090,
+    "features": [
+      "Z",
+      "A",
+      "E",
+      "Z_squared",
+      "A_squared",
+      "E_squared",
+      "ZxA",
+      "ZxE",
+      "AxE"
+    ]
+  },
+  "performance": {
+    "mse": 0.02704324573685287,
+    "rmse": 0.16444830718755626,
+    "mae": 0.10077578381436536,
+    "r2": 0.9640897974315451
+  },
+  "zero_analysis": {
+    "zero_count": 167,
+    "mean_pred_at_zero": -0.012965856119990349,
+    "max_pred_at_zero": 0.24696609377861023
+  },
+  "high_yield": {
+    "threshold": 0.2926191505965834,
+    "samples": 914,
+    "r2": 0.9360684876406731,
+    "mse": 0.07525940952334621
+  },
+  "visualization": "results/warmup_eval/warmup_evaluation.png",
+  "timestamp": "2026-06-09 00:22:20"
+}
