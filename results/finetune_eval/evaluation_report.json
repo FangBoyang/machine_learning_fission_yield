@@ -1,0 +1,54 @@
+{
+  "model_info": {
+    "name": "Fine-tune KAN",
+    "architecture": [
+      [
+        9,
+        0
+      ],
+      [
+        22,
+        0
+      ],
+      [
+        22,
+        0
+      ],
+      [
+        1,
+        0
+      ]
+    ],
+    "parameters": 13594,
+    "features": [
+      "Z",
+      "A",
+      "E",
+      "Z_squared",
+      "A_squared",
+      "E_squared",
+      "ZxA",
+      "ZxE",
+      "AxE"
+    ]
+  },
+  "performance": {
+    "mse": 0.02909695065203051,
+    "rmse": 0.17057828306097617,
+    "mae": 0.07443912755047019,
+    "r2": 0.9728041136556669
+  },
+  "zero_analysis": {
+    "zero_count": 68,
+    "mean_pred_at_zero": -0.0025267056189477444,
+    "max_pred_at_zero": 0.0571233406662941
+  },
+  "high_yield": {
+    "threshold": 0.22364073133308335,
+    "samples": 147,
+    "r2": 0.9478853545829203,
+    "mse": 0.10971038731666724
+  },
+  "visualization": "results/finetune_eval/finetune_evaluation.png",
+  "timestamp": "2026-06-10 23:52:36"
+}

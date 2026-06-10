@@ -1,6 +1,6 @@
 """
 02e_train_kan_warm_up_cos.py
-功能: 在GEF理论数据的原始归一化空间上进行warm-up训练（余弦退火）
+功能: 在GEF理论数据的原始归一化空间上进行warm-up训练（简化网络 + 余弦退火）
 """
 
 import joblib
@@ -18,7 +18,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 print("="*60)
-print("KAN模型warm-up训练 - 余弦退火")
+print("KAN模型warm-up训练 - 简化网络 + 余弦退火")
 print("="*60)
 
 # ========== 1. 加载GEF预处理数据 ==========
@@ -39,20 +39,6 @@ try:
     X_train, X_val, y_train, y_val = train_test_split(
         X_train_gef, y_train_gef, test_size=val_ratio, random_state=42, shuffle=True
     )
-
-    if 'error_train' in data:
-        error_full = data['error_train']  # shape (18267, 1)
-        # 使用相同的 random_state 和 test_size 进行划分
-        error_train, error_val = train_test_split(
-            error_full, test_size=val_ratio, random_state=42, shuffle=True
-        )
-        # 展平为一维
-        error_train = error_train.ravel()
-        error_val = error_val.ravel()
-    else:
-        # 如果没有误差列，生成全零误差（与 y_train/y_val 同形状）
-        error_train = np.zeros(y_train.shape[0])
-        error_val = np.zeros(y_val.shape[0])
     
     print(f"  ✓ 划分验证集: {X_val.shape[0]} 样本 (20%)")
     print(f"  ✓ 最终训练集: {X_train.shape[0]} 样本")
@@ -104,22 +90,6 @@ print(f"  ✓ 特征工程完成，特征维度: {X_train_augmented.shape[1]}")
 # ========== 4. 准备训练数据 ==========
 print("\n[4/7] 准备训练数据（原始归一化空间）...")
 
-# 关键修改：同步划分误差数据
-if 'error_train' in data:
-    error_full = data['error_train']  # shape (18267, 1)
-    # 使用与 X, y 完全相同的 random_state 和 test_size
-    error_train, error_val = train_test_split(
-        error_full, test_size=val_ratio, random_state=42, shuffle=True
-    )
-    error_train = error_train.ravel()
-    error_val = error_val.ravel()
-else:
-    error_train = np.zeros(y_train.shape[0])
-    error_val = np.zeros(y_val.shape[0])
-
-error_train_t = torch.tensor(error_train, dtype=torch.float32).view(-1).to(device)
-error_val_t = torch.tensor(error_val, dtype=torch.float32).view(-1).to(device)
-
 X_train_t = torch.tensor(X_train_augmented, dtype=torch.float32).to(device)
 y_train_t = torch.tensor(y_train, dtype=torch.float32).to(device)
 X_val_t = torch.tensor(X_val_augmented, dtype=torch.float32).to(device)
@@ -127,26 +97,26 @@ y_val_t = torch.tensor(y_val, dtype=torch.float32).to(device)
 
 print(f"  ✓ 训练集形状: {X_train_t.shape}, 验证集形状: {X_val_t.shape}")
 
-# ========== 5. 构建KAN模型 ==========
-print("\n[5/7] 构建KAN模型...")
+# ========== 5. 构建KAN模型（简化结构） ==========
+print("\n[5/7] 构建KAN模型（单隐层）...")
 
 input_dim = X_train_augmented.shape[1]  # 9
 config = {
-    'width': [input_dim, 22, 22, 1],
+    'width': [input_dim, 20, 1],        # 单隐层，20个神经元
     'grid': 7,
     'k': 3,
     'seed': 42,
     'epochs': 800,                      # 增加轮数
-    'batch_size': 2048,                 # 增大batch加速
-    'learning_rate': 0.1,               # 初始学习率
+    'batch_size': 4096,                 # 增大batch加速
+    'learning_rate': 0.2,               # 更大初始学习率
     'weight_decay': 1e-3,
-    'patience': 60,
+    'patience': 50,
     'min_delta': 1e-6,
 }
 
 print("  模型配置:")
 print(f"    - 输入维度: {input_dim}")
-print(f"    - 网络结构: {config['width']}")
+print(f"    - 网络结构: {config['width']} (单隐层)")
 print(f"    - 训练轮数: {config['epochs']}")
 print(f"    - 批量大小: {config['batch_size']}")
 print(f"    - 初始学习率: {config['learning_rate']}")
@@ -157,25 +127,13 @@ model.to(device)
 params = sum(p.numel() for p in model.parameters())
 print(f"  ✓ 模型构建完成，参数量: {params:,}")
 
-class WeightedMSELoss(nn.Module):
-    def __init__(self, delta=0.3):
-        super().__init__()
-        self.delta_sq = delta ** 2
-        self.eps = 1e-8
-
-    def forward(self, pred, target, sigma):
-        # sigma: 实验误差（第5列）
-        denom = self.delta_sq + sigma ** 2 + self.eps
-        loss = ((pred - target) ** 2) / denom
-        return loss.mean()
-
-criterion = WeightedMSELoss(delta=0.3)
+criterion = nn.MSELoss()
 
 # ========== 6. 训练模型（余弦退火） ==========
 print("\n[6/7] 开始warm-up训练...")
 
-train_dataset = TensorDataset(X_train_t, y_train_t, error_train_t)
-val_dataset = TensorDataset(X_val_t, y_val_t, error_val_t)
+train_dataset = TensorDataset(X_train_t, y_train_t)
+val_dataset = TensorDataset(X_val_t, y_val_t)
 
 train_loader = DataLoader(train_dataset, batch_size=config['batch_size'], shuffle=True, num_workers=0)
 val_loader = DataLoader(val_dataset, batch_size=config['batch_size'], shuffle=False, num_workers=0)
@@ -199,10 +157,10 @@ for epoch in range(config['epochs']):
     train_loss = 0.0
     train_batches = 0
     
-    for batch_x, batch_y, batch_error in train_loader:
+    for batch_x, batch_y in train_loader:
         optimizer.zero_grad()
         outputs = model(batch_x)
-        loss = criterion(outputs, batch_y, batch_error)
+        loss = criterion(outputs, batch_y)
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         optimizer.step()
@@ -216,9 +174,9 @@ for epoch in range(config['epochs']):
     val_loss = 0.0
     val_batches = 0
     with torch.no_grad():
-        for batch_x, batch_y, batch_error in val_loader:
+        for batch_x, batch_y in val_loader:
             outputs = model(batch_x)
-            loss = criterion(outputs, batch_y, batch_error)
+            loss = criterion(outputs, batch_y)
             val_loss += loss.item()
             val_batches += 1
     
@@ -367,4 +325,12 @@ print(f"    - 预测范围: [{y_pred.min():.3f}, {y_pred.max():.3f}]")
 
 print("\n" + "="*60)
 print("KAN模型warm-up训练完成！")
+print("="*60)
+print("关键特性:")
+print(f"1. ✅ 训练空间: 原始归一化空间")
+print(f"2. ✅ 损失函数: 标准MSE")
+print(f"3. ✅ 网络结构: 单隐层KAN (20神经元)")
+print(f"4. ✅ 特征工程: 原始(Z,A,E) + 6个交互特征")
+print(f"5. ✅ 学习率: 0.2 + 余弦退火")
+print(f"6. ✅ 实际训练轮数: {epoch+1}/{config['epochs']}")
 print("="*60)

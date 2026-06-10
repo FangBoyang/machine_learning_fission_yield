@@ -1,6 +1,6 @@
 """
-03e_evaluate_warmup_model.py
-功能：评估 warm-up 训练得到的 KAN 模型（GEF 数据，交互特征，归一化空间）
+03e_evaluate_finetune.py
+功能：评估 fine-tune 训练得到的 KAN 模型（交互特征，归一化空间）
 """
 
 import joblib
@@ -18,14 +18,14 @@ import warnings
 warnings.filterwarnings('ignore')
 
 print("="*60)
-print("Warm-up KAN Model Evaluation")
+print("Fine-tune KAN Model Evaluation")
 print("="*60)
 
 # ========== 1. 加载数据 ==========
 print("\n[1/6] Loading data and model...")
 
 # 加载预处理数据
-with open('preprocessed_gef_data.pkl', 'rb') as f:
+with open('preprocessed_data_rare_signal.pkl', 'rb') as f:
     data = pickle.load(f)
 
 X_all, y_all = data['X_train'], data['y_train']
@@ -54,10 +54,10 @@ except Exception as e:
     exit(1)
 
 # ========== 3. 加载模型 ==========
-print("\n[3/6] Loading warm-up model...")
-model_path = "models/kan_warmup_simple_final.pth"
+print("\n[3/6] Loading fine-tune model...")
+model_path = "models/kan_finetune_235UALL_final.pth"
 if not os.path.exists(model_path):
-    model_path = "models/kan_warmup_simple_best.pth"
+    model_path = "models/kan_finetune_235UALL_best.pth"
 if not os.path.exists(model_path):
     print(f"  ✗ Model not found: {model_path}")
     exit(1)
@@ -155,13 +155,13 @@ if high_mask.any():
     print(f"    MSE: {mse_high:.3e}")
 
 # ========== 可视化 ==========
-os.makedirs("results/warmup_eval", exist_ok=True)
+os.makedirs("results/finetune_eval", exist_ok=True)
 
 plt.rcParams['font.sans-serif'] = ['Arial', 'DejaVu Sans']
 plt.rcParams['axes.unicode_minus'] = False
 
 fig, axes = plt.subplots(2, 2, figsize=(14, 10))
-fig.suptitle('Warm-up KAN Model Evaluation (GEF Validation Set)', fontsize=16, fontweight='bold')
+fig.suptitle('Fine-tune KAN Model Evaluation', fontsize=16, fontweight='bold')
 
 # 1. 预测 vs 真实（对数坐标）
 ax1 = axes[0, 0]
@@ -239,14 +239,14 @@ ax4.legend(fontsize=8, ncol=2, loc='upper left')
 ax4.grid(True, alpha=0.3)
 
 plt.tight_layout()
-vis_path = 'results/warmup_eval/warmup_evaluation.png'
+vis_path = 'results/finetune_eval/finetune_evaluation.png'
 plt.savefig(vis_path, dpi=150, bbox_inches='tight')
 print(f"  ✓ Visualization saved: {vis_path}")
 
 # ========== 保存评估报告 ==========
 report = {
     'model_info': {
-        'name': 'Warm-up KAN (GEF)',
+        'name': 'Fine-tune KAN',
         'architecture': config['width'],
         'parameters': sum(p.numel() for p in model.parameters()),
         'features': all_features
@@ -272,7 +272,7 @@ report = {
     'timestamp': time.strftime("%Y-%m-%d %H:%M:%S")
 }
 
-json_path = 'results/warmup_eval/evaluation_report.json'
+json_path = 'results/finetune_eval/evaluation_report.json'
 with open(json_path, 'w') as f:
     json.dump(report, f, indent=2)
 print(f"  ✓ Report saved: {json_path}")
@@ -284,5 +284,5 @@ print("="*60)
 print(f"🎯 R² Score: {r2:.4f}")
 print(f"📊 MSE: {mse:.3e}, MAE: {mae:.3e}")
 print(f"📈 High-yield R²: {r2_high:.4f}" if high_mask.any() else "")
-print(f"📁 Results saved in results/warmup_eval/")
+print(f"📁 Results saved in results/finetune_eval/")
 print("="*60)

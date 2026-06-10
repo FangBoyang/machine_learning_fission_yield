@@ -1,6 +1,6 @@
 """
 02e_train_kan_warm_up_cos.py
-功能: 在GEF理论数据的原始归一化空间上进行warm-up训练（余弦退火）
+功能: 在实验数据的原始归一化空间上微调（余弦退火）
 """
 
 import joblib
@@ -21,28 +21,27 @@ print("="*60)
 print("KAN模型warm-up训练 - 余弦退火")
 print("="*60)
 
-# ========== 1. 加载GEF预处理数据 ==========
-print("\n[1/7] 加载GEF预处理数据（warm-up阶段）...")
+# ========== 1. 加载235UALL预处理数据 ==========
+print("\n[1/7] 加载235UALL预处理数据（warm-up阶段）...")
 
 try:
-    with open('preprocessed_gef_data.pkl', 'rb') as f:
+    with open('preprocessed_data_rare_signal.pkl', 'rb') as f:
         data = pickle.load(f)
     
-    X_train_gef, y_train_gef = data['X_train'], data['y_train']
+    X_all, y_all = data['X_train'], data['y_train']
     device = data['device']
     
     print(f"  ✓ 数据加载成功")
-    print(f"    训练集: {X_train_gef.shape[0]} 样本")
+    print(f"    训练集: {X_all.shape[0]} 样本")
     print(f"    设备: {device}")
     
     val_ratio = 0.2
     X_train, X_val, y_train, y_val = train_test_split(
-        X_train_gef, y_train_gef, test_size=val_ratio, random_state=42, shuffle=True
+        X_all, y_all, test_size=val_ratio, random_state=42, shuffle=True
     )
 
     if 'error_train' in data:
-        error_full = data['error_train']  # shape (18267, 1)
-        # 使用相同的 random_state 和 test_size 进行划分
+        error_full = data['error_train']
         error_train, error_val = train_test_split(
             error_full, test_size=val_ratio, random_state=42, shuffle=True
         )
@@ -136,11 +135,11 @@ config = {
     'grid': 7,
     'k': 3,
     'seed': 42,
-    'epochs': 800,                      # 增加轮数
-    'batch_size': 2048,                 # 增大batch加速
-    'learning_rate': 0.1,               # 初始学习率
+    'epochs': 300,                      # 增加轮数
+    'batch_size': 128,
+    'learning_rate': 0.01,              # 微调的学习率应较小
     'weight_decay': 1e-3,
-    'patience': 60,
+    'patience': 30,
     'min_delta': 1e-6,
 }
 
@@ -151,11 +150,14 @@ print(f"    - 训练轮数: {config['epochs']}")
 print(f"    - 批量大小: {config['batch_size']}")
 print(f"    - 初始学习率: {config['learning_rate']}")
 
+# 构建模型（结构与 warm-up 一致）
 model = KAN(width=config['width'], grid=config['grid'], k=config['k'], seed=config['seed'])
 model.to(device)
 
-params = sum(p.numel() for p in model.parameters())
-print(f"  ✓ 模型构建完成，参数量: {params:,}")
+# 加载 warm-up 最佳模型权重
+warmup_checkpoint = torch.load('models/kan_warmup_simple_best.pth', map_location=device, weights_only=False)
+model.load_state_dict(warmup_checkpoint['model_state'])
+print("  ✓ 已加载 warm-up 模型权重")
 
 class WeightedMSELoss(nn.Module):
     def __init__(self, delta=0.3):
@@ -183,7 +185,7 @@ val_loader = DataLoader(val_dataset, batch_size=config['batch_size'], shuffle=Fa
 optimizer = torch.optim.AdamW(model.parameters(), lr=config['learning_rate'], weight_decay=config['weight_decay'])
 
 # 使用余弦退火调度器，T_max为总轮数的一半，然后保持最小值
-scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=400, eta_min=1e-4)
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=150, eta_min=1e-5)
 
 history = {'train_loss': [], 'val_loss': [], 'lr': []}
 best_loss = float('inf')
@@ -243,8 +245,8 @@ for epoch in range(config['epochs']):
             'config': config,
             'input_dim': input_dim,
             'feature_names': ['Z', 'A', 'E'] + interaction_features,
-            'training_stage': 'warmup_simple_cosine'
-        }, 'models/kan_warmup_simple_best.pth')
+            'training_stage': 'finetune_235UALL'
+        }, 'models/kan_finetune_235UALL_best.pth')
         
         print(f"    Best val_loss: {best_loss:.3e} (Epoch {best_epoch})")
     else:
@@ -270,7 +272,7 @@ print(f"    最佳验证损失: {best_loss:.3e} (Epoch {best_epoch})")
 print("\n[7/7] 保存warm-up模型和结果...")
 
 try:
-    checkpoint = torch.load('models/kan_warmup_simple_best.pth', map_location=device, weights_only=False)
+    checkpoint = torch.load('models/kan_finetune_235UALL_best.pth', map_location=device, weights_only=False)
     model.load_state_dict(checkpoint['model_state'])
     print("  ✓ 加载最佳模型成功")
 except Exception as e:
@@ -290,10 +292,10 @@ try:
         'train_time': train_time,
         'input_dim': input_dim,
         'feature_names': ['Z', 'A', 'E'] + interaction_features,
-        'training_stage': 'warmup_simple_cosine',
+        'training_stage': 'finetune_235UALL',
         'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
-    torch.save(final_state, 'models/kan_warmup_simple_final.pth')
+    torch.save(final_state, 'models/kan_finetune_235UALL_final.pth')
     print("  ✓ 最终模型保存成功")
 except Exception as e:
     print(f"  ✗ 保存最终模型失败: {e}")
@@ -322,8 +324,8 @@ try:
             'val_samples': int(X_val.shape[0]),
             'training_space': 'raw_normalized',
             'loss_function': 'standard_mse',
-            'training_stage': 'warmup',
-            'data_source': 'GEF_theoretical'
+            'training_stage': 'finetune_235UALL',
+            'data_source': 'preprocessed_data_rare_signal.pkl'
         },
         'performance_stats': {
             'total_train_time': float(train_time),
@@ -332,10 +334,10 @@ try:
             'early_stop_patience': int(config['patience'])
         }
     }
-    with open('models/warmup_simple_training_history.json', 'w') as f:
+    with open('models/finetune_235UALL_training_history.json', 'w') as f:
         import json
         json.dump(history_data, f, indent=2)
-    print(f"  ✓ 训练历史保存: models/warmup_simple_training_history.json")
+    print(f"  ✓ 训练历史保存: models/finetune_235UALL_training_history.json")
 except Exception as e:
     print(f"  ✗ 保存训练历史失败: {e}")
 
