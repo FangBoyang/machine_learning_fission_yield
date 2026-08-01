@@ -1,0 +1,64 @@
+{
+  "model_info": {
+    "name": "KAN Log-space Training (Z/A/E+delta_np Input)",
+    "model_path": "models/kan_delta_np_with_ZAE_logY_best.pth",
+    "architecture": [
+      [
+        4,
+        0
+      ],
+      [
+        20,
+        0
+      ],
+      [
+        20,
+        0
+      ],
+      [
+        1,
+        0
+      ]
+    ],
+    "parameters": 14720,
+    "features": [
+      "Z_norm",
+      "A_norm",
+      "E_norm",
+      "delta_np"
+    ],
+    "training_stage": "logY_fulltrain",
+    "split_mode": "full_train_no_validation"
+  },
+  "metrics": {
+    "log_space": {
+      "r2": 0.9728476193802474,
+      "mse": 0.02715238061975261
+    },
+    "original_space": {
+      "r2": 0.905258422539567,
+      "rmse": 0.041277239166368405,
+      "mae": 0.014723953873866097
+    },
+    "high_yield_region": {
+      "threshold": 0.0446535655,
+      "sample_count": 4567,
+      "r2": 0.7598353577765744,
+      "rmse": 0.08216387334833673
+    }
+  },
+  "data_stats": {
+    "total_samples": 18267,
+    "true_yield_range": [
+      0.0,
+      0.953753409
+    ],
+    "pred_yield_range": [
+      5.92733878269241e-15,
+      0.9295733571052551
+    ],
+    "gefs_error_mean": 0.00928234717682159
+  },
+  "visualization_path": "results/logY_delta_np_eval\\evaluation_logY_delta_np.png",
+  "timestamp": "2026-07-14 20:32:21"
+}

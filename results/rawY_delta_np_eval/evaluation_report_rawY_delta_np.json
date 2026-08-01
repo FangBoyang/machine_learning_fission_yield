@@ -1,0 +1,64 @@
+{
+  "model_info": {
+    "name": "KAN Raw-space Training (Z/A/E+delta_np Input)",
+    "model_path": "models/kan_delta_np_with_ZAE_rawY_best.pth",
+    "architecture": [
+      [
+        4,
+        0
+      ],
+      [
+        24,
+        0
+      ],
+      [
+        24,
+        0
+      ],
+      [
+        1,
+        0
+      ]
+    ],
+    "parameters": 23976,
+    "features": [
+      "Z_norm",
+      "A_norm",
+      "E_norm",
+      "delta_np"
+    ],
+    "training_stage": "rawY_fulltrain",
+    "split_mode": "full_train_no_validation"
+  },
+  "metrics": {
+    "normalized_raw_space": {
+      "r2": 0.9886843060808914,
+      "mse": 4.851806550157598e-06
+    },
+    "original_space": {
+      "r2": 0.9887305207169229,
+      "rmse": 0.014236140343881836,
+      "mae": 0.0062265712414724785
+    },
+    "high_yield_region": {
+      "threshold": 0.0446535655,
+      "sample_count": 4567,
+      "r2": 0.9720680466745613,
+      "rmse": 0.0280205737392013
+    }
+  },
+  "data_stats": {
+    "total_samples": 18267,
+    "true_yield_range": [
+      0.0,
+      0.9537534089999999
+    ],
+    "pred_yield_range": [
+      0.0,
+      0.8758130073547363
+    ],
+    "gefs_error_mean": 0.00928234717682159
+  },
+  "visualization_path": "results/rawY_delta_np_eval\\evaluation_rawY_delta_np.png",
+  "timestamp": "2026-07-30 23:25:12"
+}

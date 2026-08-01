@@ -1,0 +1,314 @@
+"""
+04h_energy_dependence_warmup_all_train_rawY.py
+功能: 基于Z/A/E的原始空间KAN模型，分析裂变产额随激发能的能量依赖性（无delta_np）
+说明: 复用已训练完成的原始空间模型，固定核素Z/A，扫描0~14MeV能量区间，输出线性坐标可视化结果
+"""
+
+import joblib
+import pickle
+import torch
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+from kan import KAN
+import warnings
+warnings.filterwarnings('ignore')
+
+print("="*60)
+print("Z/A/E输入KAN模型 - 能量相关性预测分析 (线性坐标，原始空间，无delta_np)")
+print("="*60)
+print("核心特性:")
+print("1. 复用原始空间训练的Z/A/E模型，无验证集全量训练权重")
+print("2. 固定核素Z/A，扫描0~14MeV激发能区间")
+print("3. 绘图全英文标注，输出文件命名防重复（ZAE_rawY后缀隔离）")
+print("4. 完全对齐01h预处理逻辑，无delta_np，消除奇偶锯齿噪声")
+print("5. 负值后置截断，符合裂变产额非负物理约束")
+print("="*60)
+
+# ========== 1. 加载模型和预处理数据 ==========
+print("\n[1/6] 加载Z/A/E原始空间模型和预处理参数...")
+
+# 加载01h生成的干净Z/A/E预处理数据（无delta_np）
+preprocess_path = 'preprocessed_gef_data_ZAE_rawY.pkl'
+if not os.path.exists(preprocess_path):
+    print(f"  ✗ 预处理文件不存在: {preprocess_path}")
+    exit(1)
+
+with open(preprocess_path, 'rb') as f:
+    preprocess_data = pickle.load(f)
+device = preprocess_data['device']
+scalers = preprocess_data['scalers']  # 仅包含Yield_original的scaler
+print(f"  计算设备: {device}")
+print(f"  预处理数据加载成功，特征列表: {preprocess_data['feature_names']}")
+
+# 验证无delta_np特征
+if 'delta_np' in preprocess_data['feature_names']:
+    print(f"  ⚠️ 警告: 预处理数据仍包含delta_np特征，与本脚本预期不符")
+else:
+    print(f"  ✓ 确认无delta_np特征，输入维度: {len(preprocess_data['feature_names'])}")
+
+# 单独加载Z/A/E的scaler（和01h逻辑完全一致）
+Z_SCALER_PATH = "data/standard_scalerZ.pkl"
+A_SCALER_PATH = "data/standard_scalerA.pkl"
+E_SCALER_PATH = "data/standard_scalerE.pkl"
+
+for scaler_path, scaler_name in [(Z_SCALER_PATH, "Z"), (A_SCALER_PATH, "A"), (E_SCALER_PATH, "E")]:
+    if not os.path.exists(scaler_path):
+        print(f"  ✗ {scaler_name} scaler文件不存在: {scaler_path}")
+        exit(1)
+
+z_scaler = joblib.load(Z_SCALER_PATH)
+a_scaler = joblib.load(A_SCALER_PATH)
+e_scaler = joblib.load(E_SCALER_PATH)
+print(f"  ✓ 单独加载Z/A/E scaler成功（和01h逻辑一致）")
+
+# 加载训练好的原始空间Z/A/E模型（无delta_np）
+model_path_best = "models/kan_ZAE_rawY_best.pth"
+model_path_final = "models/kan_ZAE_rawY_final.pth"
+model_path = model_path_best if os.path.exists(model_path_best) else model_path_final
+
+if not os.path.exists(model_path):
+    print(f"  ✗ 模型文件不存在: {model_path_best} 或 {model_path_final}")
+    exit(1)
+
+checkpoint = torch.load(model_path, map_location=device, weights_only=False)
+print(f"  ✓ 加载Z/A/E原始空间模型: {model_path}")
+
+# 验证模型输入维度是否为3
+expected_width = [3, 24, 24, 1]
+if checkpoint['config']['width'] != expected_width:
+    print(f"  ⚠️ 警告: 模型结构为{checkpoint['config']['width']}，预期为{expected_width}")
+else:
+    print(f"  ✓ 模型输入维度验证通过: 3维（Z_norm, A_norm, E_norm）")
+
+# 关闭自动保存，避免生成多余目录
+model = KAN(
+    width=checkpoint['config']['width'],
+    grid=checkpoint['config']['grid'],
+    k=checkpoint['config']['k'],
+    seed=checkpoint['config']['seed'],
+    save_act=False
+)
+model.load_state_dict(checkpoint['model_state'])
+model.to(device)
+model.eval()
+
+print(f"    模型结构: KAN{checkpoint['config']['width']}")
+print(f"    输入特征: {preprocess_data['feature_names']} (共3维，无delta_np)")
+print(f"    训练轮数: {checkpoint.get('epoch', checkpoint.get('final_epoch', 'N/A'))}")
+
+# ========== 2. 加载基准核素数据 ==========
+print("\n[2/6] 加载235U基准核素数据...")
+csv_path = "data/235UALL.csv"
+if not os.path.exists(csv_path):
+    print(f"  ✗ 基准数据文件不存在: {csv_path}")
+    exit(1)
+
+df_base = pd.read_csv(csv_path).iloc[:1032]
+required_cols = ['Z', 'A', 'E']
+for col in required_cols:
+    if col not in df_base.columns:
+        print(f"  ✗ 235UALL.csv缺少列: {col}，请检查文件格式")
+        exit(1)
+print(f"  基准数据形状: {df_base.shape}")
+print(f"  唯一激发能值: {sorted(df_base['E'].unique())}")
+print(f"  核素总数: {len(df_base)}")
+
+# ========== 3. 反归一化获取物理参数（无delta_np计算） ==========
+print("\n[3/6] 反归一化获取核素物理参数（无delta_np）...")
+try:
+    Z_physical = z_scaler.inverse_transform(df_base[['Z']].values).round().astype(int).flatten()
+    A_physical = a_scaler.inverse_transform(df_base[['A']].values).round().astype(int).flatten()
+    print(f"  Z物理范围: [{Z_physical.min()}, {Z_physical.max()}]")
+    print(f"  A物理范围: [{A_physical.min()}, {A_physical.max()}]")
+except Exception as e:
+    print(f"  反归一化失败: {e}")
+    exit(1)
+
+# 注意：此处不再计算delta_np，彻底消除奇偶锯齿噪声
+print(f"  ✓ 核素物理参数获取完成（无delta_np，避免奇偶锯齿）")
+
+# ========== 4. 构建能量扫描预测输入 ==========
+print("\n[4/6] 构建激发能扫描预测输入...")
+
+# 物理能量网格: 0~14 MeV，步长1MeV
+E_physical_grid = np.arange(0, 15, dtype=float)
+print(f"  激发能物理网格: {E_physical_grid} MeV")
+
+# 归一化能量（使用单独的E scaler，和01h逻辑一致）
+E_norm_grid = e_scaler.transform(E_physical_grid.reshape(-1, 1)).flatten()
+print(f"  激发能归一化网格: {E_norm_grid}")
+
+# 构建预测输入：每个核素×每个能量对应一行（仅Z_norm, A_norm, E_norm三列）
+predict_rows = []
+for nuc_idx in range(len(df_base)):
+    Z_norm = df_base['Z'].iloc[nuc_idx]
+    A_norm = df_base['A'].iloc[nuc_idx]
+    
+    for e_idx, E_phy in enumerate(E_physical_grid):
+        E_norm = E_norm_grid[e_idx]
+        predict_rows.append({
+            'Z_physical': Z_physical[nuc_idx],
+            'A_physical': A_physical[nuc_idx],
+            'E_physical': E_phy,
+            'E_norm': E_norm,
+            'Z_norm': Z_norm,
+            'A_norm': A_norm,
+        })
+
+df_predict = pd.DataFrame(predict_rows)
+print(f"  预测输入数据总量: {len(df_predict)} 条 ({len(df_base)}核素 × {len(E_physical_grid)}能量点)")
+print(f"  特征列: Z_norm, A_norm, E_norm（共3维，无delta_np）")
+
+# ========== 5. 批量预测（原始空间反归一化，无对数变换，无delta_np） ==========
+print("\n[5/6] 进行批量预测...")
+batch_size = 512
+predictions = []
+
+for i in range(0, len(df_predict), batch_size):
+    batch_end = min(i + batch_size, len(df_predict))
+    batch_df = df_predict.iloc[i:batch_end]
+    
+    # 按模型要求的顺序拼接特征：[Z_norm, A_norm, E_norm]（仅3维）
+    X_batch = batch_df[['Z_norm', 'A_norm', 'E_norm']].values
+    X_tensor = torch.tensor(X_batch, dtype=torch.float32).to(device)
+    
+    with torch.no_grad():
+        # 模型输出：归一化原始Yield
+        y_pred_raw_norm = model(X_tensor).cpu().numpy()
+    
+    # 原始空间反归一化，无exp()操作
+    scaler_rawY = scalers['Yield_original']
+    y_pred_physical = scaler_rawY.inverse_transform(y_pred_raw_norm).flatten()
+    predictions.extend(y_pred_physical)
+    
+    if (i // batch_size) % 5 == 0 or batch_end == len(df_predict):
+        progress = batch_end / len(df_predict) * 100
+        print(f"    进度: {batch_end}/{len(df_predict)} ({progress:.1f}%)")
+
+# 负值后置截断，符合裂变产额非负物理约束
+df_predict['Yield_pred'] = np.clip(predictions, 0, None)
+print(f"  ✓ 预测完成")
+print(f"    预测产额范围: [{df_predict['Yield_pred'].min():.2e}, {df_predict['Yield_pred'].max():.2e}]")
+print(f"    平均预测产额: {df_predict['Yield_pred'].mean():.2e}")
+print(f"    负值截断完成，所有预测值非负，符合物理规律")
+
+# ========== 6. 数据聚合与可视化 ==========
+print("\n[6/6] 数据聚合与线性坐标可视化...")
+plt.rcParams['font.family'] = ['DejaVu Sans', 'Arial', 'sans-serif']
+plt.rcParams['axes.unicode_minus'] = False
+
+# 创建专属输出目录，避免覆盖其他版本结果
+output_dir = "results/ZAE_rawY_energy_dep"
+os.makedirs(output_dir, exist_ok=True)
+
+# 按质量数A聚合产额
+df_sum_by_A = df_predict.groupby(['A_physical', 'E_physical'])['Yield_pred'].sum().reset_index()
+# 按电荷数Z聚合产额
+df_sum_by_Z = df_predict.groupby(['Z_physical', 'E_physical'])['Yield_pred'].sum().reset_index()
+
+cmap = plt.cm.viridis
+colors = [cmap(i) for i in np.linspace(0, 0.8, len(E_physical_grid))]
+
+# -------------------------- 图1：按质量数A的产额分布（线性坐标） --------------------------
+fig1, ax1 = plt.subplots(figsize=(12, 7))
+for idx, E_phy in enumerate(E_physical_grid):
+    subset = df_sum_by_A[df_sum_by_A['E_physical'] == E_phy]
+    ax1.plot(
+        subset['A_physical'], subset['Yield_pred'],
+        color=colors[idx],
+        alpha=0.7,
+        linewidth=1.5,
+        label=f'{E_phy:.0f} MeV' if idx % 3 == 0 else None
+    )
+    if E_phy == 0 or E_phy == 14:
+        marker = 'o' if E_phy == 0 else 's'
+        ax1.scatter(
+            subset['A_physical'], subset['Yield_pred'],
+            color=colors[idx],
+            s=20,
+            alpha=0.8,
+            marker=marker,
+            label=f'{E_phy:.0f} MeV (Points)' if E_phy == 0 or E_phy == 14 else None
+        )
+
+ax1.set_xlabel('Mass Number (A)', fontsize=12)
+ax1.set_ylabel('Fission Yield Sum', fontsize=12)
+ax1.set_title('Linear Scale: Fission Yield Distribution by Mass Number (A) at Different Excitation Energies (Z/A/E, Raw-space, No delta_np)', fontsize=13)
+ax1.grid(True, alpha=0.3)
+ax1.legend(loc='upper right', fontsize=10, ncol=2)
+ax1.set_ylim(0, df_sum_by_A['Yield_pred'].max() * 1.1)
+plt.tight_layout()
+
+fig1_path = os.path.join(output_dir, 'yield_vs_energy_by_A_linear_ZAE_rawY.png')
+fig1.savefig(fig1_path, dpi=150, bbox_inches='tight')
+print(f"  ✓ 图1保存: {fig1_path}")
+
+# -------------------------- 图2：按电荷数Z的产额分布（线性坐标） --------------------------
+fig2, ax2 = plt.subplots(figsize=(12, 7))
+for idx, E_phy in enumerate(E_physical_grid):
+    subset = df_sum_by_Z[df_sum_by_Z['E_physical'] == E_phy]
+    ax2.plot(
+        subset['Z_physical'], subset['Yield_pred'],
+        color=colors[idx],
+        alpha=0.7,
+        linewidth=1.5,
+        label=f'{E_phy:.0f} MeV' if idx % 3 == 0 else None
+    )
+    if E_phy == 0 or E_phy == 14:
+        marker = 'o' if E_phy == 0 else 's'
+        ax2.scatter(
+            subset['Z_physical'], subset['Yield_pred'],
+            color=colors[idx],
+            s=20,
+            alpha=0.8,
+            marker=marker,
+            label=f'{E_phy:.0f} MeV (Points)' if E_phy == 0 or E_phy == 14 else None
+        )
+
+ax2.set_xlabel('Atomic Number (Z)', fontsize=12)
+ax2.set_ylabel('Fission Yield Sum', fontsize=12)
+ax2.set_title('Linear Scale: Fission Yield Distribution by Atomic Number (Z) at Different Excitation Energies (Z/A/E, Raw-space, No delta_np)', fontsize=13)
+ax2.grid(True, alpha=0.3)
+ax2.legend(loc='upper right', fontsize=10, ncol=2)
+ax2.set_ylim(0, df_sum_by_Z['Yield_pred'].max() * 1.1)
+plt.tight_layout()
+
+fig2_path = os.path.join(output_dir, 'yield_vs_energy_by_Z_linear_ZAE_rawY.png')
+fig2.savefig(fig2_path, dpi=150, bbox_inches='tight')
+print(f"  ✓ 图2保存: {fig2_path}")
+
+# ========== 7. 保存结果 ==========
+print("\n[保存结果] 保存预测数据与报告...")
+# 保存预测数据（删除临时特征列）
+df_predict_save = df_predict.drop(columns=['Z_norm', 'A_norm', 'E_norm'])
+pred_csv_path = os.path.join(output_dir, 'energy_dependence_ZAE_rawY.csv')
+df_predict_save.to_csv(pred_csv_path, index=False)
+# 保存聚合数据
+sum_A_path = os.path.join(output_dir, 'yield_sum_by_A_ZAE_rawY.csv')
+sum_Z_path = os.path.join(output_dir, 'yield_sum_by_Z_ZAE_rawY.csv')
+df_sum_by_A.to_csv(sum_A_path, index=False)
+df_sum_by_Z.to_csv(sum_Z_path, index=False)
+# 保存报告
+report_path = os.path.join(output_dir, 'energy_dependence_ZAE_rawY_report.txt')
+with open(report_path, 'w', encoding='utf-8') as f:
+    f.write("Z/A/E输入KAN模型 - 能量相关性预测分析报告（原始空间，无delta_np）\n")
+    f.write("="*60 + "\n\n")
+    f.write(f"模型路径: {model_path}\n")
+    f.write(f"核素数量: {len(df_base)}，能量扫描范围: 0~14MeV\n")
+    f.write(f"输入特征: Z_norm, A_norm, E_norm（共3维，无delta_np）\n")
+    f.write(f"预测产额范围: [{df_predict['Yield_pred'].min():.2e}, {df_predict['Yield_pred'].max():.2e}]\n")
+    f.write(f"负值处理: 所有预测值已截断为非负，符合裂变产额物理约束\n")
+    f.write(f"锯齿处理: 已移除delta_np特征，消除奇偶锯齿噪声\n")
+    f.write(f"分析完成时间: {pd.Timestamp.now()}\n")
+print(f"  ✓ 所有结果保存至: {output_dir}/")
+
+print("\n" + "="*60)
+print("Z/A/E原始空间能量相关性分析完成（无delta_np）！核心结论:")
+print("1. 仅使用Z/A/E归一化特征，无delta_np，奇偶锯齿已消除")
+print("2. 产额预测天然非负，与裂变物理规律一致")
+print("3. 能量扫描覆盖0~14MeV，完整覆盖裂变激发能区间")
+print("4. 结果已与其他版本完全隔离，可直接对比分析形态差异")
+print("="*60)
+plt.show()

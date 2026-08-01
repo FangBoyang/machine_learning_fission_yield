@@ -1,0 +1,91 @@
+{
+  "model_info": {
+    "name": "KAN Raw-space Training (Z/A/E+delta_np, Smaller Model Variant)",
+    "model_path": "models/kan_delta_np_with_ZAE_rawY_best_smaller.pth",
+    "architecture": [
+      [
+        4,
+        0
+      ],
+      [
+        12,
+        0
+      ],
+      [
+        12,
+        0
+      ],
+      [
+        1,
+        0
+      ]
+    ],
+    "parameters": 3700,
+    "features": [
+      "Z_norm",
+      "A_norm",
+      "E_norm",
+      "delta_np"
+    ],
+    "training_stage": "rawY_fulltrain_smaller",
+    "split_mode": "full_train_no_validation",
+    "variant": "03i_smaller",
+    "paired_training_config": {
+      "width": [
+        [
+          4,
+          0
+        ],
+        [
+          12,
+          0
+        ],
+        [
+          12,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ],
+      "grid": 5,
+      "k": 3,
+      "T_0": 300,
+      "patience": 300,
+      "learning_rate": 0.01,
+      "batch_size": 256
+    }
+  },
+  "metrics": {
+    "normalized_raw_space": {
+      "r2": 0.9742255398126082,
+      "mse": 1.1051261695298198e-05
+    },
+    "original_space": {
+      "r2": 0.9744258594291643,
+      "rmse": 0.021445731285336233,
+      "mae": 0.010400695040572188
+    },
+    "high_yield_region": {
+      "threshold": 0.0446535655,
+      "sample_count": 4567,
+      "r2": 0.9378942689003597,
+      "rmse": 0.041782287104103415
+    }
+  },
+  "data_stats": {
+    "total_samples": 18267,
+    "true_yield_range": [
+      0.0,
+      0.9537534089999999
+    ],
+    "pred_yield_range": [
+      0.0,
+      0.8682729005813599
+    ],
+    "gefs_error_mean": 0.00928234717682159
+  },
+  "visualization_path": "results/rawY_delta_np_eval_smaller\\evaluation_rawY_delta_np_smaller.png",
+  "timestamp": "2026-08-01 22:16:39"
+}

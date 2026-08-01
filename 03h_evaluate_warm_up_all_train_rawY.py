@@ -1,0 +1,341 @@
+"""
+03h_evaluate_warm_up_all_train_rawY.py
+功能：评估原始空间训练的KAN模型（Z/A/E输入，全训练集模式，无验证集）
+说明：适配原始空间预处理逻辑，目标为原始空间Yield，负值后置截断，无delta_np特征，文件命名完全隔离
+"""
+
+import joblib
+import pickle
+import torch
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+import json
+import time
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+from kan import KAN
+import warnings
+warnings.filterwarnings('ignore')
+
+print("="*60)
+print("KAN模型评估 - 原始空间Yield版（Z/A/E输入，全训练集模式）")
+print("="*60)
+print("核心特性:")
+print("1. 全训练集评估（无验证集，与ZAE_rawY训练逻辑完全对齐）")
+print("2. 目标为原始空间Yield，反变换直接反归一化，无对数扭曲")
+print("3. 负值后置截断，符合裂变产额非负物理约束")
+print("4. 无delta_np特征，消除奇偶锯齿噪声")
+print("5. 文件/目录命名完全隔离，避免覆盖其他版本结果")
+print("="*60)
+
+# ========== 1. 加载预处理数据（原始空间版本，Z/A/E输入，全训练集） ==========
+print("\n[1/6] 加载原始空间预处理数据（全训练集）...")
+
+data_path = 'preprocessed_gef_data_ZAE_rawY.pkl'
+if not os.path.exists(data_path):
+    print(f"  ✗ 预处理文件不存在: {data_path}")
+    exit(1)
+
+with open(data_path, 'rb') as f:
+    data = pickle.load(f)
+
+X_train = data['X_train']
+y_train_raw_norm = data['y_train']  # 归一化后的原始Yield（不是对数Yield）
+device = data['device']
+scalers = data['scalers']
+feature_names = data['feature_names']
+y_train_original = data['raw_data']['Yield_original']  # 原始空间真实Yield
+has_error = data.get('has_error_column', False)
+if has_error:
+    error_train = data['error_train']
+
+print(f"  ✓ 数据加载成功")
+print(f"    训练集: {X_train.shape[0]} 样本 (100%全量，无验证集)")
+print(f"    输入特征: {feature_names} (共{X_train.shape[1]}维)")
+print(f"    目标变量: 归一化原始Yield")
+print(f"    设备: {device}")
+
+# ========== 2. 加载Scaler ==========
+print("\n[2/6] 加载Scaler...")
+try:
+    scaler_rawY = scalers['Yield_original']  # 原始Yield scaler（兼容MinMax/Standard）
+    
+    # 兼容MinMaxScaler和StandardScaler的打印逻辑
+    if hasattr(scaler_rawY, 'min_'):
+        print(f"  ✓ 原始Yield scaler加载成功: min={scaler_rawY.min_[0]:.6f}, scale={scaler_rawY.scale_[0]:.6f} (MinMaxScaler)")
+    elif hasattr(scaler_rawY, 'mean_'):
+        print(f"  ✓ 原始Yield scaler加载成功: mean={scaler_rawY.mean_[0]:.6f}, scale={scaler_rawY.scale_[0]:.6f} (StandardScaler)")
+    else:
+        print(f"  ✓ 原始Yield scaler加载成功（类型: {type(scaler_rawY).__name__}）")
+    
+    # 确认无delta_np scaler（03h版本已移除该特征）
+    if 'delta_np' in scalers:
+        print(f"  ⚠️ 警告: scalers中仍存在delta_np，但本评估脚本不使用该特征")
+        
+except Exception as e:
+    print(f"  ✗ Scaler加载失败: {e}")
+    exit(1)
+
+# ========== 3. 加载训练好的ZAE_rawY模型（无delta_np） ==========
+print("\n[3/6] 加载原始空间训练的最优模型（Z/A/E输入）...")
+
+model_path_best = "models/kan_ZAE_rawY_best.pth"
+model_path_final = "models/kan_ZAE_rawY_final.pth"
+model_path = model_path_best if os.path.exists(model_path_best) else model_path_final
+
+if not os.path.exists(model_path):
+    print(f"  ✗ 模型文件不存在: {model_path_best} 或 {model_path_final}")
+    exit(1)
+
+checkpoint = torch.load(model_path, map_location=device, weights_only=False)
+config = checkpoint['config']
+
+# 验证模型输入维度是否为3（Z/A/E）
+expected_width = [3, 24, 24, 1]
+if config['width'][0] != 3:
+    print(f"  ⚠️ 警告: 模型输入维度为{config['width'][0]}，预期为3（Z_norm, A_norm, E_norm）")
+    print(f"    模型结构: KAN{config['width']}")
+else:
+    print(f"  ✓ 模型输入维度验证通过: 3维（Z_norm, A_norm, E_norm）")
+
+# 关闭KAN自动保存，避免生成多余目录
+model = KAN(
+    width=config['width'],
+    grid=config['grid'],
+    k=config['k'],
+    seed=config['seed'],
+    save_act=False
+)
+model.load_state_dict(checkpoint['model_state'])
+model.to(device)
+model.eval()
+
+print(f"  ✓ 模型加载成功: {model_path}")
+print(f"    模型架构: KAN{config['width']}")
+
+# 修复键名不匹配问题（训练脚本存的是'epoch'不是'best_epoch'）
+epoch = checkpoint.get('epoch', checkpoint.get('final_epoch', 'N/A'))
+print(f"    训练轮数: {epoch}")
+
+# 修复损失键名（训练脚本存的是'train_loss'不是'best_loss'）
+best_loss = checkpoint.get('train_loss', checkpoint.get('best_loss', 'N/A'))
+if isinstance(best_loss, (int, float)):
+    print(f"    最佳训练损失: {best_loss:.3e}")
+else:
+    print(f"    最佳训练损失: {best_loss}")
+
+# ========== 4. 预测与反归一化（和ZAE_rawY训练逻辑完全对齐） ==========
+print("\n[4/6] 预测与反归一化...")
+
+X_train_tensor = torch.tensor(X_train, dtype=torch.float32).to(device)
+y_train_raw_norm_tensor = torch.tensor(y_train_raw_norm, dtype=torch.float32).to(device)
+
+with torch.no_grad():
+    y_pred_raw_norm = model(X_train_tensor).cpu().numpy().flatten()
+
+# 反归一化到原始空间（直接用scaler的inverse_transform，兼容MinMax/Standard）
+y_pred_original = scaler_rawY.inverse_transform(y_pred_raw_norm.reshape(-1, 1)).flatten()
+y_true_original = scaler_rawY.inverse_transform(y_train_raw_norm.reshape(-1, 1)).flatten()
+
+# 负值后置截断，符合裂变产额非负物理约束
+y_pred_original = np.clip(y_pred_original, 0, None)
+y_true_original = y_true_original.flatten()
+
+print(f"  ✓ 预测完成")
+print(f"    归一化原始空间预测范围: [{y_pred_raw_norm.min():.3f}, {y_pred_raw_norm.max():.3f}]")
+print(f"    原始空间预测范围: [{y_pred_original.min():.2e}, {y_pred_original.max():.2e}]")
+print(f"    原始空间真实范围: [{y_true_original.min():.2e}, {y_true_original.max():.2e}]")
+print(f"    预测最小值: {y_pred_original.min():.2e}（截断后非负，符合要求）")
+
+# ========== 5. 计算评估指标 ==========
+print("\n[5/6] 计算评估指标...")
+
+# 归一化原始空间指标（训练优化目标，对应MSE损失的直接优化对象）
+mse_norm = mean_squared_error(y_train_raw_norm, y_pred_raw_norm)
+r2_norm = r2_score(y_train_raw_norm, y_pred_raw_norm)
+
+# 原始空间指标（物理意义核心指标）
+mse_original = mean_squared_error(y_true_original, y_pred_original)
+rmse_original = np.sqrt(mse_original)
+mae_original = mean_absolute_error(y_true_original, y_pred_original)
+r2_original = r2_score(y_true_original, y_pred_original)
+
+# 高产额区专项分析（取前25%作为高产额区，符合核心研究需求）
+high_yield_threshold = np.percentile(y_true_original, 75)
+high_mask = y_true_original >= high_yield_threshold
+if high_mask.sum() > 0:
+    r2_high = r2_score(y_true_original[high_mask], y_pred_original[high_mask])
+    mse_high = mean_squared_error(y_true_original[high_mask], y_pred_original[high_mask])
+    rmse_high = np.sqrt(mse_high)
+else:
+    r2_high = mse_high = rmse_high = 0
+
+# GEF误差列统计
+if has_error:
+    error_vals = error_train.flatten()
+    error_mean = error_vals.mean()
+    error_max = error_vals.max()
+else:
+    error_mean = error_max = 0
+
+print(f"\n  📊 归一化原始空间指标（训练优化目标）:")
+print(f"    R²: {r2_norm:.4f}")
+print(f"    MSE: {mse_norm:.3e}")
+
+print(f"\n  📊 原始空间指标（物理意义，核心关注）:")
+print(f"    Total R²: {r2_original:.4f}")
+print(f"    RMSE: {rmse_original:.3e}")
+print(f"    MAE: {mae_original:.3e}")
+
+print(f"\n  📊 高产额区指标（阈值>{high_yield_threshold:.2e}，共{high_mask.sum()}样本）:")
+print(f"    High-yield R²: {r2_high:.4f}")
+print(f"    RMSE: {rmse_high:.3e}")
+
+if has_error:
+    print(f"\n  📊 GEF误差列统计:")
+    print(f"    平均误差: {error_mean:.2e}")
+    print(f"    最大误差: {error_max:.2e}")
+
+# ========== 6. 可视化与结果保存 ==========
+print("\n[6/6] 生成可视化图表与评估报告...")
+
+# 创建专属输出目录，完全隔离其他版本结果
+output_dir = "results/ZAE_rawY_eval"
+os.makedirs(output_dir, exist_ok=True)
+
+# 设置英文字体，避免中文显示问题
+plt.rcParams['font.family'] = 'DejaVu Sans'
+plt.rcParams['axes.unicode_minus'] = False
+
+fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+fig.suptitle('KAN Model Evaluation (Raw-space Training, Z/A/E Input, Full Training Set)', fontsize=16, fontweight='bold')
+
+# 1. 原始空间预测vs真实（对数坐标，适配产额跨数量级特性）
+ax1 = axes[0, 0]
+ax1.scatter(y_true_original, y_pred_original, alpha=0.6, s=20, c='blue', edgecolors='white', linewidth=0.5)
+max_val = max(y_true_original.max(), y_pred_original.max())
+min_val = max(y_true_original.min(), y_pred_original.min(), 1e-15)
+ax1.plot([min_val, max_val], [min_val, max_val], 'r--', alpha=0.7, label='Ideal Line')
+ax1.set_xscale('log')
+ax1.set_yscale('log')
+ax1.set_xlabel('True Yield (Original Space)', fontsize=12)
+ax1.set_ylabel('Predicted Yield (Original Space)', fontsize=12)
+ax1.set_title('Original Space: Predicted vs True Yield (Log Scale)', fontsize=14)
+ax1.legend()
+ax1.grid(True, alpha=0.3)
+ax1.text(0.05, 0.95, f'Total R² = {r2_original:.4f}\nHigh-yield R² = {r2_high:.4f}',
+         transform=ax1.transAxes, fontsize=11, verticalalignment='top',
+         bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+
+# 2. 残差图
+ax2 = axes[0, 1]
+residuals = y_pred_original - y_true_original
+ax2.scatter(y_pred_original, residuals, alpha=0.6, s=20, c='green', edgecolors='white', linewidth=0.5)
+ax2.axhline(y=0, color='r', linestyle='--', alpha=0.7)
+ax2.set_xscale('log')
+ax2.set_xlabel('Predicted Yield (Original Space)', fontsize=12)
+ax2.set_ylabel('Residuals (Predicted - True)', fontsize=12)
+ax2.set_title('Residual Plot (Original Space)', fontsize=14)
+ax2.grid(True, alpha=0.3)
+ax2.text(0.05, 0.95, f'Mean Residual: {residuals.mean():.2e}\nResidual Std: {residuals.std():.2e}',
+         transform=ax2.transAxes, fontsize=10, verticalalignment='top',
+         bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+
+# 3. 相对误差分布
+ax3 = axes[1, 0]
+rel_error = np.abs(residuals) / (np.abs(y_true_original) + 1e-12)
+rel_error_clipped = np.clip(rel_error, 0, 10)
+ax3.hist(rel_error_clipped, bins=50, alpha=0.7, color='purple', edgecolor='black')
+ax3.set_xlabel('Relative Error |Pred-True|/|True|', fontsize=12)
+ax3.set_ylabel('Frequency', fontsize=12)
+ax3.set_title('Relative Error Distribution', fontsize=14)
+ax3.grid(True, alpha=0.3)
+median_err = np.median(rel_error)
+p90_err = np.percentile(rel_error, 90)
+ax3.axvline(median_err, color='r', linestyle='--', label=f'Median: {median_err:.2f}')
+ax3.axvline(p90_err, color='orange', linestyle='--', label=f'90th Percentile: {p90_err:.2f}')
+ax3.legend()
+ax3.set_xlim(-0.5, 10.5)
+
+# 4. 各特征维度MAE分布（仅Z_norm, A_norm, E_norm三个特征）
+ax4 = axes[1, 1]
+colors = plt.cm.tab10(np.linspace(0, 1, len(feature_names)))
+for i, (feat_name, color) in enumerate(zip(feature_names, colors)):
+    feat_vals = X_train[:, i]
+    bin_edges = np.percentile(feat_vals, np.linspace(0, 100, 15))
+    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+    mae_bins = []
+    for j in range(len(bin_edges)-1):
+        mask = (feat_vals >= bin_edges[j]) & (feat_vals < bin_edges[j+1])
+        if mask.sum() >= 5:
+            mae_bins.append(mean_absolute_error(y_true_original[mask], y_pred_original[mask]))
+        else:
+            mae_bins.append(np.nan)
+    valid = ~np.isnan(mae_bins)
+    if valid.any():
+        ax4.plot(bin_centers[valid], np.array(mae_bins)[valid], 'o-', color=color, label=feat_name, alpha=0.7, markersize=4)
+
+ax4.set_xlabel('Feature Value (Normalized Space)', fontsize=12)
+ax4.set_ylabel('MAE (Original Space)', fontsize=12)
+ax4.set_title('MAE Distribution across Feature Dimensions (Z/A/E Only)', fontsize=14)
+ax4.legend(fontsize=9, loc='upper right')
+ax4.grid(True, alpha=0.3)
+
+plt.tight_layout()
+vis_path = os.path.join(output_dir, 'evaluation_ZAE_rawY.png')
+plt.savefig(vis_path, dpi=150, bbox_inches='tight')
+print(f"  ✓ 可视化图表保存: {vis_path}")
+
+# 保存评估报告（JSON格式，方便后续对比分析）
+report = {
+    'model_info': {
+        'name': 'KAN Raw-space Training (Z/A/E Input, No delta_np)',
+        'model_path': model_path,
+        'architecture': config['width'],
+        'parameters': sum(p.numel() for p in model.parameters()),
+        'features': feature_names,
+        'training_stage': checkpoint.get('training_stage', 'ZAE_rawY_fulltrain'),
+        'split_mode': 'full_train_no_validation',
+        'delta_np_removed': True,
+        'reason_for_removal': 'Eliminate parity-induced zigzag noise in Y-A curves'
+    },
+    'metrics': {
+        'normalized_raw_space': {'r2': float(r2_norm), 'mse': float(mse_norm)},
+        'original_space': {'r2': float(r2_original), 'rmse': float(rmse_original), 'mae': float(mae_original)},
+        'high_yield_region': {
+            'threshold': float(high_yield_threshold),
+            'sample_count': int(high_mask.sum()),
+            'r2': float(r2_high),
+            'rmse': float(rmse_high)
+        }
+    },
+    'data_stats': {
+        'total_samples': int(X_train.shape[0]),
+        'true_yield_range': [float(y_true_original.min()), float(y_true_original.max())],
+        'pred_yield_range': [float(y_pred_original.min()), float(y_pred_original.max())],
+        'gefs_error_mean': float(error_mean) if has_error else None
+    },
+    'visualization_path': vis_path,
+    'timestamp': time.strftime("%Y-%m-%d %H:%M:%S")
+}
+
+report_path = os.path.join(output_dir, 'evaluation_report_ZAE_rawY.json')
+with open(report_path, 'w', encoding='utf-8') as f:
+    json.dump(report, f, indent=2, ensure_ascii=False)
+print(f"  ✓ 评估报告保存: {report_path}")
+
+# ========== 打印总结 ==========
+print("\n" + "="*60)
+print("原始空间Yield模型评估完成（Z/A/E输入，无delta_np）！核心结论:")
+print("="*60)
+print(f"✅ 原始空间总R²: {r2_original:.4f}")
+print(f"✅ 高产额区R²: {r2_high:.4f}")
+print(f"✅ 预测值已截断为非负，符合物理规律")
+print(f"✅ 已移除delta_np特征，Y-A锯齿噪声应已消除")
+print(f"✅ 所有评估文件已保存至: {output_dir}/（与其他版本完全隔离）")
+print("="*60)
+print("\n【后续建议】")
+print("1. 若高产额区R²>0.85且Y-A曲线平滑无锯齿，可进入能量依赖分析")
+print("2. 若Y-A形态仍与GEF有差距，可尝试增加N或I特征补充物理信息")
+print("3. 若形状满意，可进行KAN符号回归提取拟合公式，增强物理可解释性")
+print("="*60)

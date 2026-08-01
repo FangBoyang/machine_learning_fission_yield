@@ -1,0 +1,65 @@
+{
+  "model_info": {
+    "name": "KAN Raw-space Training (Z/A/E Input, No delta_np)",
+    "model_path": "models/kan_ZAE_rawY_best.pth",
+    "architecture": [
+      [
+        3,
+        0
+      ],
+      [
+        24,
+        0
+      ],
+      [
+        24,
+        0
+      ],
+      [
+        1,
+        0
+      ]
+    ],
+    "parameters": 23179,
+    "features": [
+      "Z_norm",
+      "A_norm",
+      "E_norm"
+    ],
+    "training_stage": "ZAE_rawY_fulltrain",
+    "split_mode": "full_train_no_validation",
+    "delta_np_removed": true,
+    "reason_for_removal": "Eliminate parity-induced zigzag noise in Y-A curves"
+  },
+  "metrics": {
+    "normalized_raw_space": {
+      "r2": 0.9776489171990502,
+      "mse": 9.583427292394062e-06
+    },
+    "original_space": {
+      "r2": 0.9814072366722245,
+      "rmse": 0.018285730154662467,
+      "mae": 0.00869798188590201
+    },
+    "high_yield_region": {
+      "threshold": 0.0446535655,
+      "sample_count": 4567,
+      "r2": 0.9556247611865275,
+      "rmse": 0.03531805034680092
+    }
+  },
+  "data_stats": {
+    "total_samples": 18267,
+    "true_yield_range": [
+      0.0,
+      0.9537534089999999
+    ],
+    "pred_yield_range": [
+      0.0,
+      0.8890230655670166
+    ],
+    "gefs_error_mean": 0.00928234717682159
+  },
+  "visualization_path": "results/ZAE_rawY_eval\\evaluation_ZAE_rawY.png",
+  "timestamp": "2026-07-30 23:26:26"
+}

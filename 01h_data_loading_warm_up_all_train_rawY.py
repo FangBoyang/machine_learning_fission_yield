@@ -1,0 +1,259 @@
+"""
+01h_data_loading_warm_up_all_train_rawY.py
+KAN模型训练 - 数据加载模块（归一化Z/A/E输入 - 原始空间MSE适配 - 全训练集模式）
+功能: 从data/GEF.csv加载数据，仅使用归一化后的Z/A/E作为输入特征（彻底移除delta_np以消除奇偶锯齿噪声），
+     目标变量保留原始空间Yield（原始空间MSE天然偏向高产额区，负值后置截断），全部作为训练集
+"""
+import pandas as pd
+import numpy as np
+import joblib
+import pickle
+import os
+import torch
+from sklearn.preprocessing import StandardScaler
+import warnings
+warnings.filterwarnings('ignore')
+
+print("="*60)
+print("KAN模型训练 - 数据加载模块（原始空间Yield版 - Z/A/E输入 - 全训练集模式）")
+print("="*60)
+print("核心特性:")
+print("1. 目标变量保留原始空间Yield，原始空间MSE天然放大高产额误差，优先拟合核心物理规律")
+print("2. 负值后置截断处理，符合裂变产额非负的物理约束，不干扰训练优化方向")
+print("3. 仅使用归一化Z/A/E作为输入特征，彻底移除delta_np以避免奇偶锯齿噪声")
+print("="*60)
+
+# ========== 1. 设置路径 ==========
+print("\n[步骤1/6] 设置文件路径...")
+DATA_DIR = "data/"
+CSV_FILE = os.path.join(DATA_DIR, "GEF.csv")
+RAW_YIELD_SCALER_FILE = os.path.join(DATA_DIR, "yield_scaler.pkl")  # 原始Yield scaler（核心，用于归一化）
+Z_SCALER_FILE = os.path.join(DATA_DIR, "standard_scalerZ.pkl")
+A_SCALER_FILE = os.path.join(DATA_DIR, "standard_scalerA.pkl")
+
+os.makedirs("models", exist_ok=True)
+os.makedirs("results", exist_ok=True)
+
+# ========== 2. 文件存在性检查 ==========
+print("\n[步骤2/6] 检查必需文件...")
+missing_files = []
+if os.path.exists(CSV_FILE):
+    print(f"  ✓ 找到CSV文件: {CSV_FILE}")
+else:
+    missing_files.append(CSV_FILE)
+    print(f"  ✗ 缺失CSV文件: {CSV_FILE}")
+
+# 加载原始Yield scaler（核心依赖，用于目标变量归一化）
+if os.path.exists(RAW_YIELD_SCALER_FILE):
+    print(f"  ✓ 找到原始Yield scaler: {RAW_YIELD_SCALER_FILE}")
+else:
+    missing_files.append(RAW_YIELD_SCALER_FILE)
+    print(f"  ✗ 缺失原始Yield scaler: {RAW_YIELD_SCALER_FILE}")
+
+# 物理计算必需的scaler
+for name, path in [("Z scaler", Z_SCALER_FILE), ("A scaler", A_SCALER_FILE)]:
+    if os.path.exists(path):
+        print(f"  ✓ 找到{name}: {path}")
+    else:
+        missing_files.append(path)
+        print(f"  ✗ 缺失{name}: {path}")
+
+if missing_files:
+    print(f"\n错误: 以下文件缺失:")
+    for f in missing_files:
+        print(f"  - {f}")
+    print("\n请确保所有文件在data/文件夹中")
+    exit(1)
+
+# ========== 3. 加载CSV数据（不计算delta_np） ==========
+print("\n[步骤3/6] 加载CSV数据...")
+try:
+    df = pd.read_csv(CSV_FILE, header=None)
+    if df.shape[1] == 5:
+        df.columns = ['Z', 'A', 'E', 'Yield', 'Error']
+    else:
+        print(f"  ⚠️  警告: 数据有{df.shape[1]}列，但预期5列，只取前5列")
+        df = df.iloc[:, :5]
+        df.columns = ['Z', 'A', 'E', 'Yield', 'Error']
+    
+    print(f"  ✓ 成功加载CSV文件，形状: {df.shape[0]}行 × {df.shape[1]}列")
+    print(f"    原始Yield范围: [{df['Yield'].min():.2e}, {df['Yield'].max():.2e}]")
+    
+    # 反归一化获取物理Z/A（仅用于raw_data保存，不参与特征工程）
+    z_scaler = joblib.load(Z_SCALER_FILE)
+    a_scaler = joblib.load(A_SCALER_FILE)
+    df['Z_original'] = z_scaler.inverse_transform(df['Z'].values.reshape(-1, 1)).round().astype(int)
+    df['A_original'] = a_scaler.inverse_transform(df['A'].values.reshape(-1, 1)).round().astype(int)
+    df['N'] = df['A_original'] - df['Z_original']
+    df['I'] = (df['N'] - df['Z_original']) / df['A_original']
+    
+    print(f"  ✓ 物理参数反归一化完成（Z/A/N/I），已跳过delta_np计算以消除奇偶锯齿")
+    print("\n    前5行核心数据:")
+    print(df[['Z_original', 'A_original', 'N', 'E', 'I', 'Yield', 'Error']].head().to_string())
+
+except Exception as e:
+    print(f"  ✗ 加载数据失败: {e}")
+    exit(1)
+
+# ========== 4. 加载归一化参数 ==========
+print("\n[步骤4/6] 加载归一化参数...")
+scalers = {}
+
+# 加载原始Yield scaler（用于目标变量归一化）
+scalers['Yield_original'] = joblib.load(RAW_YIELD_SCALER_FILE)
+scaler_y = scalers['Yield_original']
+if hasattr(scaler_y, 'mean_'):
+    print(f"  ✓ 原始Yield scaler加载成功: mean={scaler_y.mean_[0]:.6f}, scale={scaler_y.scale_[0]:.6f}")
+elif hasattr(scaler_y, 'min_'):
+    print(f"  ✓ 原始Yield scaler加载成功: min={scaler_y.min_[0]:.6f}, scale={scaler_y.scale_[0]:.6f}")
+else:
+    print(f"  ✓ 原始Yield scaler加载成功（类型: {type(scaler_y).__name__}）")
+
+# ========== 5. 验证数据归一化状态 ==========
+print("\n[步骤5/6] 验证数据归一化状态...")
+# 输入特征（仅归一化Z/A/E，共3维）
+z_norm = df['Z'].values
+a_norm = df['A'].values
+e_norm = df['E'].values
+print("    输入特征（归一化空间，共3维）:")
+print(f"    Z: [{z_norm.min():.6f}, {z_norm.max():.6f}] | 均值: {z_norm.mean():.6f}")
+print(f"    A: [{a_norm.min():.6f}, {a_norm.max():.6f}] | 均值: {a_norm.mean():.6f}")
+print(f"    E: [{e_norm.min():.6f}, {e_norm.max():.6f}] | 均值: {e_norm.mean():.6f}")
+
+# 目标变量（原始空间归一化后）
+yield_raw = df['Yield'].values
+yield_norm = scalers['Yield_original'].transform(yield_raw.reshape(-1, 1)).flatten()
+print("\n    目标变量（原始空间归一化后）:")
+print(f"    范围: [{yield_norm.min():.6f}, {yield_norm.max():.6f}]")
+print(f"    均值: {yield_norm.mean():.6f}, 标准差: {yield_norm.std():.6f}")
+
+if 'Error' in df.columns:
+    error_vals = df['Error'].values
+    print(f"\n    误差列Error统计:")
+    print(f"    范围: [{error_vals.min():.2e}, {error_vals.max():.2e}] | 均值: {error_vals.mean():.2e}")
+
+# ========== 6. 准备训练数据（全训练集模式） ==========
+print("\n[步骤6/6] 准备训练数据（100%训练集模式）...")
+# 输入特征：仅归一化Z/A/E（3维，无delta_np）
+z_feat = df['Z'].values.reshape(-1, 1)
+a_feat = df['A'].values.reshape(-1, 1)
+e_feat = df['E'].values.reshape(-1, 1)
+X = np.concatenate([z_feat, a_feat, e_feat], axis=1)
+
+# 目标变量：归一化原始Yield
+y = scalers['Yield_original'].transform(df['Yield'].values.reshape(-1, 1))
+
+print(f"    ✓ 训练集样本数: {X.shape[0]} (100%全量)")
+print(f"    ✓ 输入特征维度: {X.shape[1]} (Z_norm, A_norm, E_norm)")
+print(f"    ✓ 目标变量: 归一化原始Yield")
+
+# 误差列处理
+if 'Error' in df.columns:
+    error_train = df['Error'].values.reshape(-1, 1)
+    print(f"    ✓ 加载误差列Error: {len(error_train)}个")
+    has_error = True
+else:
+    error_train = None
+    has_error = False
+    print(f"    ⚠️ 未找到Error列")
+
+# 转换为PyTorch张量
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print(f"    ✓ 计算设备: {device}")
+
+X_train_tensor = torch.tensor(X, dtype=torch.float32).to(device)
+y_train_tensor = torch.tensor(y, dtype=torch.float32).to(device)
+error_train_tensor = torch.tensor(error_train, dtype=torch.float32).to(device) if has_error else None
+
+# ========== 7. 保存预处理结果 ==========
+print("\n[保存结果] 保存预处理数据...")
+data_dict = {
+    'X_train': X,
+    'y_train': y,
+    'X_train_tensor': X_train_tensor,
+    'y_train_tensor': y_train_tensor,
+    'device': device,
+    'scalers': scalers,
+    'feature_names': ['Z_norm', 'A_norm', 'E_norm'],
+    'target_name': 'Yield_original',
+    'raw_data': {
+        'Z': df['Z_original'].values,
+        'A': df['A_original'].values,
+        'N': df['N'].values,
+        'E': df['E'].values,
+        'I': df['I'].values,
+        'Yield_original': df['Yield'].values,
+        'Error': df['Error'].values if has_error else None
+    },
+    'data_info': {
+        'train_size': X.shape[0],
+        'val_size': 0,
+        'test_size': 0,
+        'num_features': X.shape[1],
+        'device': str(device),
+        'data_source': 'GEF_theoretical',
+        'split_mode': 'full_train_no_validation',
+        'feature_type': 'ZAE_norm',
+        'loss_type': 'raw_space_MSE',
+        'physics_notes': '仅使用Z/A/E归一化特征，移除delta_np消除奇偶锯齿；原始空间MSE天然放大高产额误差；负值后置截断符合物理约束'
+    }
+}
+
+if has_error:
+    data_dict['error_train'] = error_train
+    data_dict['error_train_tensor'] = error_train_tensor
+    data_dict['has_error_column'] = True
+else:
+    data_dict['has_error_column'] = False
+
+# 输出文件名（干净命名，不带delta_np）
+output_file = "preprocessed_gef_data_ZAE_rawY.pkl"
+with open(output_file, 'wb') as f:
+    pickle.dump(data_dict, f)
+print(f"    ✓ 数据已保存: {output_file}")
+
+# ========== 8. 生成统计报告 ==========
+print("\n" + "="*60)
+print("数据加载完成！核心信息摘要:")
+print("="*60)
+print(f"1. 数据规模: {df.shape[0]}样本 | 3维输入特征 | 原始空间目标")
+print(f"2. 输入特征: Z_norm(质子数), A_norm(质量数), E_norm(激发能) — 无delta_np")
+print(f"3. 目标变量: 归一化原始Yield，预测后负值截断为0，符合物理规律")
+print(f"4. 训练策略: 100%全量训练，无验证/测试集，早停基于训练损失")
+print(f"5. 输出文件: {output_file}")
+print(f"6. 后续训练建议: 使用普通MSE损失，预测后用yield_original_scaler反归一化，负值截断得到最终Yield")
+
+# 保存详细报告
+report = f"""GEF数据加载信息（原始空间Yield版 - Z/A/E输入 - 全训练集模式）
+========================================
+生成时间: {pd.Timestamp.now()}
+数据文件: {CSV_FILE} | 样本数: {df.shape[0]}
+物理特征: Z/A/E(归一化)，已移除delta_np对关联修正（避免奇偶锯齿噪声）
+目标变量: 原始空间Yield（未做对数变换，适配原始空间MSE损失）
+
+核心统计:
+输入特征（归一化后，共3维）:
+  Z: 范围[{z_norm.min():.6f}, {z_norm.max():.6f}] | 均值{z_norm.mean():.6f}
+  A: 范围[{a_norm.min():.6f}, {a_norm.max():.6f}] | 均值{a_norm.mean():.6f}
+  E: 范围[{e_norm.min():.6f}, {e_norm.max():.6f}] | 均值{e_norm.mean():.6f}
+
+目标变量:
+  原始Yield范围: [{df['Yield'].min():.2e}, {df['Yield'].max():.2e}]
+  归一化原始Yield范围: [{yield_norm.min():.6f}, {yield_norm.max():.6f}] | 均值{yield_norm.mean():.6f}
+
+训练配置:
+  损失函数: 原始空间MSE（平方损失天然放大高产额误差，优先拟合核心物理规律）
+  设备: {device}
+  输出文件: {output_file}
+"""
+report_file = "gef_data_loading_info_ZAE_rawY.txt"
+with open(report_file, "w", encoding="utf-8") as f:
+    f.write(report)
+print(f"  ✓ 详细报告已保存: {report_file}")
+print("="*60)
+
+print("\n【重要提示】训练后预测结果反变换流程:")
+print("1. 模型输出 → 归一化原始Yield")
+print("2. 用yield_original_scaler反归一化 → 原始空间Yield")
+print("3. 负值截断: np.clip(y_pred, 0, None) → 符合物理规律的最终产额")
+print("="*60)
