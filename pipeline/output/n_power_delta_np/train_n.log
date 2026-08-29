@@ -1,0 +1,82 @@
+============================================================
+KAN 模型训练（配置驱动，支持续训/网格细化/LBFGS）
+============================================================
+[1] 加载预处理数据: F:\computer_science\machine_learning_fission_yield\pipeline\output\n_power_delta_np\data\preprocessed_n_power_delta_np.pkl
+    样本数: 18267, 特征维度: 4
+    特征: ['Z_norm', 'A_norm', 'E_norm', 'delta_np']
+[2] 构建 KAN 模型: width=[[4, 0], [20, 0], [20, 0], [1, 0]] (grid=20, k=4)
+    参数量: 17,440, 设备: cpu
+C:\Users\86138\AppData\Roaming\Python\Python312\site-packages\torch\optim\lr_scheduler.py:62: UserWarning: The verbose parameter is deprecated. Please use get_last_lr() to access the learning rate.
+  warnings.warn(
+[3] 优化器: AdamW, 调度器: CosineHoldAtMin, 损失: MSELoss
+
+[4] 开始训练（共 2000 轮，batch=512，早停 patience=250, min_delta=5e-06, monitor=train_loss）；续训关闭
+    Epoch    1/2000 | loss: 4.2976e-01 | lr: 5.00e-02 | grid: 20 | 早停计数: 0/250
+    Epoch   20/2000 | loss: 8.1419e-03 | lr: 4.97e-02 | grid: 20 | 早停计数: 5/250
+    Epoch   40/2000 | loss: 7.6380e-03 | lr: 4.88e-02 | grid: 20 | 早停计数: 16/250
+    Epoch   60/2000 | loss: 8.1470e-03 | lr: 4.73e-02 | grid: 20 | 早停计数: 14/250
+    Epoch   80/2000 | loss: 6.9699e-03 | lr: 4.52e-02 | grid: 20 | 早停计数: 34/250
+    Epoch  100/2000 | loss: 6.9005e-03 | lr: 4.27e-02 | grid: 20 | 早停计数: 3/250
+    Epoch  120/2000 | loss: 6.8377e-03 | lr: 3.97e-02 | grid: 20 | 早停计数: 5/250
+    Epoch  140/2000 | loss: 5.0398e-03 | lr: 3.64e-02 | grid: 20 | 早停计数: 10/250
+    Epoch  160/2000 | loss: 4.5906e-03 | lr: 3.27e-02 | grid: 20 | 早停计数: 19/250
+    Epoch  180/2000 | loss: 3.9875e-03 | lr: 2.89e-02 | grid: 20 | 早停计数: 0/250
+    Epoch  200/2000 | loss: 3.5043e-03 | lr: 2.50e-02 | grid: 20 | 早停计数: 2/250
+    Epoch  220/2000 | loss: 3.4372e-03 | lr: 2.11e-02 | grid: 20 | 早停计数: 6/250
+    Epoch  240/2000 | loss: 3.1367e-03 | lr: 1.73e-02 | grid: 20 | 早停计数: 8/250
+    Epoch  260/2000 | loss: 2.6452e-03 | lr: 1.37e-02 | grid: 20 | 早停计数: 8/250
+    Epoch  280/2000 | loss: 2.3086e-03 | lr: 1.03e-02 | grid: 20 | 早停计数: 2/250
+    Epoch  300/2000 | loss: 2.0506e-03 | lr: 7.33e-03 | grid: 20 | 早停计数: 2/250
+    Epoch  320/2000 | loss: 1.7406e-03 | lr: 4.78e-03 | grid: 20 | 早停计数: 0/250
+    Epoch  340/2000 | loss: 1.5503e-03 | lr: 2.73e-03 | grid: 20 | 早停计数: 1/250
+    Epoch  360/2000 | loss: 1.3748e-03 | lr: 1.23e-03 | grid: 20 | 早停计数: 0/250
+    Epoch  380/2000 | loss: 1.2794e-03 | lr: 3.18e-04 | grid: 20 | 早停计数: 0/250
+    Epoch  400/2000 | loss: 1.2399e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 0/250
+    Epoch  420/2000 | loss: 1.2415e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 20/250
+    Epoch  440/2000 | loss: 1.2400e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 40/250
+    Epoch  460/2000 | loss: 1.2363e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 60/250
+    Epoch  480/2000 | loss: 1.2388e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 80/250
+    Epoch  500/2000 | loss: 1.2372e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 100/250
+    Epoch  520/2000 | loss: 1.2382e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 120/250
+    Epoch  540/2000 | loss: 1.2396e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 140/250
+    Epoch  560/2000 | loss: 1.2373e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 2/250
+    Epoch  580/2000 | loss: 1.2364e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 22/250
+    Epoch  600/2000 | loss: 1.2370e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 42/250
+    Epoch  620/2000 | loss: 1.2335e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 62/250
+    Epoch  640/2000 | loss: 1.2381e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 82/250
+    Epoch  660/2000 | loss: 1.2346e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 102/250
+    Epoch  680/2000 | loss: 1.2327e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 122/250
+    Epoch  700/2000 | loss: 1.2354e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 142/250
+    Epoch  720/2000 | loss: 1.2320e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 162/250
+    Epoch  740/2000 | loss: 1.2314e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 182/250
+    Epoch  760/2000 | loss: 1.2351e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 202/250
+    Epoch  780/2000 | loss: 1.2350e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 1/250
+    Epoch  800/2000 | loss: 1.2337e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 21/250
+    Epoch  820/2000 | loss: 1.2315e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 41/250
+    Epoch  840/2000 | loss: 1.2280e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 61/250
+    Epoch  860/2000 | loss: 1.2317e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 81/250
+    Epoch  880/2000 | loss: 1.2318e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 101/250
+    Epoch  900/2000 | loss: 1.2301e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 121/250
+    Epoch  920/2000 | loss: 1.2302e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 141/250
+    Epoch  940/2000 | loss: 1.2299e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 161/250
+    Epoch  960/2000 | loss: 1.2323e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 181/250
+    Epoch  980/2000 | loss: 1.2284e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 201/250
+    Epoch 1000/2000 | loss: 1.2310e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 221/250
+    Epoch 1020/2000 | loss: 1.2276e-03 | lr: 1.00e-05 | grid: 20 | 早停计数: 241/250
+
+  ⏹ 早停触发：连续 250 轮损失未改善（最佳 @ epoch 779）
+
+    训练完成：最佳损失 1.2287e-03（adam epoch/step 779），用时 10729.2s
+
+============================================================
+训练完成！摘要信息
+============================================================
+变体名    : n_power_delta_np
+最终 grid : 20
+最终 loss  : 1.2282e-03
+最佳 loss  : 1.2287e-03 (adam epoch/step 779)
+best 模型  : F:\computer_science\machine_learning_fission_yield\pipeline\output\n_power_delta_np\models\kan_best_n_power_delta_np.pth
+latest 模型: F:\computer_science\machine_learning_fission_yield\pipeline\output\n_power_delta_np\models\kan_latest_n_power_delta_np.pth
+resume 点 : F:\computer_science\machine_learning_fission_yield\pipeline\output\n_power_delta_np\models\kan_resume_n_power_delta_np.pth（可设 train.resume=true 续训）
+final 模型 : F:\computer_science\machine_learning_fission_yield\pipeline\output\n_power_delta_np\models\kan_final_n_power_delta_np.pth
+============================================================

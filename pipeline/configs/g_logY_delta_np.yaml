@@ -1,0 +1,6 @@
+inherit: g_rawY_delta_np.yaml
+experiment:
+  name: g_logY_delta_np
+  description: "对数空间MSE，delta_np，标准结构"
+target:
+  space: log

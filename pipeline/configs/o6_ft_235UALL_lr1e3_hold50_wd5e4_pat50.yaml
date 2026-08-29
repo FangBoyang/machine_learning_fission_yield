@@ -1,0 +1,15 @@
+# 变体 o6：o5 的延续 —— T_max 30->50，eta_min 1e-4->3e-5
+# 基于 o5（full finetune + lr=1e-3 + CosineHoldAtMin + wd=5e-4 + patience=50, epochs=2000）。
+# 改动：
+#   1) T_max: 30 -> 50 —— 余弦衰减窗口拉长，o5 的 best 出现在 epoch 51（停火区），
+#      把停火时机推迟到 50 轮，让衰减期内有更充分的搜索。
+#   2) eta_min: 1e-4 -> 3e-5 —— lr 地板下调（介于 1e-4 与 1e-5 之间），
+#      停火区学习信号减弱但仍非静止，与 T_max=50 组合探索不同的停火轨迹。
+inherit: o5_ft_235UALL_lr1e3_hold30_wd5e4_pat50.yaml
+experiment:
+  name: o6_ft_235UALL_lr1e3_hold50_wd5e4_pat50
+  description: "基于o5：CosineHoldAtMin T_max 30->50，eta_min 1e-4->3e-5，其余(lr=1e-3, wd=5e-4, patience=50)同o5"
+train:
+  scheduler:
+    T_max: 50
+    eta_min: 3e-5

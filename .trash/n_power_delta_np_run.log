@@ -1,0 +1,40 @@
+===== [n] GEF warmup (j-based, fixed delta_np) 01-04 START Fri Aug 21 09:50:45     2026 =====
+C:\Users\86138\.conda\envs\fpy_kan\Lib\site-packages\sklearn\base.py:463: InconsistentVersionWarning: Trying to unpickle estimator MinMaxScaler from version 1.6.1 when using version 1.8.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+C:\Users\86138\.conda\envs\fpy_kan\Lib\site-packages\sklearn\base.py:463: InconsistentVersionWarning: Trying to unpickle estimator MinMaxScaler from version 1.6.1 when using version 1.8.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+============================================================
+数据预处理（配置驱动，通用数据源）
+============================================================
+[1] 读取 GEF 数据: F:\computer_science\machine_learning_fission_yield\data/GEF.csv
+    样本数: 18267, 列名: ['Z_norm', 'A_norm', 'E_norm', 'Yield', 'Error']
+
+[2] 从 data/ 加载 scalers ...
+    已从 data/ 载入 scalers: ['standard_Z', 'standard_A', 'delta_np', 'Yield_power']
+
+[3] 计算 delta_np 特征 ...
+    delta_np 范围: [0.083333, 1.918919]
+
+[4] 构建特征 X 与目标 y ...
+    特征顺序: ['Z_norm', 'A_norm', 'E_norm', 'delta_np'], 维度: 4
+    目标空间: raw, 幂次 p: 0.25, scaler key: Yield_power
+    归一化目标范围: [-1.116948, 2.703937]
+
+[5] 划分训练/验证集 ...
+    full_train: 训练集 18267（无验证集）
+
+[6] 保存预处理数据 ...
+    已保存: F:\computer_science\machine_learning_fission_yield\pipeline\output\n_power_delta_np\data\preprocessed_n_power_delta_np.pkl
+
+============================================================
+预处理完成！摘要信息
+============================================================
+变体名    : n_power_delta_np
+数据源    : gef (data/ scalers)
+样本数    : 18267 (train=18267, val=0)
+特征维度  : 4 (['Z_norm', 'A_norm', 'E_norm', 'delta_np'])
+目标空间  : raw (p=0.25, key=Yield_power)
+输出文件  : F:\computer_science\machine_learning_fission_yield\pipeline\output\n_power_delta_np\data\preprocessed_n_power_delta_np.pkl
+============================================================

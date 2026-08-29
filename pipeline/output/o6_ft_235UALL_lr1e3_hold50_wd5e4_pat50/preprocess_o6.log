@@ -1,0 +1,36 @@
+============================================================
+数据预处理（配置驱动，通用数据源）
+============================================================
+[1] 读取通用 CSV 数据 (source=csv): f:\computer_science\machine_learning_fission_yield\data/235UALL.csv
+    样本数: 4127, 列名: ['Z_norm', 'A_norm', 'E_norm', 'Yield', 'Error']
+
+[2] 复用预训练 scalers (reuse_scalers_from=n_power_delta_np) ...
+    已载入预训练 scalers: ['standard_Z', 'standard_A', 'delta_np', 'Yield_power', 'standard_E']
+
+[3] 计算 delta_np 特征 ...
+    delta_np 范围: [0.083333, 1.918919]
+
+[4] 构建特征 X 与目标 y ...
+    特征顺序: ['Z_norm', 'A_norm', 'E_norm', 'delta_np'], 维度: 4
+    目标空间: raw, 幂次 p: 0.25, scaler key: Yield_power
+    归一化目标范围: [-1.116948, 2.770730]
+
+[5] 划分训练/验证集 ...
+    held_out: train=3508, val=619 (val_from_first_n=3096, ratio=0.2, seed=42)
+C:\Users\86138\.conda\envs\fpy_kan\Lib\site-packages\sklearn\base.py:463: InconsistentVersionWarning: Trying to unpickle estimator MinMaxScaler from version 1.6.1 when using version 1.8.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+
+[6] 保存预处理数据 ...
+    已保存: f:\computer_science\machine_learning_fission_yield\pipeline\output\o6_ft_235UALL_lr1e3_hold50_wd5e4_pat50\data\preprocessed_o6_ft_235UALL_lr1e3_hold50_wd5e4_pat50.pkl
+
+============================================================
+预处理完成！摘要信息
+============================================================
+变体名    : o6_ft_235UALL_lr1e3_hold50_wd5e4_pat50
+数据源    : csv (复用 n_power_delta_np 的 scalers)
+样本数    : 4127 (train=3508, val=619)
+特征维度  : 4 (['Z_norm', 'A_norm', 'E_norm', 'delta_np'])
+目标空间  : raw (p=0.25, key=Yield_power)
+输出文件  : f:\computer_science\machine_learning_fission_yield\pipeline\output\o6_ft_235UALL_lr1e3_hold50_wd5e4_pat50\data\preprocessed_o6_ft_235UALL_lr1e3_hold50_wd5e4_pat50.pkl
+============================================================

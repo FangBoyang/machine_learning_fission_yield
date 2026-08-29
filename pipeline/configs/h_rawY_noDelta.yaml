@@ -1,0 +1,7 @@
+inherit: g_rawY_delta_np.yaml
+experiment:
+  name: h_rawY_noDelta
+  description: "原始空间MSE，无delta_np，标准结构"
+data:
+  features: [Z_norm, A_norm, E_norm]
+  use_delta_np: false

@@ -1,0 +1,40 @@
+============================================================
+KAN 模型训练（配置驱动，支持续训/网格细化/LBFGS）
+============================================================
+[1] 加载预处理数据: f:\computer_science\machine_learning_fission_yield\pipeline\output\o5_ft_235UALL_lr1e3_hold30_wd5e4_pat50\data\preprocessed_o5_ft_235UALL_lr1e3_hold30_wd5e4_pat50.pkl
+    样本数: 3508, 特征维度: 4
+    特征: ['Z_norm', 'A_norm', 'E_norm', 'delta_np']
+[2] 构建 KAN 模型: width=[[4, 0], [20, 0], [20, 0], [1, 0]] (grid=20, k=4)
+    参数量: 17,440, 设备: cpu
+
+[2b] 从预训练权重初始化 (init_from=n_power_delta_np) ...
+    已载入预训练模型: f:\computer_science\machine_learning_fission_yield\pipeline\output\n_power_delta_np\models\kan_best_n_power_delta_np.pth (grid=20, 参数量 17,440)
+C:\Users\86138\AppData\Roaming\Python\Python312\site-packages\torch\optim\lr_scheduler.py:62: UserWarning: The verbose parameter is deprecated. Please use get_last_lr() to access the learning rate.
+  warnings.warn(
+[3] 优化器: AdamW, 调度器: CosineHoldAtMin, 损失: MSELoss
+    验证集: 619 样本（held-out，用于 val_loss 监控）
+
+[4] 开始训练（共 2000 轮，batch=512，早停 patience=50, min_delta=5e-06, monitor=val_loss）；续训关闭
+    Epoch    1/2000 | loss: 4.3238e-02 | val_loss: 3.0343e-02 | lr: 9.98e-04 | grid: 20 | 早停计数: 0/50
+    Epoch   20/2000 | loss: 1.6115e-02 | val_loss: 1.8064e-02 | lr: 3.25e-04 | grid: 20 | 早停计数: 0/50
+    Epoch   40/2000 | loss: 1.4558e-02 | val_loss: 1.7824e-02 | lr: 1.00e-04 | grid: 20 | 早停计数: 1/50
+    Epoch   60/2000 | loss: 1.3685e-02 | val_loss: 1.7810e-02 | lr: 1.00e-04 | grid: 20 | 早停计数: 9/50
+    Epoch   80/2000 | loss: 1.2902e-02 | val_loss: 1.7882e-02 | lr: 1.00e-04 | grid: 20 | 早停计数: 29/50
+    Epoch  100/2000 | loss: 1.2153e-02 | val_loss: 1.8002e-02 | lr: 1.00e-04 | grid: 20 | 早停计数: 49/50
+
+  ⏹ 早停触发：连续 50 轮损失未改善（最佳 @ epoch 51）
+
+    训练完成：最佳损失 1.7784e-02（adam epoch/step 51），用时 187.1s
+
+============================================================
+训练完成！摘要信息
+============================================================
+变体名    : o5_ft_235UALL_lr1e3_hold30_wd5e4_pat50
+最终 grid : 20
+最终 loss  : 1.2173e-02
+最佳 loss  : 1.7784e-02 (adam epoch/step 51)
+best 模型  : f:\computer_science\machine_learning_fission_yield\pipeline\output\o5_ft_235UALL_lr1e3_hold30_wd5e4_pat50\models\kan_best_o5_ft_235UALL_lr1e3_hold30_wd5e4_pat50.pth
+latest 模型: f:\computer_science\machine_learning_fission_yield\pipeline\output\o5_ft_235UALL_lr1e3_hold30_wd5e4_pat50\models\kan_latest_o5_ft_235UALL_lr1e3_hold30_wd5e4_pat50.pth
+resume 点 : f:\computer_science\machine_learning_fission_yield\pipeline\output\o5_ft_235UALL_lr1e3_hold30_wd5e4_pat50\models\kan_resume_o5_ft_235UALL_lr1e3_hold30_wd5e4_pat50.pth（可设 train.resume=true 续训）
+final 模型 : f:\computer_science\machine_learning_fission_yield\pipeline\output\o5_ft_235UALL_lr1e3_hold30_wd5e4_pat50\models\kan_final_o5_ft_235UALL_lr1e3_hold30_wd5e4_pat50.pth
+============================================================

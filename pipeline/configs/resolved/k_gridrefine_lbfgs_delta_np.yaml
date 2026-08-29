@@ -1,0 +1,94 @@
+# ============================================================================
+# RESOLVED CONFIG — 自动生成，请勿手改
+# 改源 config 后请重跑 pipeline/dump_resolved.py 重新生成本文件。
+# 源文件 : configs/k_gridrefine_lbfgs_delta_np.yaml
+# 继承链 : base -> g_rawY_delta_np -> j_power_delta_np -> j_cosinehold_delta_np -> k_gridrefine_lbfgs_delta_np
+# 说明   : 以下为 common.load_config 展开后的全部生效参数
+#          （inherit 已合并、已移除；可直接作为独立配置喂回 load_config）
+# ============================================================================
+experiment:
+  name: k_gridrefine_lbfgs_delta_np
+  description: KAN粗到细 5->10->20(封顶20,避免18k样本过拟合) + 早LBFGS收尾@850，delta_np
+data:
+  csv_path: data/GEF.csv
+  header: false
+  columns:
+  - Z_norm
+  - A_norm
+  - E_norm
+  - Yield
+  - Error
+  target_col: 3
+  features:
+  - Z_norm
+  - A_norm
+  - E_norm
+  - delta_np
+  use_delta_np: true
+  delta_np_mode: discrete
+  split: full_train
+target:
+  space: raw
+  clip_min: 0.0
+  scaler_type: standard
+  power: 0.25
+model:
+  hidden_layers:
+  - 20
+  - 20
+  grid: 5
+  k: 4
+  seed: 42
+train:
+  epochs: 2000
+  batch_size: 512
+  optimizer:
+    type: AdamW
+    lr: 0.05
+    weight_decay: 1e-4
+  scheduler:
+    type: CosineHoldAtMin
+    T_0: 400
+    T_mult: 1
+    eta_min: 1e-5
+    step_size: 500
+    gamma: 0.5
+    patience: 300
+    factor: 0.5
+    T_max: 400
+  early_stopping:
+    patience: 400
+    min_delta: 5e-6
+    monitor: train_loss
+  criterion:
+    type: MSE
+    low_yield_mode: none
+    high_yield_boost: 1.0
+    low_yield_quantile: 0.3
+    huber_delta: 0.1
+  gradient_clip: 1.0
+  resume: false
+  checkpoint_every: 0
+  stop_on_best_below: null
+  grid_schedule:
+  - epoch: 200
+    grid: 10
+  - epoch: 500
+    grid: 20
+  lbfgs:
+    enabled: true
+    start_epoch: 850
+    steps: 100
+    lr: 1.0
+    max_iter: 15
+    history_size: 100
+postprocess:
+  mass_conservation: false
+energy_dep:
+  enabled: true
+  reference_csv: data/235UALL.csv
+  E_range:
+  - 0
+  - 14
+  E_step: 1
+  batch_size: 256

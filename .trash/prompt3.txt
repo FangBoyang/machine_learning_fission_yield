@@ -1,0 +1,53 @@
+你是资深 ML 工程化专家。帮我把一个 KAN 裂变产额项目重构成干净的配置驱动架构。
+
+⚠️ 绝对约束：
+1. 只能创建新文件，不删除不覆盖任何已有文件。
+2. 新文件输出到 pipeline/src/ 下。
+3. GEF.csv 全部是训练集，不划分验证集/测试集。
+4. 所有路径用 os.path.join，兼容 Windows。打印信息用中文。
+
+═════════════════════════════════════════
+任务：写 pipeline/src/01_preprocess.py
+═════════════════════════════════════════
+
+功能：读取 data/GEF.csv → 计算 delta_np（如启用）→ 选特征 → 归一化 → 保存 pkl
+
+接收命令行参数：--config （YAML 配置文件的路径）
+
+执行流程：
+
+1. 解析 --config 参数
+2. 调用 common.load_config() 加载配置
+3. 调用 common.get_variant(cfg) 获取变体名
+4. 读取 GEF.csv（无表头，逗号分隔，5列：Z_norm, A_norm, E_norm, Yield, Error）
+5. 如果 cfg['data']['use_delta_np'] 为 true：
+   - 加载 data/standard_scalerZ.pkl 和 data/standard_scalerA.pkl
+   - 反归一化得到 Z_original, A_original
+   - 计算 N = A_original - Z_original
+   - 计算 I = (N - Z_original) / A_original
+   - 调用 common.compute_delta_np(df, cfg['data']['delta_np_mode']) 计算 delta_np
+   - 用 data/delta_np_scaler.pkl（StandardScaler）对 delta_np 归一化
+6. 构建输入特征 X：根据 cfg['data']['features'] 选列，调用 common.build_features()
+7. 目标变量 y：
+   - 加载 data/yield_scaler.pkl（原始空间）或 data/log_yield_scaler.pkl（对数空间）
+   - 对 Yield 列归一化
+8. 保存 pkl 到 common.output_path(variant, 'data', 'preprocessed_{variant}.pkl')
+   内容包含：
+   - X_train: numpy array
+   - y_train: numpy array
+   - scalers: dict（包含所有用到的 scaler）
+   - feature_names: list
+   - raw_data: dict（Z_original, A_original, N, E_original, I, delta_np, Yield_original, Error）
+   - data_info: dict，包含完整 cfg 快照（yaml.dump(cfg) 存入）
+   - device: 'cuda' if torch.cuda.is_available() else 'cpu'
+
+9. 打印摘要信息（中文）：
+   - 变体名
+   - 样本数
+   - 特征维度
+   - 目标空间（raw/log）
+   - 输出文件路径
+
+依赖：from common import load_config, get_variant, output_path, build_features, compute_delta_np
+
+确保文件顶部有 # -*- coding: utf-8 -*-

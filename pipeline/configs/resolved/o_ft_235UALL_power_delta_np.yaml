@@ -1,0 +1,95 @@
+# ============================================================================
+# RESOLVED CONFIG — 自动生成，请勿手改
+# 改源 config 后请重跑 pipeline/dump_resolved.py 重新生成本文件。
+# 源文件 : configs/o_ft_235UALL_power_delta_np.yaml
+# 继承链 : base -> g_rawY_delta_np -> j_power_delta_np -> o_ft_235UALL_power_delta_np
+# 说明   : 以下为 common.load_config 展开后的全部生效参数
+#          （inherit 已合并、已移除；可直接作为独立配置喂回 load_config）
+# ============================================================================
+experiment:
+  name: o_ft_235UALL_power_delta_np
+  description: 基于n_power_delta_np(GEF warmup,修正delta_np)的235UALL finetune：复用scalers+权重，val仅来自前3096行，val_loss早停
+data:
+  csv_path: data/235UALL.csv
+  header: true
+  columns:
+  - Z
+  - A
+  - E
+  - Yield
+  - Error
+  target_col: 3
+  features:
+  - Z_norm
+  - A_norm
+  - E_norm
+  - delta_np
+  use_delta_np: true
+  delta_np_mode: discrete
+  split:
+    mode: held_out
+    val_from_first_n: 3096
+    val_ratio: 0.2
+    seed: 42
+  source: csv
+target:
+  space: raw
+  clip_min: 0.0
+  scaler_type: standard
+  power: 0.25
+model:
+  hidden_layers:
+  - 20
+  - 20
+  grid: 20
+  k: 4
+  seed: 42
+train:
+  epochs: 2000
+  batch_size: 512
+  optimizer:
+    type: AdamW
+    lr: 0.001
+    weight_decay: 1e-4
+  scheduler:
+    type: CosineAnnealingWarmRestarts
+    T_0: 400
+    T_mult: 1
+    eta_min: 1e-5
+    step_size: 500
+    gamma: 0.5
+    patience: 300
+    factor: 0.5
+  early_stopping:
+    patience: 300
+    min_delta: 5e-6
+    monitor: val_loss
+  criterion:
+    type: MSE
+    low_yield_mode: none
+    high_yield_boost: 1.0
+    low_yield_quantile: 0.3
+    huber_delta: 0.1
+  gradient_clip: 1.0
+  resume: false
+  checkpoint_every: 50
+  stop_on_best_below: null
+postprocess:
+  mass_conservation: false
+energy_dep:
+  enabled: true
+  reference_csv: data/235UALL.csv
+  E_range:
+  - 0
+  - 14
+  E_step: 1
+  batch_size: 256
+finetune:
+  init_from: n_power_delta_np
+  reuse_scalers_from: n_power_delta_np
+  freeze: []
+eval:
+  eval_set: val
+  important_range:
+  - 3096
+  - 4127

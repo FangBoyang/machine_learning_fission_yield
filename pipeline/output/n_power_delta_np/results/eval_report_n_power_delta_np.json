@@ -1,0 +1,51 @@
+{
+  "model_info": {
+    "name": "n_power_delta_np",
+    "model_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\n_power_delta_np\\models\\kan_best_n_power_delta_np.pth",
+    "architecture": [
+      20,
+      20
+    ],
+    "parameters": 17440,
+    "features": [
+      "Z_norm",
+      "A_norm",
+      "E_norm",
+      "delta_np"
+    ],
+    "target_space": "raw"
+  },
+  "eval_set": "train (in-sample)",
+  "metrics": {
+    "normalized_space": {
+      "r2": 0.9987685084342957,
+      "mse": 0.0012315066996961832
+    },
+    "original_space": {
+      "r2": 0.990217387676239,
+      "rmse": 0.013263803876083207,
+      "mae": 0.004614183679223061
+    },
+    "high_yield_region": {
+      "threshold": 0.04465356469154358,
+      "sample_count": 4567,
+      "r2": 0.9750716686248779,
+      "rmse": 0.02647117357814765
+    }
+  },
+  "important_region": null,
+  "zero_shot_pretrained": null,
+  "data_stats": {
+    "eval_samples": 18267,
+    "true_yield_range": [
+      0.0,
+      0.9537534117698669
+    ],
+    "pred_yield_range": [
+      0.0,
+      0.8829951286315918
+    ]
+  },
+  "visualization_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\n_power_delta_np\\results\\eval_n_power_delta_np_train_in-sample.png",
+  "timestamp": "2026-08-21 14:06:45"
+}

@@ -1,0 +1,4 @@
+inherit: g_rawY_delta_np_smaller.yaml
+experiment:
+  name: i_rawY_delta_np_smaller
+  description: "当前主力变体，紧凑结构，原始空间"

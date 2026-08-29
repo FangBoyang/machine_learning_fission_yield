@@ -1,0 +1,16 @@
+inherit: base.yaml
+experiment:
+  name: g_rawY_delta_np_smaller
+  description: "原始空间MSE，delta_np，紧凑结构（grid=5,k=3,width=12-12）"
+model:
+  hidden_layers: [12, 12]
+  grid: 5
+  k: 3
+train:
+  optimizer:
+    lr: 0.01
+  batch_size: 256
+  scheduler:
+    T_0: 300
+  early_stopping:
+    patience: 300

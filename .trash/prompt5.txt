@@ -1,0 +1,45 @@
+你是资深 ML 工程化专家。帮我把一个 KAN 裂变产额项目重构成干净的配置驱动架构。
+
+⚠️ 绝对约束：
+1. 只能创建新文件，不删除不覆盖任何已有文件。
+2. 新文件输出到 pipeline/src/ 下。
+3. GEF.csv 全部是训练集，不划分验证集/测试集。
+4. 所有路径用 os.path.join，兼容 Windows。打印信息用中文。
+
+═════════════════════════════════════════
+任务：写 pipeline/src/03_evaluate.py
+═════════════════════════════════════════
+
+功能：加载模型和预处理数据 → 预测 → 反归一化 → 计算指标 → 画图 → 保存报告
+
+接收命令行参数：--config （YAML 配置文件的路径）
+
+⚠️ 关键：从 checkpoint 的 'config' 字段读取完整配置，不依赖外部 YAML 推断模型结构。
+
+执行流程：
+
+1. 解析 --config，加载配置，获取 variant
+2. 加载 pipeline/output/{variant}/data/preprocessed_{variant}.pkl
+3. 找到模型文件：优先 kan_best_{variant}.pth，其次 kan_final_{variant}.pth
+4. 从 checkpoint 中读取 'config' 字段作为模型配置（这是关键！不要从外部 YAML 重新读取）
+5. 用 checkpoint['config'] 中的 model 字段重建 KAN 模型结构
+6. 加载模型权重
+7. 预测：model(X_tensor) → 反归一化到原始空间
+8. 负值裁剪：np.clip(y_pred, cfg['target']['clip_min'], None)
+9. 计算指标：
+   - 归一化空间：R², MSE
+   - 原始空间：R², RMSE, MAE
+   - 高产额区（top 25%）：R², RMSE
+10. 画图（英文标注，兼容 Windows 字体）：
+    - 图1：预测 vs 真实（对数坐标）
+    - 图2：残差图
+    - 图3：相对误差分布直方图
+    - 图4：各特征维度 MAE 分布
+11. 保存图片到 output_path(variant, 'results', 'eval_{variant}.png')
+12. 保存 JSON 报告到 output_path(variant, 'results', 'eval_report_{variant}.json')
+    包含：模型路径、架构、指标、数据统计量、timestamp
+13. 打印评估摘要（中文）
+
+依赖：from common import load_config, get_variant, output_path
+
+确保文件顶部有 # -*- coding: utf-8 -*-

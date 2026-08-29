@@ -1,0 +1,48 @@
+# 变体 k（v2，按“网格不宜过大 + 更早 LBFGS”修订）：
+# 基于 j_cosinehold（目标幂次 p=0.25 + CosineHoldAtMin，delta_np），叠加
+#   1) 渐进网格细化：由粗到细 5 -> 10 -> 20
+#   2) Adam 粗调 -> LBFGS 抛光收尾（提前到 epoch 850）
+#
+# ===== 为什么把网格封顶在 20、且从 5 开始（而非上一版的 20->40->80）=====
+# GEF 训练集仅 18,267 行，且这些 all_train 变体在 100% 数据上训练、早停只监控
+# train_loss（无验证切分）。train_loss 看不到过拟合：网格越密它机械越低，但真实泛化
+# 要看 235UALL 迁移（尚未做）。实测参数量随 grid 近似线性增长：
+#   grid=20 -> ~1.7e4 参数(≈0.95×N)；grid=40 -> ~2.3e4(>N)；grid=80 -> ~4.3e4(2.4×N)。
+# 推到 40/80 在“只有 in-sample 指标”前提下基本是在拟合 GEF 噪声、损害迁移，且算力 2~4 倍。
+# 故把最大网格锁在 20（与最佳基线 j 同分辨率，便于公平比较），仅以“由粗到细”方式抵达：
+# 起点 grid=5 既能 cheap 地先抓住大尺度结构，又符合 KAN 论文 5->10->20 的标准协议，
+# 往往比直接 grid=20 落到更低的 basin（阶梯式 loss 下跳）。
+#
+# ===== 细化时机（依据 _refine_and_rebuild 会重建调度器、lr 从头衰减）=====
+# 每次 refine 后 CosineHoldAtMin(T_max=400) 重新从初始 lr 衰减 400 轮。据此把各阶段
+# 对齐到足够收敛即可，不必等满 400 轮：
+#   grid=5  : epoch   1 ~  200  (小网格参数少，远快于 400 轮即收敛)
+#   refine->10 @ 200  : epoch 200 ~  500  (300 轮内收敛；j_cosinehold 显示 grid=20 约 400 轮 plateau)
+#   refine->20 @ 500  : epoch 500 ~  850  (350 轮后已到 plateau，对齐 j 在 grid=20 上 ~400 轮触底规律)
+#   LBFGS 收尾 @ 850  : 比上一版(1250)更早；grid=20 已充分收敛，LBFGS 做最终抛光
+# 早停 patience=400 继承自 j_cosinehold：每次 refine 清零计数器，相邻细化间隔=300<400，
+# 正常收敛不会误触发早停；即便某阶段偏慢也只提前结束 Adam 循环，随后仍进入 LBFGS（见 02_train 第 440 行）。
+#
+# ===== ⚠️ LBFGS 算力提示（运行前必读）=====
+# _run_lbfgs 每个 step 对全量数据做 max_iter 次线搜索 = 约 max_iter 个 Adam epoch 的算力。
+# 按 j 的 ~21.6s/epoch：grid=20 上 1 个 LBFGS step ≈ 20×21.6s ≈ 7 分钟。故此处把
+# steps 从 300 降到 100、max_iter 降到 15（≈ 100×5min ≈ 8h，仍偏长）。LBFGS 通常几十步即收敛，
+# 若嫌慢可继续下调 steps（如 50）或 max_iter（如 10）；想更省也可删掉 grid=10 那一级只做 5->20。
+inherit: j_cosinehold_delta_np.yaml
+experiment:
+  name: k_gridrefine_lbfgs_delta_np
+  description: "KAN粗到细 5->10->20(封顶20,避免18k样本过拟合) + 早LBFGS收尾@850，delta_np"
+model:
+  grid: 5            # 起点改小：从 grid=5 开始粗到细（覆盖继承链的 grid=20）
+train:
+  # 继承 epochs=2000 / patience=400 / scheduler=CosineHoldAtMin(T_max=400,eta_min=1e-5)
+  grid_schedule:
+    - {epoch: 200, grid: 10}
+    - {epoch: 500, grid: 20}
+  lbfgs:
+    enabled: true
+    start_epoch: 850
+    steps: 100
+    lr: 1.0
+    max_iter: 15
+    history_size: 100

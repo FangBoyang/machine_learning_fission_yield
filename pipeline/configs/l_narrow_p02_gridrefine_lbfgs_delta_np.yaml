@@ -1,0 +1,27 @@
+# 变体 l：按用户思路的“激进低产额 + 强正则化”配方，基于 k（渐进网格细化 + Adam->LBFGS + CosineHoldAtMin）。
+# 相对 k 的改动：
+#   - 宽度 20-20 -> 10-10（更窄，强正则化，抗过拟合，利于后续 235UALL 迁移）
+#   - 起始网格 grid=5、k=3（base 默认值，repo “smaller” 思路；配合细化 5->10->20）
+#   - 目标幂次 p=0.25 -> 0.2（更激进：低产额/谷值在 t=y^p 空间被抬得更高，高产额权重进一步压到≈0）
+#   - batch_size 512 -> 2048（大 batch：每 epoch 仅 ~9 步，CPU 上大幅降低步数开销）
+# 说明：此配方明确偏向“低产额保真 / 整体拟合 / 泛化优先”，与“更关注高产额”目标相反
+#       （p=0.2 时高产额区训练权重≈0%）。若目标是高产额应改用 p≈1.3。
+inherit: k_gridrefine_lbfgs_delta_np.yaml
+experiment:
+  name: l_narrow_p02_gridrefine_lbfgs_delta_np
+  description: "窄网络[10,10]+小网格grid=5/k=3 + 激进低产额幂次p=0.2 + 渐进网格细化5->10->20 + Adam->LBFGS + CosineHoldAtMin，delta_np（强正则化/低产额优先，batch=2048）"
+model:
+  hidden_layers: [10, 10]
+  grid: 5
+  k: 3
+target:
+  power: 0.2
+train:
+  batch_size: 2048
+  checkpoint_every: 50      # 每 50 轮落 latest+resume，便于随时硬中断后续训（Windows SIGINT 不可靠）
+  # 渐进网格细化：5->10->15（最终网格改为 15，比 k 的 20 更轻，强正则化）
+  grid_schedule:
+    - {epoch: 200, grid: 10}
+    - {epoch: 500, grid: 15}
+  # 以下继承自 k：lbfgs(steps=100,max_iter=15,...)、
+  # scheduler=CosineHoldAtMin(T_max=400,eta_min=1e-5)、epochs=2000、patience=400

@@ -1,0 +1,12 @@
+# 变体 o4：o 的单变量对照 —— 只改 weight_decay
+# 基于 o（n_power_delta_np 权重 init → 235UALL finetune，full finetune, lr=1e-3, WarmRestarts T_0=400,
+# patience=300, epochs=2000），唯一改动：wd 1e-4 -> 1e-3。
+# 目的：o/o2/o3 已把 lr 与 freeze 空间探完（o=0.9784 最优），验证强 L2 正则能否压制
+# o 在 epoch 21 后的 val 单调上升（过拟合），看是否优于 o 的 1.752e-02。
+inherit: o_ft_235UALL_power_delta_np.yaml
+experiment:
+  name: o4_ft_235UALL_wd1e3
+  description: "基于o单变量对照：仅 weight_decay 1e-4->1e-3，其余(lr=1e-3, full finetune, WarmRestarts T_0=400, patience=300)全同o"
+train:
+  optimizer:
+    weight_decay: 0.001

@@ -1,0 +1,33 @@
+你是资深 ML 工程化专家。帮我把一个 KAN 裂变产额项目重构成干净的配置驱动架构。
+
+⚠️ 绝对约束：
+1. 不删除不覆盖任何已有文件。
+2. 所有路径用 os.path.join，兼容 Windows。
+
+═════════════════════════════════════════
+任务：验证 pipeline 能否正常运行
+═════════════════════════════════════════
+
+请在终端中依次执行以下命令，并报告每一步的输出是否正常：
+
+cd F:\computer_science\machine_learning_fission_yield\pipeline
+
+python src/01_preprocess.py --config configs/i_rawY_delta_np_smaller.yaml
+python src/02_train.py --config configs/i_rawY_delta_np_smaller.yaml
+python src/03_evaluate.py --config configs/i_rawY_delta_np_smaller.yaml
+python src/04_energy_dep.py --config configs/i_rawY_delta_np_smaller.yaml
+
+验证标准：
+1. pipeline/output/i_rawY_delta_np_smaller/data/preprocessed_i_rawY_delta_np_smaller.pkl 存在
+2. pipeline/output/i_rawY_delta_np_smaller/models/kan_best_i_rawY_delta_np_smaller.pth 存在
+3. pipeline/output/i_rawY_delta_np_smaller/models/kan_final_i_rawY_delta_np_smaller.pth 存在
+4. pipeline/output/i_rawY_delta_np_smaller/results/eval_i_rawY_delta_np_smaller.png 存在
+5. pipeline/output/i_rawY_delta_np_smaller/results/eval_report_i_rawY_delta_np_smaller.json 存在
+6. pipeline/output/i_rawY_delta_np_smaller/results/yield_vs_A_i_rawY_delta_np_smaller.png 存在
+7. pipeline/output/i_rawY_delta_np_smaller/results/yield_vs_Z_i_rawY_delta_np_smaller.png 存在
+8. 所有文件名都包含 variant 名
+9. 不依赖任何根目录的旧 .py 文件
+
+如果任何一步报错，请分析错误原因并给出修复建议。如果全部通过，打印"✅ Pipeline 验证通过"。
+
+注意：训练可能需要几分钟，请耐心等待。如果 CUDA 不可用会自动用 CPU。

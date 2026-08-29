@@ -1,0 +1,48 @@
+{
+  "model_info": {
+    "name": "j_cosinesmooth_delta_np",
+    "model_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\j_cosinesmooth_delta_np\\models\\kan_best_j_cosinesmooth_delta_np.pth",
+    "architecture": [
+      20,
+      20
+    ],
+    "parameters": 17440,
+    "features": [
+      "Z_norm",
+      "A_norm",
+      "E_norm",
+      "delta_np"
+    ],
+    "target_space": "raw"
+  },
+  "metrics": {
+    "normalized_space": {
+      "r2": 0.9987611770629883,
+      "mse": 0.0012388053582981229
+    },
+    "original_space": {
+      "r2": 0.9902222156524658,
+      "rmse": 0.013260520353687412,
+      "mae": 0.004609195981174707
+    },
+    "high_yield_region": {
+      "threshold": 0.04465356469154358,
+      "sample_count": 4567,
+      "r2": 0.9750868082046509,
+      "rmse": 0.02646310565667416
+    }
+  },
+  "data_stats": {
+    "total_samples": 18267,
+    "true_yield_range": [
+      0.0,
+      0.9537534117698669
+    ],
+    "pred_yield_range": [
+      0.0,
+      0.8934469223022461
+    ]
+  },
+  "visualization_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\j_cosinesmooth_delta_np\\results\\eval_j_cosinesmooth_delta_np.png",
+  "timestamp": "2026-08-07 17:57:08"
+}

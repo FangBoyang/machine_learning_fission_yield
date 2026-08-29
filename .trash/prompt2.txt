@@ -1,0 +1,160 @@
+你是资深 ML 工程化专家。帮我把一个 KAN 裂变产额项目重构成干净的配置驱动架构。
+
+⚠️ 绝对约束（违反任意一条视为任务失败）：
+1. 只能创建新文件夹和新文件，绝对不能删除、移动、覆盖任何已有文件。
+2. 旧脚本保持原样不动。
+3. 新文件输出到项目根目录下的 pipeline/ 文件夹内（已存在则跳过创建）。
+4. GEF.csv 全部是训练集，不划分验证集/测试集。
+
+═════════════════════════════════════════
+任务：Step 3 + Step 4 — 写所有 YAML 配置
+═════════════════════════════════════════
+
+Step 3：写 pipeline/configs/base.yaml
+
+这是所有变体的默认值，必须包含以下完整字段（照抄，不要省略任何字段）：
+
+experiment:
+  name: "base"
+  description: "默认配置，所有变体的基础"
+
+data:
+  csv_path: "data/GEF.csv"
+  header: false
+  columns: [Z_norm, A_norm, E_norm, Yield, Error]
+  target_col: 3
+  features: [Z_norm, A_norm, E_norm, delta_np]
+  use_delta_np: true
+  delta_np_mode: discrete
+  split: full_train
+
+target:
+  space: raw
+  clip_min: 0.0
+  scaler_type: standard
+
+model:
+  hidden_layers: [12, 12]
+  grid: 5
+  k: 3
+  seed: 42
+
+train:
+  epochs: 2000
+  batch_size: 256
+  optimizer:
+    type: AdamW
+    lr: 0.01
+    weight_decay: 1e-4
+  scheduler:
+    type: CosineAnnealingWarmRestarts
+    T_0: 300
+    T_mult: 1
+    eta_min: 1e-6
+    step_size: 500
+    gamma: 0.5
+    patience: 300
+    factor: 0.5
+  early_stopping:
+    patience: 300
+    min_delta: 5e-6
+    monitor: train_loss
+  criterion:
+    type: MSE
+    low_yield_mode: none
+    high_yield_boost: 1.0
+    low_yield_quantile: 0.30
+    huber_delta: 0.1
+  gradient_clip: 0.0
+
+postprocess:
+  mass_conservation: false
+
+energy_dep:
+  enabled: true
+  reference_csv: "data/235UALL.csv"
+  E_range: [0, 14]
+  E_step: 1
+  batch_size: 256
+
+Step 4：写 6 个变体 YAML
+
+每个文件开头加一行 inherit: base.yaml，然后只写覆盖的字段。
+
+(1) pipeline/configs/g_rawY_delta_np.yaml
+覆盖：
+  experiment:
+    name: g_rawY_delta_np
+    description: "原始空间MSE，delta_np，标准结构（grid=20,k=4,width=24-24）"
+  model:
+    hidden_layers: [24, 24]
+    grid: 20
+    k: 4
+  train:
+    optimizer:
+      lr: 0.05
+    batch_size: 512
+    scheduler:
+      T_0: 400
+    early_stopping:
+      patience: 250
+    criterion:
+      type: MSE
+
+(2) pipeline/configs/g_rawY_delta_np_smaller.yaml
+覆盖：
+  experiment:
+    name: g_rawY_delta_np_smaller
+    description: "原始空间MSE，delta_np，紧凑结构（grid=5,k=3,width=12-12）"
+  model:
+    hidden_layers: [12, 12]
+    grid: 5
+    k: 3
+  train:
+    optimizer:
+      lr: 0.01
+    batch_size: 256
+    scheduler:
+      T_0: 300
+    early_stopping:
+      patience: 300
+
+(3) pipeline/configs/g_logY_delta_np.yaml
+覆盖：
+  experiment:
+    name: g_logY_delta_np
+    description: "对数空间MSE，delta_np，标准结构"
+  target:
+    space: log
+  # 其余同 g_rawY_delta_np（通过 inherit 继承）
+
+(4) pipeline/configs/h_rawY_noDelta.yaml
+覆盖：
+  experiment:
+    name: h_rawY_noDelta
+    description: "原始空间MSE，无delta_np，标准结构"
+  data:
+    features: [Z_norm, A_norm, E_norm]
+    use_delta_np: false
+  # 其余同 g_rawY_delta_np
+
+(5) pipeline/configs/i_rawY_delta_np_smaller.yaml
+覆盖：
+  experiment:
+    name: i_rawY_delta_np_smaller
+    description: "当前主力变体，紧凑结构，原始空间"
+  # 同 g_rawY_delta_np_smaller（通过 inherit 继承）
+
+(6) pipeline/configs/i_rawY_delta_np_smaller_more_patient.yaml
+覆盖：
+  experiment:
+    name: i_rawY_delta_np_smaller_more_patient
+    description: "紧凑结构，更长耐心"
+  train:
+    scheduler:
+      T_0: 300
+    early_stopping:
+      patience: 450
+  # 其余同 i_rawY_delta_np_smaller
+
+写完所有 7 个 YAML 后，报告每个文件的路径和 experiment.name 确认无误。

@@ -1,0 +1,57 @@
+============================================================
+KAN 模型训练（配置驱动，支持续训/中断）
+============================================================
+[1] 加载预处理数据: F:\computer_science\machine_learning_fission_yield\pipeline\output\j_cosinehold_delta_np\data\preprocessed_j_cosinehold_delta_np.pkl
+    样本数: 18267, 特征维度: 4
+    特征: ['Z_norm', 'A_norm', 'E_norm', 'delta_np']
+[2] 构建 KAN 模型: width=[[4, 0], [20, 0], [20, 0], [1, 0]] (grid=20, k=4)
+    参数量: 17,440, 设备: cpu
+C:\Users\86138\AppData\Roaming\Python\Python312\site-packages\torch\optim\lr_scheduler.py:62: UserWarning: The verbose parameter is deprecated. Please use get_last_lr() to access the learning rate.
+  warnings.warn(
+[3] 优化器: AdamW, 调度器: CosineHoldAtMin, 损失: MSELoss
+
+[4] 开始训练（共 2000 轮，batch=512，早停 patience=400, min_delta=5e-06, monitor=train_loss）；续训关闭
+    Epoch    1/2000 | loss: 2.7677e-01 | lr: 5.00e-02 | 早停计数: 0/400
+    Epoch   20/2000 | loss: 6.7131e-03 | lr: 4.97e-02 | 早停计数: 0/400
+    Epoch   40/2000 | loss: 6.6377e-03 | lr: 4.88e-02 | 早停计数: 13/400
+    Epoch   60/2000 | loss: 6.5091e-03 | lr: 4.73e-02 | 早停计数: 17/400
+    Epoch   80/2000 | loss: 5.3566e-03 | lr: 4.52e-02 | 早停计数: 9/400
+    Epoch  100/2000 | loss: 5.2981e-03 | lr: 4.27e-02 | 早停计数: 3/400
+    Epoch  120/2000 | loss: 5.1451e-03 | lr: 3.97e-02 | 早停计数: 13/400
+    Epoch  140/2000 | loss: 4.7554e-03 | lr: 3.64e-02 | 早停计数: 7/400
+    Epoch  160/2000 | loss: 4.1703e-03 | lr: 3.27e-02 | 早停计数: 4/400
+    Epoch  180/2000 | loss: 3.4683e-03 | lr: 2.89e-02 | 早停计数: 0/400
+    Epoch  200/2000 | loss: 3.6427e-03 | lr: 2.50e-02 | 早停计数: 5/400
+    Epoch  220/2000 | loss: 2.9519e-03 | lr: 2.11e-02 | 早停计数: 0/400
+    Epoch  240/2000 | loss: 2.7059e-03 | lr: 1.73e-02 | 早停计数: 5/400
+    Epoch  260/2000 | loss: 2.6377e-03 | lr: 1.37e-02 | 早停计数: 1/400
+    Epoch  280/2000 | loss: 2.2821e-03 | lr: 1.03e-02 | 早停计数: 3/400
+    Epoch  300/2000 | loss: 1.9940e-03 | lr: 7.33e-03 | 早停计数: 0/400
+    Epoch  320/2000 | loss: 1.7574e-03 | lr: 4.78e-03 | 早停计数: 1/400
+    Epoch  340/2000 | loss: 1.5787e-03 | lr: 2.73e-03 | 早停计数: 6/400
+    Epoch  360/2000 | loss: 1.4177e-03 | lr: 1.23e-03 | 早停计数: 0/400
+    Epoch  380/2000 | loss: 1.3178e-03 | lr: 3.18e-04 | 早停计数: 0/400
+    Epoch  400/2000 | loss: 1.2818e-03 | lr: 1.00e-05 | 早停计数: 7/400
+    Epoch  420/2000 | loss: 1.2824e-03 | lr: 1.00e-05 | 早停计数: 19/400
+    Epoch  440/2000 | loss: 1.2815e-03 | lr: 1.00e-05 | 早停计数: 39/400
+    Epoch  460/2000 | loss: 1.2779e-03 | lr: 1.00e-05 | 早停计数: 59/400
+    Epoch  480/2000 | loss: 1.2798e-03 | lr: 1.00e-05 | 早停计数: 79/400
+    Epoch  500/2000 | loss: 1.2779e-03 | lr: 1.00e-05 | 早停计数: 99/400
+    Epoch  520/2000 | loss: 1.2795e-03 | lr: 1.00e-05 | 早停计数: 119/400
+    Epoch  540/2000 | loss: 1.2804e-03 | lr: 1.00e-05 | 早停计数: 139/400
+    Epoch  560/2000 | loss: 1.2786e-03 | lr: 1.00e-05 | 早停计数: 159/400
+    Epoch  580/2000 | loss: 1.2778e-03 | lr: 1.00e-05 | 早停计数: 179/400
+    Epoch  600/2000 | loss: 1.2781e-03 | lr: 1.00e-05 | 早停计数: 199/400
+    Epoch  620/2000 | loss: 1.2754e-03 | lr: 1.00e-05 | 早停计数: 219/400
+    Epoch  640/2000 | loss: 1.2801e-03 | lr: 1.00e-05 | 早停计数: 239/400
+    Epoch  660/2000 | loss: 1.2763e-03 | lr: 1.00e-05 | 早停计数: 3/400
+    Epoch  680/2000 | loss: 1.2744e-03 | lr: 1.00e-05 | 早停计数: 23/400
+    Epoch  700/2000 | loss: 1.2762e-03 | lr: 1.00e-05 | 早停计数: 43/400
+    Epoch  720/2000 | loss: 1.2735e-03 | lr: 1.00e-05 | 早停计数: 63/400
+    Epoch  740/2000 | loss: 1.2737e-03 | lr: 1.00e-05 | 早停计数: 83/400
+    Epoch  760/2000 | loss: 1.2763e-03 | lr: 1.00e-05 | 早停计数: 103/400
+    Epoch  780/2000 | loss: 1.2776e-03 | lr: 1.00e-05 | 早停计数: 123/400
+    Epoch  800/2000 | loss: 1.2762e-03 | lr: 1.00e-05 | 早停计数: 143/400
+    Epoch  820/2000 | loss: 1.2741e-03 | lr: 1.00e-05 | 早停计数: 163/400
+    Epoch  840/2000 | loss: 1.2701e-03 | lr: 1.00e-05 | 早停计数: 183/400
+    Epoch  860/2000 | loss: 1.2740e-03 | lr: 1.00e-05 | 早停计数: 203/400

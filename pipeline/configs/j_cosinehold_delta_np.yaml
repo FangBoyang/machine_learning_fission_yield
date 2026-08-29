@@ -1,0 +1,23 @@
+# 变体 j_cosinehold：基于 j（目标幂次 p=0.25，width=20-20），
+# 把学习率调度器换成「前半段余弦降到谷底、后半段常数」的 CosineHoldAtMin。
+#
+# 动机：
+# - j 用 CosineAnnealingWarmRestarts，epoch 400 重启把已收敛解炸回 loss≈1.0；
+# - j_cosinesmooth 用 CosineAnnealingLR，但 epoch 超过 T_max 后 cos 回弹、lr 重新涨大
+#   （实测 600→980 轮 lr 从 1e-5 回到 3.5e-2），反而把已收敛解又冲坏、浪费轮次。
+# CosineHoldAtMin 把参与余弦的 epoch 钳制在 T_max：lr 在前 T_max 轮余弦降到 eta_min，
+# 之后恒定保持 eta_min，既不重启、也不回弹，让 warmup 在谷底 lr 上继续精细收敛。
+#
+# 仅改调度器，其余（幂次 p=0.25、width=20-20、delta_np、grid=20/k=4）完全对齐 j，
+# 以便干净地做 A/B：验证「降到谷底就固定」能否比 j（和 j_cosinesmooth）进一步压低 GEF warmup 损失。
+inherit: j_power_delta_np.yaml
+experiment:
+  name: j_cosinehold_delta_np
+  description: "基于j：目标幂次p=0.25 + 余弦降到谷底后保持常数lr(CosineHoldAtMin)，delta_np"
+train:
+  scheduler:
+    type: CosineHoldAtMin
+    T_max: 400
+    eta_min: 1e-5
+  early_stopping:
+    patience: 400

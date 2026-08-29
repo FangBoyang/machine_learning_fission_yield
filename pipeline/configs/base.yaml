@@ -1,0 +1,66 @@
+experiment:
+  name: "base"
+  description: "默认配置，所有变体的基础"
+
+data:
+  csv_path: "data/GEF.csv"
+  header: false
+  columns: [Z_norm, A_norm, E_norm, Yield, Error]
+  target_col: 3
+  features: [Z_norm, A_norm, E_norm, delta_np]
+  use_delta_np: true
+  delta_np_mode: discrete
+  split: full_train
+
+target:
+  space: raw
+  clip_min: 0.0
+  scaler_type: standard
+
+model:
+  hidden_layers: [12, 12]
+  grid: 5
+  k: 3
+  seed: 42
+
+train:
+  epochs: 2000
+  batch_size: 256
+  optimizer:
+    type: AdamW
+    lr: 0.01
+    weight_decay: 1e-4
+  scheduler:
+    type: CosineAnnealingWarmRestarts
+    T_0: 300
+    T_mult: 1
+    eta_min: 1e-5
+    step_size: 500
+    gamma: 0.5
+    patience: 300
+    factor: 0.5
+  early_stopping:
+    patience: 300
+    min_delta: 5e-6
+    monitor: train_loss
+  criterion:
+    type: MSE
+    low_yield_mode: none
+    high_yield_boost: 1.0
+    low_yield_quantile: 0.30
+    huber_delta: 0.1
+  gradient_clip: 1.0
+  # ---- 续训 / 中断保存 / 提前停（02_train.py 支持）----
+  resume: false            # true 时从 kan_resume_<variant>.pth 载入全部状态续训
+  checkpoint_every: 0      # >0 时每 N 轮落一次 latest+resume（防强杀丢进度）；0=仅中断/结束时保存
+  stop_on_best_below: null # 设数值后，best_loss 达标即提前结束，不等早停 patience
+
+postprocess:
+  mass_conservation: false
+
+energy_dep:
+  enabled: true
+  reference_csv: "data/235UALL.csv"
+  E_range: [0, 14]
+  E_step: 1
+  batch_size: 256

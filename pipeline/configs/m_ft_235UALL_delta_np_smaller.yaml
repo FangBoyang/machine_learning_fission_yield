@@ -1,0 +1,41 @@
+# 变体 m：235UALL 实验数据上的通用 finetune pipeline
+# 继承 i（紧凑结构 grid=5/k=3/width=12-12，原始空间，delta_np）。
+#
+# 关键设计（全部可配置，非硬编码）：
+# - data.source=csv      : 通用 CSV 数据源（235UALL），前 3 列视为已归一化 Z/A/E。
+# - finetune.reuse_scalers_from: 复用预训练 i 的 scalers，保证特征/目标空间逐字节一致。
+# - finetune.init_from   : 从预训练 i 的权重初始化（区别于断点续训 resume）。
+# - data.split.held_out  : val 仅从前 3096 行随机划分，后面重要数据 100% 进训练。
+# - train.early_stopping.monitor=val_loss: 用实验分布做早停判据（真正的泛化代理）。
+# - eval.on=val          : 评估报告在 held-out val 上；important_range 单独看重要区(in-sample)。
+#
+# 预训练基 / 冻结策略 / val 比例 均可改：
+#   init_from / reuse_scalers_from 换成 j/k/l 即可换基；
+#   finetune.freeze 填参数名子串（如 ['act_fun.0']）即冻结对应层；
+#   split.val_ratio 调 val 比例。
+inherit: i_rawY_delta_np_smaller.yaml
+experiment:
+  name: m_ft_235UALL_delta_np_smaller
+  description: "235UALL finetune（通用 pipeline）：复用i的scalers+权重，val仅来自前3096行，val_loss早停"
+data:
+  source: csv
+  csv_path: data/235UALL.csv
+  header: true
+  columns: [Z, A, E, Yield, Error]
+  split:
+    mode: held_out
+    val_from_first_n: 3096
+    val_ratio: 0.2
+    seed: 42
+finetune:
+  init_from: i_rawY_delta_np_smaller
+  reuse_scalers_from: i_rawY_delta_np_smaller
+  freeze: []          # 例: ['act_fun.0'] 冻结第一层 B-spline；[] 表示全量微调
+eval:
+  eval_set: val             # auto/val/train；finetune 推荐 val（held-out）
+  important_range: [3096, 4127]   # 重要区行区间（全量数据内的行号），单独出 R²（in-sample）
+train:
+  optimizer:
+    lr: 0.001         # 比预训练 0.01 低，微调典型设置
+  early_stopping:
+    monitor: val_loss # 用实验分布 val 做早停（GEF 旧变体用 train_loss）

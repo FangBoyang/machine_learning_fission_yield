@@ -1,0 +1,46 @@
+C:\Users\86138\AppData\Roaming\Python\Python312\site-packages\torch\nn\modules\loss.py:610: UserWarning: Using a target size (torch.Size([256])) that is different to the input size (torch.Size([256, 1])). This will likely lead to incorrect results due to broadcasting. Please ensure they have the same size.
+  return F.mse_loss(input, target, reduction=self.reduction)
+C:\Users\86138\AppData\Roaming\Python\Python312\site-packages\torch\nn\modules\loss.py:610: UserWarning: Using a target size (torch.Size([91])) that is different to the input size (torch.Size([91, 1])). This will likely lead to incorrect results due to broadcasting. Please ensure they have the same size.
+  return F.mse_loss(input, target, reduction=self.reduction)
+============================================================
+KAN 模型训练（配置驱动）
+============================================================
+[1] 加载预处理数据: F:\computer_science\machine_learning_fission_yield\pipeline\output\i_rawY_delta_np_smaller\data\preprocessed_i_rawY_delta_np_smaller.pkl
+    样本数: 18267, 特征维度: 4
+    特征: ['Z_norm', 'A_norm', 'E_norm', 'delta_np']
+[2] 构建 KAN 模型: width=[[4, 0], [12, 0], [12, 0], [1, 0]] (grid=5, k=3)
+    参数量: 3,700, 设备: cpu
+[3] 优化器: AdamW, 调度器: CosineAnnealingWarmRestarts, 损失: MSELoss
+
+[4] 开始训练（共 2000 轮，batch=256，早停 patience=300, min_delta=5e-06, monitor=train_loss）...
+    Epoch    1/2000 | loss: 5.6987e-04 | lr: 1.00e-02 | 早停计数: 0/300
+    Epoch   20/2000 | loss: 4.3009e-04 | lr: 9.89e-03 | 早停计数: 18/300
+    Epoch   40/2000 | loss: 4.2933e-04 | lr: 9.57e-03 | 早停计数: 19/300
+    Epoch   60/2000 | loss: 4.2939e-04 | lr: 9.05e-03 | 早停计数: 39/300
+    Epoch   80/2000 | loss: 4.3121e-04 | lr: 8.35e-03 | 早停计数: 59/300
+    Epoch  100/2000 | loss: 4.2899e-04 | lr: 7.50e-03 | 早停计数: 79/300
+    Epoch  120/2000 | loss: 4.3195e-04 | lr: 6.55e-03 | 早停计数: 99/300
+    Epoch  140/2000 | loss: 4.3006e-04 | lr: 5.52e-03 | 早停计数: 119/300
+    Epoch  160/2000 | loss: 4.2876e-04 | lr: 4.48e-03 | 早停计数: 139/300
+    Epoch  180/2000 | loss: 4.2773e-04 | lr: 3.46e-03 | 早停计数: 159/300
+    Epoch  200/2000 | loss: 4.2929e-04 | lr: 2.50e-03 | 早停计数: 179/300
+    Epoch  220/2000 | loss: 4.3126e-04 | lr: 1.66e-03 | 早停计数: 199/300
+    Epoch  240/2000 | loss: 4.2863e-04 | lr: 9.56e-04 | 早停计数: 219/300
+    Epoch  260/2000 | loss: 4.2809e-04 | lr: 4.33e-04 | 早停计数: 239/300
+    Epoch  280/2000 | loss: 4.2806e-04 | lr: 1.10e-04 | 早停计数: 259/300
+    Epoch  300/2000 | loss: 4.2889e-04 | lr: 1.00e-02 | 早停计数: 279/300
+    Epoch  320/2000 | loss: 4.2937e-04 | lr: 9.89e-03 | 早停计数: 299/300
+
+  ⏹ 早停触发：连续 300 轮损失未改善（最佳 @ epoch 21）
+
+    训练完成：实际轮数 321，最佳损失 4.2787e-04（epoch 21），用时 1152.2s
+
+============================================================
+训练完成！摘要信息
+============================================================
+变体名    : i_rawY_delta_np_smaller
+最终 loss  : 4.3032e-04
+最佳 loss  : 4.2787e-04 (epoch 21)
+best 模型  : F:\computer_science\machine_learning_fission_yield\pipeline\output\i_rawY_delta_np_smaller\models\kan_best_i_rawY_delta_np_smaller.pth
+final 模型 : F:\computer_science\machine_learning_fission_yield\pipeline\output\i_rawY_delta_np_smaller\models\kan_final_i_rawY_delta_np_smaller.pth
+============================================================

@@ -1,0 +1,18 @@
+# 变体 j：基于 g，加入「目标幂次变换」(target power) 以兼顾高低产额。
+# 相对 g 的两处改动：
+#   1) 网络宽度 24-24 -> 20-20
+#   2) 目标加幂次 p=0.25：01 把目标变成 t=(y+eps)^0.25，训练对 t 做普通 MSE；
+#      评估时反变换 t^4 回到原始产额。p<1 把低产额在 p 空间抬到与高产额相近量级，
+#      放大低产额梯度、压低双峰间谷值偏高，同时 p!=0 不翻转为 log 空间，高产额仍主导。
+# （幂次放在“目标”而非“损失”内，保证训练/评估反变换一致且梯度有界，避免 NaN。）
+inherit: g_rawY_delta_np.yaml
+experiment:
+  name: j_power_delta_np
+  description: "基于g：width=20-20 + 目标幂次变换 p=0.25 (t=y^0.25, MSE)，delta_np，grid=20,k=4（兼顾高低产额）"
+model:
+  hidden_layers: [20, 20]
+target:
+  power: 0.25
+train:
+  criterion:
+    type: MSE

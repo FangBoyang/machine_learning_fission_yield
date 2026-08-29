@@ -1,0 +1,76 @@
+{
+  "model_info": {
+    "name": "o2_ft_235UALL_lr1e4_freeze_pat50",
+    "model_path": "f:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\o2_ft_235UALL_lr1e4_freeze_pat50\\models\\kan_best_o2_ft_235UALL_lr1e4_freeze_pat50.pth",
+    "architecture": [
+      20,
+      20
+    ],
+    "parameters": 17440,
+    "features": [
+      "Z_norm",
+      "A_norm",
+      "E_norm",
+      "delta_np"
+    ],
+    "target_space": "raw"
+  },
+  "eval_set": "val (held-out)",
+  "metrics": {
+    "normalized_space": {
+      "r2": 0.9608305096626282,
+      "mse": 0.03171387314796448
+    },
+    "original_space": {
+      "r2": 0.9174748659133911,
+      "rmse": 0.03150801759511689,
+      "mae": 0.009610479697585106
+    },
+    "high_yield_region": {
+      "threshold": 0.002904614433646202,
+      "sample_count": 155,
+      "r2": 0.8804110884666443,
+      "rmse": 0.06293059820206444
+    }
+  },
+  "important_region": {
+    "range": [
+      3096,
+      4127
+    ],
+    "sample_count": 1031,
+    "r2": 0.8918963074684143,
+    "rmse": 0.06918030720782672,
+    "mae": 0.03527947515249252,
+    "high_yield_r2": 0.589396595954895,
+    "high_yield_rmse": 0.12469046982357136,
+    "note": "in-sample (该区在 finetune 中属于训练集)",
+    "zero_shot_r2": 0.8777247071266174,
+    "zero_shot_rmse": 0.07357522587078025,
+    "zero_shot_high_yield_r2": 0.5542750358581543,
+    "finetune_gain_r2": 0.014171600341796875
+  },
+  "zero_shot_pretrained": {
+    "model": "n_power_delta_np",
+    "path": "f:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\n_power_delta_np\\models\\kan_best_n_power_delta_np.pth",
+    "r2": 0.900519073009491,
+    "rmse": 0.034593769711740385,
+    "mae": 0.010844878852367401,
+    "high_yield_r2": 0.8558638095855713,
+    "high_yield_rmse": 0.06908805284364339,
+    "note": "零样本：预训练基未微调直接预测（对照微调增益）"
+  },
+  "data_stats": {
+    "eval_samples": 619,
+    "true_yield_range": [
+      0.0,
+      0.9154092073440552
+    ],
+    "pred_yield_range": [
+      0.0,
+      0.8296417593955994
+    ]
+  },
+  "visualization_path": "f:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\o2_ft_235UALL_lr1e4_freeze_pat50\\results\\eval_o2_ft_235UALL_lr1e4_freeze_pat50_val_held-out.png",
+  "timestamp": "2026-08-21 14:49:47"
+}

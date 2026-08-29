@@ -1,0 +1,55 @@
+# 变体 q：单隐藏层 [4,16,1] 的 GEF 异构合并 warmup，带渐进网格细化（grid extension）
+# 继承 n_power_delta_np（target.p=0.25 + delta_np，GEF 100% 训练硬约束），
+# 但把网络改成【单隐藏层 [4,16,1]】并对 grid 做由粗到细的渐进细化：
+#   model.grid=3 起，按 train.grid_schedule 在指定 epoch 调用 pykan model.refine() 把网格
+#   逐步加密到 85；每次 refine 会重置 lr 调度器，Adam 在新网格上重新衰减。
+#
+# 为什么最终 Grid=85：单隐藏层只有 80 条 spline 边（[4,16,1]），要拿到与 2 隐藏层
+# [4,16,16,1]@G15（9660 参数）同量级容量，必须靠更密的样条。按"参数≈数据量"插值阈值：
+#   G=85 -> 参数量≈9,588，恰落在 GEF_isomer_merged 样本量（9,333）附近 = 不过拟合 GEF。
+# 若直接固定 G=85 训练，论文指出大固定 G 会让损失地形变差；故用 grid extension 从 G=3 慢慢
+# 爬到 85，先抓大尺度结构再逐层精修（阶梯式 loss 下跳，更易落进好 basin）。
+#
+# 细化节奏：相邻 refine 间隔 200 epoch（< patience），每级网格不必完全收敛即进入下一级，
+# 由粗到细逐层累积；最终在 G=85 上再训若干轮至 train_loss 触底（比原 300 间隔更快抵达细网格）。
+#
+# ⚠️ 算力：G=85 时单 epoch 显著慢于 G=15；总 epoch 上限 1800（原 3000），实际由早停(plateau)截断，
+# 预计数小时级，建议后台运行。本变体不含 LBFGS 收尾（warmup 后续要 finetune，Adam 已够）。
+inherit: n_power_delta_np.yaml
+experiment:
+  name: q_gef_isomer_delta_np
+  description: "单隐藏层[4,16,1] GEF异构合并warmup，grid extension G=3→85(k=3,p=0.25,full_train,monitor=train_loss)"
+data:
+  source: csv            # 新文件带表头，必须用 csv 分支（gef 分支会 header=None 把表头当数据行崩溃）
+  header: true
+  csv_path: data/GEF_isomer_merged.csv
+  split: full_train      # GEF 硬约束：100% 训练，无验证集
+model:
+  hidden_layers: [16]    # 单隐藏层 -> width=[4,16,1]
+  grid: 3                # 网格细化起点（grid extension 从粗到细）
+  k: 3
+target:
+  power: 0.25            # 与 p 一致（对 t=y^0.25 做 MSE）
+train:
+  epochs: 1800
+  optimizer:
+    lr: 0.05             # warmup 学习率（p_gef 同档）
+  scheduler:
+    type: CosineHoldAtMin   # 每次 refine 后从此调度重置：重新从初始 lr 衰减 T_max 轮再保持谷底
+    T_max: 400
+    eta_min: 1e-5
+  early_stopping:
+    patience: 400        # > 细化间隔(200)，正常收敛不会误触发；最终 G=85 上靠它判 plateau
+    min_delta: 5e-6
+    monitor: train_loss
+  grid_schedule:         # 渐进网格细化：epoch 到达即 refine 到目标 grid（间隔压缩，更快抵达细网格）
+    - {epoch: 150,  grid: 5}
+    - {epoch: 350,  grid: 10}
+    - {epoch: 550,  grid: 20}
+    - {epoch: 750,  grid: 35}
+    - {epoch: 950,  grid: 50}
+    - {epoch: 1150, grid: 70}
+    - {epoch: 1350, grid: 85}
+  lbfgs:
+    enabled: false      # warmup 不开 LBFGS 收尾（后续要 finetune，Adam 足够且省算力）
+  checkpoint_every: 50  # 周期落 latest+resume，便于安全中断后续训

@@ -1,0 +1,20 @@
+inherit: base.yaml
+experiment:
+  name: g_rawY_delta_np
+  description: "原始空间MSE，delta_np，标准结构（grid=20,k=4,width=24-24）"
+model:
+  hidden_layers: [24, 24]
+  grid: 20
+  k: 4
+train:
+  optimizer:
+    lr: 0.05
+  batch_size: 512
+  gradient_clip: 1.0   # 对齐原始 02g: clip_grad_norm_(max_norm=1.0)
+  scheduler:
+    T_0: 400
+    eta_min: 1e-5      # 对齐原始 02g: CosineAnnealingWarmRestarts(eta_min=1e-5)
+  early_stopping:
+    patience: 250
+  criterion:
+    type: MSE

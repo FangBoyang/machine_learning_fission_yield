@@ -1,0 +1,16 @@
+# 变体 o4：o3 的延续 —— T_max 50->80，wd 1e-4->5e-4
+# 基于 o3（full finetune + lr=5e-4 + CosineHoldAtMin + patience=50/epochs=200）。
+# 改动：
+#   1) T_max: 50 -> 80 —— o3 在 epoch 50 就把 lr 压到 1e-6，模型在 epoch 40 还处于 1.88e-2
+#      就被"冻死"；拉长到 80 轮，lr 作用窗口更长，让模型有更充分时间逼近最优点。
+#   2) weight_decay: 1e-4 -> 5e-4 —— 适当加大 L2 正则（介于温和 1e-4 与激进 1e-3 之间），
+#      压制 o 类过拟合（epoch 21 后 val 单调上升）。
+inherit: o3_ft_235UALL_lr5e4_hold50_pat50.yaml
+experiment:
+  name: o4_ft_235UALL_lr5e4_hold80_wd5e4
+  description: "基于o3：CosineHoldAtMin T_max 50->80（lr作用窗口拉长），wd 1e-4->5e-4（适当加大正则）"
+train:
+  optimizer:
+    weight_decay: 0.0005
+  scheduler:
+    T_max: 80

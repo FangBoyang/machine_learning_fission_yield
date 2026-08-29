@@ -1,0 +1,48 @@
+{
+  "model_info": {
+    "name": "k_gridrefine_lbfgs_delta_np",
+    "model_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\k_gridrefine_lbfgs_delta_np\\models\\kan_best_k_gridrefine_lbfgs_delta_np.pth",
+    "architecture": [
+      20,
+      20
+    ],
+    "parameters": 12000,
+    "features": [
+      "Z_norm",
+      "A_norm",
+      "E_norm",
+      "delta_np"
+    ],
+    "target_space": "raw"
+  },
+  "metrics": {
+    "normalized_space": {
+      "r2": 0.9977176785469055,
+      "mse": 0.0022823219187557697
+    },
+    "original_space": {
+      "r2": 0.9879704117774963,
+      "rmse": 0.014708405174997852,
+      "mae": 0.005211811047047377
+    },
+    "high_yield_region": {
+      "threshold": 0.04465356469154358,
+      "sample_count": 4567,
+      "r2": 0.9693975448608398,
+      "rmse": 0.0293294844342799
+    }
+  },
+  "data_stats": {
+    "total_samples": 18267,
+    "true_yield_range": [
+      0.0,
+      0.9537534117698669
+    ],
+    "pred_yield_range": [
+      0.0,
+      0.8510726094245911
+    ]
+  },
+  "visualization_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\k_gridrefine_lbfgs_delta_np\\results\\eval_k_gridrefine_lbfgs_delta_np.png",
+  "timestamp": "2026-08-08 09:19:02"
+}

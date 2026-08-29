@@ -1,0 +1,9 @@
+inherit: i_rawY_delta_np_smaller.yaml
+experiment:
+  name: i_rawY_delta_np_smaller_more_patient
+  description: "紧凑结构，更长耐心"
+train:
+  scheduler:
+    T_0: 300
+  early_stopping:
+    patience: 450

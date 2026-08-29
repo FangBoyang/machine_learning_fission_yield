@@ -121,16 +121,18 @@ I_physical = (N_physical - Z_physical) / A_physical
 def calc_delta_np_row(Z, N, I):
     N_even = (N % 2 == 0)
     Z_even = (Z % 2 == 0)
-    if N_even == Z_even:
+    if N_even and Z_even:                       # ee
         return 2 - abs(I)
-    elif N_even and not Z_even and N != Z:
-        return 1 - abs(I)
-    elif not N_even and Z_even and N != Z:
-        return 1 - abs(I)
-    elif N_even and not Z_even and N > Z:
+    elif (not N_even) and (not Z_even):          # oo
+        return abs(I)
+    elif N_even and (not Z_even) and N > Z:      # eo, N>Z
         return 1.0
-    elif not N_even and Z_even and N < Z:
+    elif (not N_even) and Z_even and N < Z:      # oe, N<Z
         return 1.0
+    elif N_even and (not Z_even) and N < Z:      # eo, N<Z
+        return 1 - abs(I)
+    elif (not N_even) and Z_even and N > Z:      # oe, N>Z
+        return 1 - abs(I)
     else:
         return 1.0
 

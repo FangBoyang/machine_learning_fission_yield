@@ -1,0 +1,48 @@
+{
+  "model_info": {
+    "name": "j_cosinehold_delta_np",
+    "model_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\j_cosinehold_delta_np\\models\\kan_best_j_cosinehold_delta_np.pth",
+    "architecture": [
+      20,
+      20
+    ],
+    "parameters": 17440,
+    "features": [
+      "Z_norm",
+      "A_norm",
+      "E_norm",
+      "delta_np"
+    ],
+    "target_space": "raw"
+  },
+  "metrics": {
+    "normalized_space": {
+      "r2": 0.9987241625785828,
+      "mse": 0.0012758292723447084
+    },
+    "original_space": {
+      "r2": 0.9902436137199402,
+      "rmse": 0.013246008256203508,
+      "mae": 0.004609022289514542
+    },
+    "high_yield_region": {
+      "threshold": 0.04465356469154358,
+      "sample_count": 4567,
+      "r2": 0.9751396775245667,
+      "rmse": 0.026435029648708412
+    }
+  },
+  "data_stats": {
+    "total_samples": 18267,
+    "true_yield_range": [
+      0.0,
+      0.9537534117698669
+    ],
+    "pred_yield_range": [
+      0.0,
+      0.8922705054283142
+    ]
+  },
+  "visualization_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\j_cosinehold_delta_np\\results\\eval_j_cosinehold_delta_np.png",
+  "timestamp": "2026-08-07 20:35:52"
+}

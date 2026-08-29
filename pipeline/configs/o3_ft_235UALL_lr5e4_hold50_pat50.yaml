@@ -1,0 +1,27 @@
+# 变体 o3：o（过拟合）与 o2（学不动）之间的中间道路
+# 基于 o（n_power_delta_np 权重 init → 235UALL finetune，reuse n scalers）。
+# 复盘：
+#   - o  : full finetune + lr=1e-3，epoch 21 即 best（val_loss 1.75e-2），之后 lr 长期保持 1e-3
+#          把已收敛权重推离最优点 → val 单调上升，白跑 ~300 轮。
+#   - o2 : freeze act_fun.0 + lr=1e-4，train 几乎学不动（loss 只降到 3.85e-2）。
+# o3 策略：恢复 full finetune（学得动的前提），lr 取中间值 5e-4，用 CosineHoldAtMin(T_max=50)
+# 在前 ~25-40 轮把 lr 快速降到 1e-6 并钳住（正好落在 o 的 best 窗口 epoch 21 附近），
+# 早停 patience=50 + epochs=200 上限保护。wd 保持 1e-4 不动（一次只动一个变量）。
+inherit: o_ft_235UALL_power_delta_np.yaml
+experiment:
+  name: o3_ft_235UALL_lr5e4_hold50_pat50
+  description: "o与o2的中间道路：full finetune + lr=5e-4 + CosineHoldAtMin(T_max=50)快速settle + patience=50/epochs=200"
+finetune:
+  freeze: []                  # 恢复 full finetune，不冻结（o2 学不动的教训）
+train:
+  epochs: 200
+  optimizer:
+    lr: 0.0005
+    weight_decay: 0.0001      # 保持 o 的 1e-4，不动（wd 留给后续单独验证）
+  scheduler:
+    type: CosineHoldAtMin
+    T_max: 50
+    eta_min: 1e-6
+  early_stopping:
+    monitor: val_loss
+    patience: 50

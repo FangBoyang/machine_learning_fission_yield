@@ -1,0 +1,48 @@
+{
+  "model_info": {
+    "name": "i_rawY_delta_np_smaller",
+    "model_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\i_rawY_delta_np_smaller\\models\\kan_best_i_rawY_delta_np_smaller.pth",
+    "architecture": [
+      12,
+      12
+    ],
+    "parameters": 3700,
+    "features": [
+      "Z_norm",
+      "A_norm",
+      "E_norm",
+      "delta_np"
+    ],
+    "target_space": "raw"
+  },
+  "metrics": {
+    "normalized_space": {
+      "r2": 0.9742255210876465,
+      "mse": 1.1051261026295833e-05
+    },
+    "original_space": {
+      "r2": 0.9744258522987366,
+      "rmse": 0.02144573201596907,
+      "mae": 0.010400695726275444
+    },
+    "high_yield_region": {
+      "threshold": 0.04465356469154358,
+      "sample_count": 4567,
+      "r2": 0.9378942847251892,
+      "rmse": 0.04178228703055688
+    }
+  },
+  "data_stats": {
+    "total_samples": 18267,
+    "true_yield_range": [
+      0.0,
+      0.9537534117698669
+    ],
+    "pred_yield_range": [
+      0.0,
+      0.8682729005813599
+    ]
+  },
+  "visualization_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\i_rawY_delta_np_smaller\\results\\eval_i_rawY_delta_np_smaller.png",
+  "timestamp": "2026-08-06 10:18:48"
+}

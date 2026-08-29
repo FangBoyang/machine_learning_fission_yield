@@ -1,0 +1,16 @@
+============================================================
+KAN 模型训练（配置驱动，支持续训/网格细化/LBFGS）
+============================================================
+[1] 加载预处理数据: f:\computer_science\machine_learning_fission_yield\pipeline\output\o4_ft_235UALL_wd1e3\data\preprocessed_o4_ft_235UALL_wd1e3.pkl
+    样本数: 3508, 特征维度: 4
+    特征: ['Z_norm', 'A_norm', 'E_norm', 'delta_np']
+[2] 构建 KAN 模型: width=[[4, 0], [20, 0], [20, 0], [1, 0]] (grid=20, k=4)
+    参数量: 17,440, 设备: cpu
+
+[2b] 从预训练权重初始化 (init_from=n_power_delta_np) ...
+    已载入预训练模型: f:\computer_science\machine_learning_fission_yield\pipeline\output\n_power_delta_np\models\kan_best_n_power_delta_np.pth (grid=20, 参数量 17,440)
+[3] 优化器: AdamW, 调度器: CosineAnnealingWarmRestarts, 损失: MSELoss
+    验证集: 619 样本（held-out，用于 val_loss 监控）
+
+[4] 开始训练（共 2000 轮，batch=512，早停 patience=300, min_delta=5e-06, monitor=val_loss）；续训关闭
+    Epoch    1/2000 | loss: 4.3238e-02 | val_loss: 3.0344e-02 | lr: 1.00e-03 | grid: 20 | 早停计数: 0/300

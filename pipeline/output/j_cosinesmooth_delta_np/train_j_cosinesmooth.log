@@ -1,0 +1,81 @@
+============================================================
+KAN 模型训练（配置驱动）
+============================================================
+C:\Users\86138\.conda\envs\fpy_kan\Lib\site-packages\sklearn\base.py:463: InconsistentVersionWarning: Trying to unpickle estimator MinMaxScaler from version 1.5.1 when using version 1.8.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+C:\Users\86138\.conda\envs\fpy_kan\Lib\site-packages\sklearn\base.py:463: InconsistentVersionWarning: Trying to unpickle estimator StandardScaler from version 1.5.1 when using version 1.8.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+[1] 加载预处理数据: F:\computer_science\machine_learning_fission_yield\pipeline\output\j_cosinesmooth_delta_np\data\preprocessed_j_cosinesmooth_delta_np.pkl
+    样本数: 18267, 特征维度: 4
+    特征: ['Z_norm', 'A_norm', 'E_norm', 'delta_np']
+[2] 构建 KAN 模型: width=[[4, 0], [20, 0], [20, 0], [1, 0]] (grid=20, k=4)
+    参数量: 17,440, 设备: cpu
+[3] 优化器: AdamW, 调度器: CosineAnnealingLR, 损失: MSELoss
+
+[4] 开始训练（共 2000 轮，batch=512，早停 patience=400, min_delta=5e-06, monitor=train_loss）...
+    Epoch    1/2000 | loss: 2.7677e-01 | lr: 5.00e-02 | 早停计数: 0/400
+    Epoch   20/2000 | loss: 7.4430e-03 | lr: 4.99e-02 | 早停计数: 2/400
+    Epoch   40/2000 | loss: 7.5141e-03 | lr: 4.95e-02 | 早停计数: 17/400
+    Epoch   60/2000 | loss: 5.3783e-03 | lr: 4.88e-02 | 早停计数: 16/400
+    Epoch   80/2000 | loss: 5.7578e-03 | lr: 4.78e-02 | 早停计数: 8/400
+    Epoch  100/2000 | loss: 5.9296e-03 | lr: 4.67e-02 | 早停计数: 4/400
+    Epoch  120/2000 | loss: 5.1274e-03 | lr: 4.52e-02 | 早停计数: 14/400
+    Epoch  140/2000 | loss: 6.2566e-03 | lr: 4.36e-02 | 早停计数: 2/400
+    Epoch  160/2000 | loss: 4.7997e-03 | lr: 4.17e-02 | 早停计数: 9/400
+    Epoch  180/2000 | loss: 4.6111e-03 | lr: 3.97e-02 | 早停计数: 10/400
+    Epoch  200/2000 | loss: 4.0661e-03 | lr: 3.75e-02 | 早停计数: 0/400
+    Epoch  220/2000 | loss: 4.2722e-03 | lr: 3.52e-02 | 早停计数: 20/400
+    Epoch  240/2000 | loss: 4.0792e-03 | lr: 3.27e-02 | 早停计数: 5/400
+    Epoch  260/2000 | loss: 4.4460e-03 | lr: 3.02e-02 | 早停计数: 25/400
+    Epoch  280/2000 | loss: 3.6161e-03 | lr: 2.76e-02 | 早停计数: 5/400
+    Epoch  300/2000 | loss: 3.4645e-03 | lr: 2.50e-02 | 早停计数: 12/400
+    Epoch  320/2000 | loss: 2.9738e-03 | lr: 2.24e-02 | 早停计数: 3/400
+    Epoch  340/2000 | loss: 2.8946e-03 | lr: 1.98e-02 | 早停计数: 18/400
+    Epoch  360/2000 | loss: 2.6488e-03 | lr: 1.73e-02 | 早停计数: 9/400
+    Epoch  380/2000 | loss: 2.4959e-03 | lr: 1.48e-02 | 早停计数: 10/400
+    Epoch  400/2000 | loss: 2.4203e-03 | lr: 1.25e-02 | 早停计数: 6/400
+    Epoch  420/2000 | loss: 2.1579e-03 | lr: 1.03e-02 | 早停计数: 1/400
+    Epoch  440/2000 | loss: 1.9776e-03 | lr: 8.28e-03 | 早停计数: 1/400
+    Epoch  460/2000 | loss: 1.8591e-03 | lr: 6.43e-03 | 早停计数: 0/400
+    Epoch  480/2000 | loss: 1.7225e-03 | lr: 4.78e-03 | 早停计数: 0/400
+    Epoch  500/2000 | loss: 1.5939e-03 | lr: 3.36e-03 | 早停计数: 3/400
+    Epoch  520/2000 | loss: 1.4673e-03 | lr: 2.17e-03 | 早停计数: 1/400
+    Epoch  540/2000 | loss: 1.3743e-03 | lr: 1.23e-03 | 早停计数: 2/400
+    Epoch  560/2000 | loss: 1.2937e-03 | lr: 5.56e-04 | 早停计数: 0/400
+    Epoch  580/2000 | loss: 1.2546e-03 | lr: 1.47e-04 | 早停计数: 0/400
+    Epoch  600/2000 | loss: 1.2390e-03 | lr: 1.00e-05 | 早停计数: 9/400
+    Epoch  620/2000 | loss: 1.2488e-03 | lr: 1.47e-04 | 早停计数: 29/400
+    Epoch  640/2000 | loss: 1.2878e-03 | lr: 5.56e-04 | 早停计数: 49/400
+    Epoch  660/2000 | loss: 1.3534e-03 | lr: 1.23e-03 | 早停计数: 69/400
+    Epoch  680/2000 | loss: 1.4036e-03 | lr: 2.17e-03 | 早停计数: 89/400
+    Epoch  700/2000 | loss: 1.5157e-03 | lr: 3.36e-03 | 早停计数: 109/400
+    Epoch  720/2000 | loss: 1.6674e-03 | lr: 4.78e-03 | 早停计数: 129/400
+    Epoch  740/2000 | loss: 1.8133e-03 | lr: 6.43e-03 | 早停计数: 149/400
+    Epoch  760/2000 | loss: 2.0892e-03 | lr: 8.28e-03 | 早停计数: 169/400
+    Epoch  780/2000 | loss: 2.3238e-03 | lr: 1.03e-02 | 早停计数: 189/400
+    Epoch  800/2000 | loss: 2.4101e-03 | lr: 1.25e-02 | 早停计数: 209/400
+    Epoch  820/2000 | loss: 2.4407e-03 | lr: 1.48e-02 | 早停计数: 229/400
+    Epoch  840/2000 | loss: 2.9160e-03 | lr: 1.73e-02 | 早停计数: 249/400
+    Epoch  860/2000 | loss: 2.8092e-03 | lr: 1.98e-02 | 早停计数: 269/400
+    Epoch  880/2000 | loss: 3.4309e-03 | lr: 2.24e-02 | 早停计数: 289/400
+    Epoch  900/2000 | loss: 4.6510e-03 | lr: 2.50e-02 | 早停计数: 309/400
+    Epoch  920/2000 | loss: 4.9451e-03 | lr: 2.76e-02 | 早停计数: 329/400
+    Epoch  940/2000 | loss: 4.1064e-03 | lr: 3.02e-02 | 早停计数: 349/400
+    Epoch  960/2000 | loss: 3.9930e-03 | lr: 3.27e-02 | 早停计数: 369/400
+    Epoch  980/2000 | loss: 1.1234e-02 | lr: 3.52e-02 | 早停计数: 389/400
+
+  ⏹ 早停触发：连续 400 轮损失未改善（最佳 @ epoch 591）
+
+    训练完成：实际轮数 991，最佳损失 1.2395e-03（epoch 591），用时 21448.2s
+
+============================================================
+训练完成！摘要信息
+============================================================
+变体名    : j_cosinesmooth_delta_np
+最终 loss  : 8.6935e-03
+最佳 loss  : 1.2395e-03 (epoch 591)
+best 模型  : F:\computer_science\machine_learning_fission_yield\pipeline\output\j_cosinesmooth_delta_np\models\kan_best_j_cosinesmooth_delta_np.pth
+final 模型 : F:\computer_science\machine_learning_fission_yield\pipeline\output\j_cosinesmooth_delta_np\models\kan_final_j_cosinesmooth_delta_np.pth
+============================================================

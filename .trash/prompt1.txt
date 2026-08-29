@@ -1,0 +1,67 @@
+你是资深 ML 工程化专家。帮我把一个 KAN 裂变产额项目重构成干净的配置驱动架构。
+
+⚠️ 绝对约束（违反任意一条视为任务失败）：
+1. 只能创建新文件夹和新文件，绝对不能删除、移动、覆盖任何已有文件。
+2. 旧脚本（01a~04i 全部）保持原样不动。
+3. 新架构输出到项目根目录下新建的 pipeline/ 文件夹内。
+4. GEF.csv 全部是训练集，不划分验证集/测试集，不写任何 val/test 相关逻辑。
+5. 所有路径用 os.path.join，兼容 Windows。打印信息用中文。
+
+═════════════════════════════════════════
+任务：Step 1 + Step 2
+═════════════════════════════════════════
+
+Step 1：创建目录结构
+在 pipeline/ 下创建以下空目录（用 os.makedirs(exist_ok=True)）：
+  pipeline/configs/
+  pipeline/src/
+  pipeline/output/
+
+Step 2：写 pipeline/src/common.py
+
+实现以下 8 个函数/能力，这是整个 pipeline 的基石：
+
+1. load_config(path) → dict
+   - 用 PyYAML 加载指定路径的 YAML
+   - 如果 YAML 中有 inherit 字段，先加载 inherit 指向的 base.yaml（在 configs/ 目录下），然后深度合并（子 dict 递归更新，标量直接覆盖）
+   - 返回合并后的完整配置 dict
+
+2. get_variant(cfg) → str
+   - 返回 cfg['experiment']['name']
+
+3. output_path(variant, subdir, filename) → str
+   - 拼出 pipeline/output/{variant}/{subdir}/{filename}
+   - 用 os.makedirs(exist_ok=True) 确保目录存在
+   - 返回完整路径字符串
+
+4. build_features(df, cfg) → (X, feature_names)
+   - df 是原始 GEF 数据（numpy 数组或 DataFrame）
+   - 根据 cfg['data']['features'] 决定输入特征
+   - 如果 'delta_np' 在 features 中且 cfg['data']['use_delta_np'] 为 true，调用 compute_delta_np 计算
+   - 返回 (X_array, feature_names_list)
+
+5. compute_delta_np(df, mode) → array
+   - mode='discrete'：用原有的阶跃逻辑（ee/oo/oe/eo 分类）
+   - mode='continuous_cos'：用 cos(π*N) * cos(π*Z) 的连续代理
+   - 需要 df 中包含 Z_original, A_original, N, I 列
+
+6. get_criterion(cfg) → torch.nn.Module
+   - 根据 cfg['train']['criterion']['type'] 返回：
+     - 'MSE' → nn.MSELoss()
+     - 'WeightedMSE' → 自定义损失：低产额用相对误差，高产额用绝对 MSE（从 cfg 读取 low_yield_quantile 和 high_yield_boost）
+     - 'RelativeMSE' → (pred-target)/(target+1e-12) 的平方
+     - 'Huber' → nn.HuberLoss(delta=cfg['train']['criterion']['huber_delta'])
+
+7. get_scheduler(optimizer, cfg)
+   - 根据 cfg['train']['scheduler']['type'] 返回对应的 torch 学习率调度器
+   - 支持的 type：CosineAnnealingWarmRestarts(T_0, T_mult, eta_min), StepLR(step_size, gamma), ExponentialLR(gamma), ReduceLROnPlateau(patience, factor), none→返回 None
+
+8. get_optimizer(model, cfg)
+   - 根据 cfg['train']['optimizer']['type'] 返回优化器
+   - 支持 AdamW, Adam, SGD
+
+写完 common.py 后，在文件末尾加一个 if __name__ == '__main__': 测试块：
+  - 测试 load_config 能正常加载（如果 configs/ 下还没有 yaml，就跳过测试，只打印"common.py loaded OK"）
+  - 测试 output_path 能正确拼出路径
+
+确认文件创建成功，报告每个函数的签名。

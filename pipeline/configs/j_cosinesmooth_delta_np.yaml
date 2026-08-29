@@ -1,0 +1,24 @@
+# 变体 j_cosinesmooth：基于 j（目标幂次 p=0.25，width=20-20），
+# 唯一改动：把学习率调度器从「余弦热身重启」换成「单段余弦衰减后保持小学习率」。
+#
+# 动机：j 使用 CosineAnnealingWarmRestarts(T_0=400)，在 epoch 400 lr 弹回 0.05，
+# 把已收敛（loss≈1.25e-3）的解炸回 loss≈1.0，之后 250 轮再也回不来，
+# 浪费约一半训练时间，且 _final 模型是垃圾。
+#
+# 本变体改用 CosineAnnealingLR：lr 从 0.05 单调降到 eta_min=1e-5（T_max=600 完成），
+# 之后（epoch>T_max）一直保持 1e-5 的小学习率，让 warmup 能继续精细收敛而不被重启打断。
+# 为配合更平滑的尾部优化，early-stopping patience 由 250 放宽到 400。
+#
+# 仅改调度器，其余（幂次 p=0.25、width=20-20、delta_np、grid=20/k=4）完全对齐 j，
+# 以便干净地做 A/B 对比：验证「去掉重启」能否进一步压低 GEF warmup 损失。
+inherit: j_power_delta_np.yaml
+experiment:
+  name: j_cosinesmooth_delta_np
+  description: "基于j：目标幂次p=0.25 + 单段余弦衰减到小lr后保持(无重启)，delta_np"
+train:
+  scheduler:
+    type: CosineAnnealingLR
+    T_max: 600
+    eta_min: 1e-5
+  early_stopping:
+    patience: 400

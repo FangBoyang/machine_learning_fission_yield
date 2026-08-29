@@ -1,0 +1,44 @@
+# 变体 s：单隐藏层 [4,81,1] 的 GEF 异构合并 warmup，固定网格 G=8（无 grid extension）
+# 继承 n_power_delta_np（target.p=0.25 + delta_np，GEF 100% 训练硬约束），
+# 与 q / r 同属"单隐藏层 + 同等容量(~9.3k 参数)"家族，但用【更粗网格 G=8 + 更宽(81)】换取
+# 与 r([4,58,1]@G15=9,140) / q([4,16,1]@G85=9,588) 同量级的 GEF 参数平衡，用来对照：
+#   粗网格宽网络 vs 细网格窄网络，在容量相当时哪个泛化更好（论文：大固定 G 让损失地形变差，
+#   但更宽更浅也可能更稳；这是待验证的经验问题）。
+#
+# 为什么 x=81（hidden width）：GEF_isomer_merged 9,333 样本上平衡总参数量。
+#   实测 [4,x,1]@G8,k=3 下 P = 114·x + 64；令 P≈9333 -> x≈81.3，取 x=81 得 9,298
+#   参数（距 9,333 仅 ~0.4%，略低于阈值更安全）。x=80->9,184，x=82->9,412，故 81 最近。
+#
+# 其他超参（经验设定，刻意与 r 完全一致，仅改 grid/x 以隔离 G 的效应）：
+#   单段 CosineHoldAtMin 平滑衰减；lr=0.01；warmup 100% 训练，早停盯 train_loss；
+#   不含 LBFGS 收尾（后续要 finetune）。
+inherit: n_power_delta_np.yaml
+experiment:
+  name: s_gef_isomer_delta_np
+  description: "单隐藏层[4,81,1] GEF异构合并warmup，固定G=8(k=3,p=0.25,full_train,monitor=train_loss)"
+data:
+  source: csv            # 新文件带表头，必须用 csv 分支
+  header: true
+  csv_path: data/GEF_isomer_merged.csv
+  split: full_train      # GEF 硬约束：100% 训练，无验证集
+model:
+  hidden_layers: [81]    # 单隐藏层 -> width=[4,81,1]；按 GEF 参数平衡得 x=81（G=8 更粗故更宽）
+  grid: 8                # 固定网格（不做 grid extension）
+  k: 3
+target:
+  power: 0.25            # 与 p / q / r 一致（对 t=y^0.25 做 MSE）
+train:
+  epochs: 1500
+  optimizer:
+    lr: 0.01             # 与 r 一致，隔离 G 的效应
+  scheduler:
+    type: CosineHoldAtMin   # 单段：从初始 lr 衰减 T_max 轮后保持谷底（无 refine 重置）
+    T_max: 400
+    eta_min: 1e-5
+  early_stopping:
+    patience: 400        # > 无 refine，正常收敛不会误触发；靠它判 plateau
+    min_delta: 5e-6
+    monitor: train_loss
+  lbfgs:
+    enabled: false      # warmup 不开 LBFGS 收尾（后续要 finetune）
+  checkpoint_every: 50  # 周期落 latest+resume，便于安全中断后续训

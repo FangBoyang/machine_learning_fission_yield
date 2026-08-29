@@ -1,0 +1,29 @@
+# 变体 p：基于 n（GEF warmup，修正后 delta_np）换用导师新给的 GEF 数据。
+# 关键变更：
+#   1) 数据源改 data/GEF_isomer_merged.csv（带表头 Z,A,State,Yield,Error），
+#      State 列即能量 E；必须用 source:csv + header:true 读入（不能用 gef 分支的 header=None）。
+#   2) 网络结构改为 [16,16]/grid=15/k=3（user 指定，对齐 KAN 论文建议）。
+#   3) warmup 多跑一些：epochs=5000，早停 patience=800（仍监控 train_loss，GEF 100% 训练硬约束）。
+# 其余继承 n：p=0.25 目标幂次、delta_np(discrete)、CosineHoldAtMin 调度、checkpoint_every=50。
+inherit: n_power_delta_np.yaml
+experiment:
+  name: p_gef_isomer_delta_np
+  description: "基于n：换GEF_isomer_merged.csv(异构合并到基态)，[16,16]/grid15/k3，p=0.25，full_train，monitor=train_loss，epochs5000/patience800"
+data:
+  source: csv            # 新文件带表头，必须用 csv 分支（gef 分支会 header=None 把表头当数据行崩溃）
+  header: true
+  csv_path: data/GEF_isomer_merged.csv
+  split: full_train      # GEF 硬约束：100% 训练，无验证集
+model:
+  hidden_layers: [16, 16]
+  grid: 15
+  k: 3
+target:
+  power: 0.25            # 显式继承 j 的幂次，确保与 n 一致（对 t=y^0.25 做 MSE）
+train:
+  epochs: 5000
+  early_stopping:
+    patience: 800        # warmup 多跑一些
+    min_delta: 5e-6
+    monitor: train_loss
+  checkpoint_every: 50   # 周期落 latest+resume，便于安全中断后续训

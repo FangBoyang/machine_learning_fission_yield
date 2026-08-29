@@ -1,0 +1,25 @@
+# 变体 o5：基于 o，快速停火 + 轻正则
+# 基于 o（full finetune + lr=1e-3 + WarmRestarts T_0=400, wd=1e-4, patience=300, epochs=2000）。
+# 改动（其余全同 o）：
+#   1) scheduler: WarmRestarts T_0=400 -> CosineHoldAtMin T_max=30 —— o 的 best 在 epoch 21 附近，
+#      T_max=30 让 lr 在前 30 轮从 1e-3 快速降到 1e-6 并钳住，既保留 o 的高 lr 搜索能力，
+#      又在最优谷底后立即停火，不再用持续 1e-3 的 lr 推离最优点。
+#   2) wd: 1e-4 -> 5e-4 —— 轻量正则（o4 验证该值有效，且不伤学习能力）。
+#   3) patience: 300 -> 50 —— 早停收紧，best（epoch ~20-40）后最多 50 轮即停。
+#   4) eta_min: 1e-6 -> 1e-4 —— lr 地板抬高 100 倍：T_max=30 后 lr 停在 1e-4 而非 1e-6，
+#      保留持续学习信号，避免停火后模型完全静止（1e-5 版 val 仍在微降、早停计数反复重置，
+#      1e-4 让停火期仍能有效搜索更优点）。
+inherit: o_ft_235UALL_power_delta_np.yaml
+experiment:
+  name: o5_ft_235UALL_lr1e3_hold30_wd5e4_pat50
+  description: "基于o：CosineHoldAtMin(T_max=30, eta_min=1e-4)快速停火 + wd=5e-4 + patience=50，其余(lr=1e-3, full finetune)同o"
+train:
+  optimizer:
+    weight_decay: 0.0005
+  scheduler:
+    type: CosineHoldAtMin
+    T_max: 30
+    eta_min: 1e-4
+  early_stopping:
+    monitor: val_loss
+    patience: 50

@@ -1,0 +1,38 @@
+============================================================
+KAN 模型训练（配置驱动，支持续训/网格细化/LBFGS）
+============================================================
+[1] 加载预处理数据: f:\computer_science\machine_learning_fission_yield\pipeline\output\o6_ft_235UALL_lr1e3_hold50_wd5e4_pat50\data\preprocessed_o6_ft_235UALL_lr1e3_hold50_wd5e4_pat50.pkl
+    样本数: 3508, 特征维度: 4
+    特征: ['Z_norm', 'A_norm', 'E_norm', 'delta_np']
+[2] 构建 KAN 模型: width=[[4, 0], [20, 0], [20, 0], [1, 0]] (grid=20, k=4)
+    参数量: 17,440, 设备: cpu
+
+[2b] 从预训练权重初始化 (init_from=n_power_delta_np) ...
+    已载入预训练模型: f:\computer_science\machine_learning_fission_yield\pipeline\output\n_power_delta_np\models\kan_best_n_power_delta_np.pth (grid=20, 参数量 17,440)
+C:\Users\86138\AppData\Roaming\Python\Python312\site-packages\torch\optim\lr_scheduler.py:62: UserWarning: The verbose parameter is deprecated. Please use get_last_lr() to access the learning rate.
+  warnings.warn(
+[3] 优化器: AdamW, 调度器: CosineHoldAtMin, 损失: MSELoss
+    验证集: 619 样本（held-out，用于 val_loss 监控）
+
+[4] 开始训练（共 2000 轮，batch=512，早停 patience=50, min_delta=5e-06, monitor=val_loss）；续训关闭
+    Epoch    1/2000 | loss: 4.3238e-02 | val_loss: 3.0343e-02 | lr: 9.99e-04 | grid: 20 | 早停计数: 0/50
+    Epoch   20/2000 | loss: 1.5011e-02 | val_loss: 1.7836e-02 | lr: 6.65e-04 | grid: 20 | 早停计数: 1/50
+    Epoch   40/2000 | loss: 1.1782e-02 | val_loss: 1.8211e-02 | lr: 1.23e-04 | grid: 20 | 早停计数: 19/50
+    Epoch   60/2000 | loss: 1.1428e-02 | val_loss: 1.8327e-02 | lr: 3.00e-05 | grid: 20 | 早停计数: 39/50
+
+  ⏹ 早停触发：连续 50 轮损失未改善（最佳 @ epoch 21）
+
+    训练完成：最佳损失 1.7725e-02（adam epoch/step 21），用时 61.6s
+
+============================================================
+训练完成！摘要信息
+============================================================
+变体名    : o6_ft_235UALL_lr1e3_hold50_wd5e4_pat50
+最终 grid : 20
+最终 loss  : 1.1380e-02
+最佳 loss  : 1.7725e-02 (adam epoch/step 21)
+best 模型  : f:\computer_science\machine_learning_fission_yield\pipeline\output\o6_ft_235UALL_lr1e3_hold50_wd5e4_pat50\models\kan_best_o6_ft_235UALL_lr1e3_hold50_wd5e4_pat50.pth
+latest 模型: f:\computer_science\machine_learning_fission_yield\pipeline\output\o6_ft_235UALL_lr1e3_hold50_wd5e4_pat50\models\kan_latest_o6_ft_235UALL_lr1e3_hold50_wd5e4_pat50.pth
+resume 点 : f:\computer_science\machine_learning_fission_yield\pipeline\output\o6_ft_235UALL_lr1e3_hold50_wd5e4_pat50\models\kan_resume_o6_ft_235UALL_lr1e3_hold50_wd5e4_pat50.pth（可设 train.resume=true 续训）
+final 模型 : f:\computer_science\machine_learning_fission_yield\pipeline\output\o6_ft_235UALL_lr1e3_hold50_wd5e4_pat50\models\kan_final_o6_ft_235UALL_lr1e3_hold50_wd5e4_pat50.pth
+============================================================

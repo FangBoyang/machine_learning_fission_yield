@@ -1,0 +1,4 @@
+C:\Users\86138\AppData\Roaming\Python\Python312\site-packages\torch\nn\modules\loss.py:610: UserWarning: Using a target size (torch.Size([512])) that is different to the input size (torch.Size([512, 1])). This will likely lead to incorrect results due to broadcasting. Please ensure they have the same size.
+  return F.mse_loss(input, target, reduction=self.reduction)
+C:\Users\86138\AppData\Roaming\Python\Python312\site-packages\torch\nn\modules\loss.py:610: UserWarning: Using a target size (torch.Size([347])) that is different to the input size (torch.Size([347, 1])). This will likely lead to incorrect results due to broadcasting. Please ensure they have the same size.
+  return F.mse_loss(input, target, reduction=self.reduction)

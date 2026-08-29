@@ -1,0 +1,49 @@
+============================================================
+KAN 模型训练（配置驱动，支持续训/网格细化/LBFGS）
+============================================================
+[1] 加载预处理数据: F:\computer_science\machine_learning_fission_yield\pipeline\output\p_ft_235UALL_power_delta_np\data\preprocessed_p_ft_235UALL_power_delta_np.pkl
+    样本数: 3508, 特征维度: 4
+    特征: ['Z_norm', 'A_norm', 'E_norm', 'delta_np']
+[2] 构建 KAN 模型: width=[[4, 0], [16, 0], [16, 0], [1, 0]] (grid=15, k=3)
+    参数量: 9,660, 设备: cpu
+
+[2b] 从预训练权重初始化 (init_from=p_gef_isomer_delta_np) ...
+    已载入预训练模型: F:\computer_science\machine_learning_fission_yield\pipeline\output\p_gef_isomer_delta_np\models\kan_best_p_gef_isomer_delta_np.pth (grid=15, 参数量 9,660)
+[3] 优化器: AdamW, 调度器: CosineAnnealingWarmRestarts, 损失: MSELoss
+    验证集: 619 样本（held-out，用于 val_loss 监控）
+
+[4] 开始训练（共 2000 轮，batch=512，早停 patience=300, min_delta=5e-06, monitor=val_loss）；续训关闭
+    Epoch    1/2000 | loss: 5.8111e-02 | val_loss: 3.9426e-02 | lr: 1.00e-03 | grid: 15 | 早停计数: 0/300
+    Epoch   20/2000 | loss: 2.1260e-02 | val_loss: 2.4398e-02 | lr: 9.94e-04 | grid: 15 | 早停计数: 0/300
+    Epoch   40/2000 | loss: 1.5598e-02 | val_loss: 2.5980e-02 | lr: 9.76e-04 | grid: 15 | 早停计数: 18/300
+    Epoch   60/2000 | loss: 1.2104e-02 | val_loss: 2.9241e-02 | lr: 9.46e-04 | grid: 15 | 早停计数: 38/300
+    Epoch   80/2000 | loss: 9.8277e-03 | val_loss: 3.2102e-02 | lr: 9.05e-04 | grid: 15 | 早停计数: 58/300
+    Epoch  100/2000 | loss: 8.8813e-03 | val_loss: 3.3489e-02 | lr: 8.55e-04 | grid: 15 | 早停计数: 78/300
+    Epoch  120/2000 | loss: 8.0861e-03 | val_loss: 3.5395e-02 | lr: 7.96e-04 | grid: 15 | 早停计数: 98/300
+    Epoch  140/2000 | loss: 7.6299e-03 | val_loss: 3.6668e-02 | lr: 7.30e-04 | grid: 15 | 早停计数: 118/300
+    Epoch  160/2000 | loss: 7.2311e-03 | val_loss: 3.7274e-02 | lr: 6.58e-04 | grid: 15 | 早停计数: 138/300
+    Epoch  180/2000 | loss: 6.9885e-03 | val_loss: 3.8182e-02 | lr: 5.82e-04 | grid: 15 | 早停计数: 158/300
+    Epoch  200/2000 | loss: 6.7095e-03 | val_loss: 3.8944e-02 | lr: 5.05e-04 | grid: 15 | 早停计数: 178/300
+    Epoch  220/2000 | loss: 6.6301e-03 | val_loss: 3.9558e-02 | lr: 4.28e-04 | grid: 15 | 早停计数: 198/300
+    Epoch  240/2000 | loss: 6.4472e-03 | val_loss: 4.0083e-02 | lr: 3.52e-04 | grid: 15 | 早停计数: 218/300
+    Epoch  260/2000 | loss: 6.3836e-03 | val_loss: 4.0527e-02 | lr: 2.80e-04 | grid: 15 | 早停计数: 238/300
+    Epoch  280/2000 | loss: 6.3387e-03 | val_loss: 4.0708e-02 | lr: 2.14e-04 | grid: 15 | 早停计数: 258/300
+    Epoch  300/2000 | loss: 6.2590e-03 | val_loss: 4.1035e-02 | lr: 1.55e-04 | grid: 15 | 早停计数: 278/300
+    Epoch  320/2000 | loss: 6.2328e-03 | val_loss: 4.1217e-02 | lr: 1.05e-04 | grid: 15 | 早停计数: 298/300
+
+  ⏹ 早停触发：连续 300 轮损失未改善（最佳 @ epoch 22）
+
+    训练完成：最佳损失 2.4130e-02（adam epoch/step 22），用时 186.3s
+
+============================================================
+训练完成！摘要信息
+============================================================
+变体名    : p_ft_235UALL_power_delta_np
+最终 grid : 15
+最终 loss  : 6.2357e-03
+最佳 loss  : 2.4130e-02 (adam epoch/step 22)
+best 模型  : F:\computer_science\machine_learning_fission_yield\pipeline\output\p_ft_235UALL_power_delta_np\models\kan_best_p_ft_235UALL_power_delta_np.pth
+latest 模型: F:\computer_science\machine_learning_fission_yield\pipeline\output\p_ft_235UALL_power_delta_np\models\kan_latest_p_ft_235UALL_power_delta_np.pth
+resume 点 : F:\computer_science\machine_learning_fission_yield\pipeline\output\p_ft_235UALL_power_delta_np\models\kan_resume_p_ft_235UALL_power_delta_np.pth（可设 train.resume=true 续训）
+final 模型 : F:\computer_science\machine_learning_fission_yield\pipeline\output\p_ft_235UALL_power_delta_np\models\kan_final_p_ft_235UALL_power_delta_np.pth
+============================================================

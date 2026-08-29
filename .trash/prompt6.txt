@@ -1,0 +1,38 @@
+你是资深 ML 工程化专家。帮我把一个 KAN 裂变产额项目重构成干净的配置驱动架构。
+
+⚠️ 绝对约束：
+1. 只能创建新文件，不删除不覆盖任何已有文件。
+2. 新文件输出到 pipeline/src/ 下。
+3. 所有路径用 os.path.join，兼容 Windows。打印信息用中文。
+
+═════════════════════════════════════════
+任务：写 pipeline/src/04_energy_dep.py
+═════════════════════════════════════════
+
+功能：加载模型 → 固定 Z/A/delta_np → 扫描 E=0~14MeV → 预测 → 聚合 → 画图
+
+接收命令行参数：--config （YAML 配置文件的路径）
+
+执行流程：
+
+1. 解析 --config，加载配置，获取 variant
+2. 从 checkpoint 读取完整配置（同 03_evaluate 的逻辑）
+3. 加载 data/235UALL.csv 作为基准核素表
+4. 反归一化获取物理 Z/A/N/I（用 data/standard_scalerZ.pkl 和 A.pkl）
+5. 预计算 delta_np（不随能量变化）
+6. 构建能量网格：0~14 MeV，步长 1 MeV
+7. 对每个核素 × 每个能量点，构建输入向量 [Z_norm, A_norm, E_norm, delta_np_norm]
+8. 批量预测（batch_size 从 cfg['energy_dep']['batch_size'] 读取）
+9. 反归一化到原始空间，负值裁剪
+10. 可选后处理：如果 cfg['postprocess']['mass_conservation'] 为 true，按 A 分组归一到 2
+11. 按 A 和 Z 分别聚合产额
+12. 画两张图（英文标注）：
+    - yield_vs_A_{variant}.png：按质量数 A 的产额分布，每条线一个能量
+    - yield_vs_Z_{variant}.png：按电荷数 Z 的产额分布
+13. 保存 CSV：energy_dep_{variant}.csv（每个核素×能量的预测值）
+14. 保存聚合 CSV：yield_sum_by_A_{variant}.csv 和 yield_sum_by_Z_{variant}.csv
+15. 打印摘要（中文）
+
+依赖：from common import load_config, get_variant, output_path
+
+确保文件顶部有 # -*- coding: utf-8 -*-

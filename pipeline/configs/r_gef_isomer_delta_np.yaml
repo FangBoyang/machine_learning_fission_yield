@@ -1,0 +1,44 @@
+# 变体 r：单隐藏层 [4,58,1] 的 GEF 异构合并 warmup，固定网格 G=15（无 grid extension）
+# 继承 n_power_delta_np（target.p=0.25 + delta_np，GEF 100% 训练硬约束），
+# 与 q 同属"单隐藏层"家族，但【不爬网格】：直接固定 G=15 训练。
+#
+# 为什么 x=58（hidden width）：按"参数≈数据量"插值阈值，在 GEF_isomer_merged（9,333 样本）上
+#   平衡总参数量。实测 pykan 在 [4,x,1]@G15,k=3 下参数量线性：P ≈ 156·x + 92。
+#   令 P≈9333 -> x≈59.2；取 x=58 得 9,140 参数（距 9,333 仅 ~2%，略低于阈值更安全，
+#   避免对 GEF 过拟合）。x=64 会到 10,076（超 ~8%），故不选。
+#   对比 q 的 [4,16,1]@G85=9,588：r 用更宽(58)更浅(1 层)的固定中网格(15)换取相似容量，
+#   省去 grid extension 的算力与复杂度，单 epoch 也更快。
+#
+# 其他超参（经验设定）：固定 G 无 refine，故用单段 CosineHoldAtMin 平滑衰减到谷底；
+#   lr=0.01（固定网格训练的标准档，比 q 的 0.05 段间探索更稳）；warmup 全程 100% 训练，
+#   早停盯 train_loss。不含 LBFGS 收尾（后续要 finetune，Adam 足够）。
+inherit: n_power_delta_np.yaml
+experiment:
+  name: r_gef_isomer_delta_np
+  description: "单隐藏层[4,58,1] GEF异构合并warmup，固定G=15(k=3,p=0.25,full_train,monitor=train_loss)"
+data:
+  source: csv            # 新文件带表头，必须用 csv 分支
+  header: true
+  csv_path: data/GEF_isomer_merged.csv
+  split: full_train      # GEF 硬约束：100% 训练，无验证集
+model:
+  hidden_layers: [58]    # 单隐藏层 -> width=[4,58,1]；按 GEF 参数平衡得 x=58
+  grid: 15               # 固定网格（不做 grid extension）
+  k: 3
+target:
+  power: 0.25            # 与 p / q 一致（对 t=y^0.25 做 MSE）
+train:
+  epochs: 1500
+  optimizer:
+    lr: 0.01             # 固定网格标准档（比 q 段间 0.05 更稳）
+  scheduler:
+    type: CosineHoldAtMin   # 单段：从初始 lr 衰减 T_max 轮后保持谷底（无 refine 重置）
+    T_max: 400
+    eta_min: 1e-5
+  early_stopping:
+    patience: 400        # > 无 refine，正常收敛不会误触发；靠它判 plateau
+    min_delta: 5e-6
+    monitor: train_loss
+  lbfgs:
+    enabled: false      # warmup 不开 LBFGS 收尾（后续要 finetune）
+  checkpoint_every: 50  # 周期落 latest+resume，便于安全中断后续训

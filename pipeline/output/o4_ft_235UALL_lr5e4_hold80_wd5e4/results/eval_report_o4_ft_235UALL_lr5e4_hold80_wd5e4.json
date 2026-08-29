@@ -1,0 +1,76 @@
+{
+  "model_info": {
+    "name": "o4_ft_235UALL_lr5e4_hold80_wd5e4",
+    "model_path": "f:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\o4_ft_235UALL_lr5e4_hold80_wd5e4\\models\\kan_best_o4_ft_235UALL_lr5e4_hold80_wd5e4.pth",
+    "architecture": [
+      20,
+      20
+    ],
+    "parameters": 17440,
+    "features": [
+      "Z_norm",
+      "A_norm",
+      "E_norm",
+      "delta_np"
+    ],
+    "target_space": "raw"
+  },
+  "eval_set": "val (held-out)",
+  "metrics": {
+    "normalized_space": {
+      "r2": 0.977252721786499,
+      "mse": 0.018417473882436752
+    },
+    "original_space": {
+      "r2": 0.9693629741668701,
+      "rmse": 0.019197799691052203,
+      "mae": 0.005835072603076696
+    },
+    "high_yield_region": {
+      "threshold": 0.002904614433646202,
+      "sample_count": 155,
+      "r2": 0.9555819630622864,
+      "rmse": 0.03835270147192331
+    }
+  },
+  "important_region": {
+    "range": [
+      3096,
+      4127
+    ],
+    "sample_count": 1031,
+    "r2": 0.9618939161300659,
+    "rmse": 0.04107328035413654,
+    "mae": 0.018078932538628578,
+    "high_yield_r2": 0.8588544130325317,
+    "high_yield_rmse": 0.07310644286207635,
+    "note": "in-sample (该区在 finetune 中属于训练集)",
+    "zero_shot_r2": 0.8777247071266174,
+    "zero_shot_rmse": 0.07357522587078025,
+    "zero_shot_high_yield_r2": 0.5542750358581543,
+    "finetune_gain_r2": 0.08416920900344849
+  },
+  "zero_shot_pretrained": {
+    "model": "n_power_delta_np",
+    "path": "f:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\n_power_delta_np\\models\\kan_best_n_power_delta_np.pth",
+    "r2": 0.900519073009491,
+    "rmse": 0.034593769711740385,
+    "mae": 0.010844878852367401,
+    "high_yield_r2": 0.8558638095855713,
+    "high_yield_rmse": 0.06908805284364339,
+    "note": "零样本：预训练基未微调直接预测（对照微调增益）"
+  },
+  "data_stats": {
+    "eval_samples": 619,
+    "true_yield_range": [
+      0.0,
+      0.9154092073440552
+    ],
+    "pred_yield_range": [
+      0.0,
+      0.9079245328903198
+    ]
+  },
+  "visualization_path": "f:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\o4_ft_235UALL_lr5e4_hold80_wd5e4\\results\\eval_o4_ft_235UALL_lr5e4_hold80_wd5e4_val_held-out.png",
+  "timestamp": "2026-08-21 15:29:01"
+}

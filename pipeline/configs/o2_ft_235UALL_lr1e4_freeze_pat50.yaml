@@ -1,0 +1,28 @@
+# 变体 o2：o 的防过拟合微调版
+# 基于 o（n_power_delta_np 权重 init → 235UALL finetune，reuse n scalers）。
+# 针对 train_o.log 观测到的「epoch 21 后 val_loss 单调上升、train 仍降」过拟合现象做 5 项优化：
+#   1) lr: 1e-3 -> 1e-4         —— 微调用小学习率，避免初始 lr 过热（最佳点 21 轮即到）
+#   2) freeze: [] -> ['act_fun.0'] —— 冻结底层特征层，只微调后层（小样本上收紧假设空间）
+#   3) patience: 300 -> 50, epochs: 2000 -> 200 —— 最佳点 21 轮即早停，不白跑纯过拟合轮次
+#   4) 调度器: CosineAnnealingWarmRestarts(T_0=400, 带重启) -> CosineHoldAtMin(T_max=50)
+#      前半段余弦降到 eta_min，到达 T_max 后钳制恒定不再回弹（原生 CosineAnnealingLR 超 T_max 后
+#      cos 周期回弹会重新放大 lr，破坏已收敛解，即 j 在 epoch 400 的坑；见 common.py 该类注释）
+#   5) weight_decay: 1e-4 -> 1e-3 —— 小数据上更强的 L2 正则
+inherit: o_ft_235UALL_power_delta_np.yaml
+experiment:
+  name: o2_ft_235UALL_lr1e4_freeze_pat50
+  description: "o的防过拟合微调：lr=1e-4, freeze act_fun.0, patience=50, epochs=200, CosineHoldAtMin(T_max=50), wd=1e-3"
+finetune:
+  freeze: ['act_fun.0']        # 冻结第一层特征，只微调后层（子串匹配参数名）
+train:
+  epochs: 200
+  optimizer:
+    lr: 0.0001
+    weight_decay: 0.001
+  scheduler:
+    type: CosineHoldAtMin
+    T_max: 50
+    eta_min: 1e-6
+  early_stopping:
+    monitor: val_loss
+    patience: 50

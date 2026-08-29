@@ -1,0 +1,51 @@
+你是资深 ML 工程化专家。帮我把一个 KAN 裂变产额项目重构成干净的配置驱动架构。
+
+⚠️ 绝对约束：
+1. 只能创建新文件，不删除不覆盖任何已有文件。
+2. 新文件输出到 pipeline/src/ 下。
+3. GEF.csv 全部是训练集，不划分验证集/测试集。
+4. 所有路径用 os.path.join，兼容 Windows。打印信息用中文。
+
+═════════════════════════════════════════
+任务：写 pipeline/src/02_train.py
+═════════════════════════════════════════
+
+功能：加载预处理 pkl → 构建 KAN 模型 → 训练 → 保存 best/final
+
+接收命令行参数：--config （YAML 配置文件的路径）
+
+执行流程：
+
+1. 解析 --config，加载配置，获取 variant
+2. 从 pipeline/output/{variant}/data/preprocessed_{variant}.pkl 加载数据
+3. 构建模型：
+   input_dim = len(cfg['data']['features'])
+   hidden = cfg['model']['hidden_layers']
+   width = [input_dim] + hidden + [1]
+   model = KAN(width=width, grid=cfg['model']['grid'], k=cfg['model']['k'], seed=cfg['model']['seed'], save_act=False)
+4. 调用 common.get_optimizer(model, cfg) 获取优化器
+5. 调用 common.get_scheduler(optimizer, cfg) 获取调度器
+6. 调用 common.get_criterion(cfg) 获取损失函数
+7. 转为 PyTorch tensor，送到 device
+8. 训练循环（epochs = cfg['train']['epochs']）：
+   - 按 batch_size 分批前向传播
+   - 计算损失
+   - 反向传播 + 梯度裁剪（如果 cfg['train']['gradient_clip'] > 0）
+   - 更新参数
+   - 调度器 step（每个 epoch 或每个 batch，取决于调度器类型）
+   - 记录 train_loss
+   - 早停判断：监控 train_loss，patience 和 min_delta 从 cfg 读取
+9. 保存 checkpoint 到 output_path(variant, 'models', 'kan_best_{variant}.pth')：
+   必须包含：
+   - 'model_state': model.state_dict()
+   - 'config': cfg  （完整配置字典）
+   - 'config_yaml': yaml.dump(cfg)  （字符串形式的完整配置）
+   - 'epoch': 当前轮数
+   - 'train_loss': 最佳损失值
+   - 'variant': variant
+10. 同样保存 final 到 'kan_final_{variant}.pth'
+11. 打印训练摘要（中文）：变体名、最终 loss、保存路径
+
+依赖：from common import load_config, get_variant, output_path, get_optimizer, get_scheduler, get_criterion
+
+确保文件顶部有 # -*- coding: utf-8 -*-

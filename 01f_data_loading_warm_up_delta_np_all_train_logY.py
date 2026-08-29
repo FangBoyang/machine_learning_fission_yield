@@ -97,16 +97,18 @@ try:
     def calculate_delta_np(row):
         N, Z, I = row['N'], row['Z_original'], row['I']
         N_even, Z_even = (N % 2 == 0), (Z % 2 == 0)
-        if N_even == Z_even:
+        if N_even and Z_even:                       # ee
             return 2 - abs(I)
-        elif N_even and not Z_even and N != Z:
-            return 1 - abs(I)
-        elif not N_even and Z_even and N != Z:
-            return 1 - abs(I)
-        elif N_even and not Z_even and N > Z:
+        elif (not N_even) and (not Z_even):          # oo
+            return abs(I)
+        elif N_even and (not Z_even) and N > Z:      # eo, N>Z
             return 1.0
-        elif not N_even and Z_even and N < Z:
+        elif (not N_even) and Z_even and N < Z:      # oe, N<Z
             return 1.0
+        elif N_even and (not Z_even) and N < Z:      # eo, N<Z
+            return 1 - abs(I)
+        elif (not N_even) and Z_even and N > Z:      # oe, N>Z
+            return 1 - abs(I)
         else:
             return 1.0
     
