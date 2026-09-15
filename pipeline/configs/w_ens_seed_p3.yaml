@@ -1,0 +1,55 @@
+# w_ens — 集成阶段配置（由 05_ensemble.py / 03_evaluate.py / 04_energy_dep.py 消费）
+#
+# 性质：本配置不参与训练（无 01/02 阶段），成员列表指向已训练好的 finetune 变体。
+# 成员：w1_ft..w6_ft —— 与 v 系列的唯一差异是【不含 delta_np】，
+#       输入为 [Z_norm, A_norm, E_norm]（3 维），warmup seed = 1..6。
+# 目的：与 v_ens_seed_p3 平行对照，回答「delta_np 到底有没有用」：
+#       A) 集成精度 vs 最优单成员；B) 成员间离散度 σ 的不确定度校准。
+#       w_ens 与 v_ens 的指标可直接比较（两者 split.seed=42，验证集逐点对齐）。
+#
+# 注：本配置里的 data.features 仅作自文档（实际特征取自各成员 checkpoint 的
+#     config.data.features），但为避免误读，仍显式写成 3 维。
+inherit: base.yaml
+experiment:
+  name: w_ens_seed_p3
+  description: "6 个同构 w*_ft（无delta_np，3维输入，p=0.35，warmup seed 1..6）的多种子集成：精度对比 + 不确定度校准（UQ）。与 v_ens_seed_p3 平行对照。"
+
+data:
+  features: [Z_norm, A_norm, E_norm]
+  use_delta_np: false
+
+ensemble:
+  # ---- 成员：w 系列的 235UALL finetune（各自 init_from 对应 seed 的 w*_gef warmup）----
+  members:
+    - w1_ft_235UALL_power
+    - w2_ft_235UALL_power
+    - w3_ft_235UALL_power
+    - w4_ft_235UALL_power
+    - w5_ft_235UALL_power
+    - w6_ft_235UALL_power
+
+  # 手动排除的成员（默认空）。脚本不做自动剔除——避免静默改变集成结果，
+  # 所有成员的个体指标都会列出，由人判断后在此显式登记。
+  drop_members: []
+
+  # 评估集：val = held-out 验证集（泛化代理）；train = 训练集（in-sample）
+  eval_set: val
+
+  # 平均空间：各成员各自反变换到「原始产额空间」后再平均。
+  # 不在归一化/幂次空间平均——幂变换非线性，先平均再反变换会因 Jensen 不等式引入偏差。
+  average_space: original
+
+  # 集成方法（精度对比用；UQ 的 σ 恒以 mean_equal 为准）
+  #   mean_equal  : 等权平均（主方法）
+  #   median      : 中位数（对个别离群成员鲁棒）
+  #   r2_weighted : 权重 ∝ 各成员 R²（沿用 .trash/ensemble_top3.py 口径，便于跨实验对比）
+  methods: [mean_equal, median, r2_weighted]
+
+  # 成员间标准差的自由度修正：1=样本标准差（无偏估计），0=总体标准差
+  sigma_ddof: 1
+
+  # σ-产额 分箱数（按真实产额等频分箱，观察 σ 是否随产额增大）
+  sigma_bins: 5
+
+  # 是否出图（奇偶图带 ±1σ 误差棒 + σ vs 产额散点）
+  make_figure: true

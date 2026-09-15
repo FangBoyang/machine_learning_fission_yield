@@ -1,0 +1,76 @@
+{
+  "model_info": {
+    "name": "v5_ft_235UALL_power_delta_np",
+    "model_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\v5_ft_235UALL_power_delta_np\\models\\kan_best_v5_ft_235UALL_power_delta_np.pth",
+    "architecture": [
+      16,
+      16
+    ],
+    "parameters": 9660,
+    "features": [
+      "Z_norm",
+      "A_norm",
+      "E_norm",
+      "delta_np"
+    ],
+    "target_space": "raw"
+  },
+  "eval_set": "val (held-out)",
+  "metrics": {
+    "normalized_space": {
+      "r2": 0.9841115474700928,
+      "mse": 0.018342379480600357
+    },
+    "original_space": {
+      "r2": 0.9790072441101074,
+      "rmse": 0.01589141712668913,
+      "mae": 0.005030296742916107
+    },
+    "high_yield_region": {
+      "threshold": 0.002904614433646202,
+      "sample_count": 155,
+      "r2": 0.9695860743522644,
+      "rmse": 0.03173602536327217
+    }
+  },
+  "important_region": {
+    "range": [
+      3096,
+      4127
+    ],
+    "sample_count": 1031,
+    "r2": 0.9622825980186462,
+    "rmse": 0.040863284964233554,
+    "mae": 0.017584729939699173,
+    "high_yield_r2": 0.871580958366394,
+    "high_yield_rmse": 0.06973273947146363,
+    "note": "in-sample (该区在 finetune 中属于训练集)",
+    "zero_shot_r2": 0.8796064257621765,
+    "zero_shot_rmse": 0.07300689095088492,
+    "zero_shot_high_yield_r2": 0.5647456049919128,
+    "finetune_gain_r2": 0.08267617225646973
+  },
+  "zero_shot_pretrained": {
+    "model": "v5_gef_isomer_delta_np",
+    "path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\v5_gef_isomer_delta_np\\models\\kan_best_v5_gef_isomer_delta_np.pth",
+    "r2": 0.90049809217453,
+    "rmse": 0.034597419090186037,
+    "mae": 0.0107874795794487,
+    "high_yield_r2": 0.8558282256126404,
+    "high_yield_rmse": 0.06909658193025352,
+    "note": "零样本：预训练基未微调直接预测（对照微调增益）"
+  },
+  "data_stats": {
+    "eval_samples": 619,
+    "true_yield_range": [
+      0.0,
+      0.9154092073440552
+    ],
+    "pred_yield_range": [
+      0.0,
+      0.9336882829666138
+    ]
+  },
+  "visualization_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\v5_ft_235UALL_power_delta_np\\results\\eval_v5_ft_235UALL_power_delta_np_val_held-out.png",
+  "timestamp": "2026-09-01 12:09:55"
+}

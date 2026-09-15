@@ -1,0 +1,739 @@
+===== [2026-09-01 19:11:29] VARIANT w6_gef (w6_gef_isomer) START =====
+>>> [2026-09-01 19:11:29] STAGE w6_gef-01 01_preprocess.py START
+============================================================
+数据预处理（配置驱动，通用数据源）
+============================================================
+[1] 读取通用 CSV 数据 (source=csv): F:\computer_science\machine_learning_fission_yield\data/GEF_isomer_merged.csv
+    样本数: 9333, 列名: ['Z_norm', 'A_norm', 'E_norm', 'Yield', 'Error']
+
+[2] 从 data/ 加载 scalers ...
+C:\Users\86138\.conda\envs\fpy_kan\Lib\site-packages\sklearn\base.py:463: InconsistentVersionWarning: Trying to unpickle estimator MinMaxScaler from version 1.6.1 when using version 1.8.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+    已从 data/ 载入 scalers: ['standard_Z', 'standard_A', 'Yield_power']
+
+[4] 构建特征 X 与目标 y ...
+    特征顺序: ['Z_norm', 'A_norm', 'E_norm'], 维度: 3
+    目标空间: raw, 幂次 p: 0.35, scaler key: Yield_power
+    归一化目标范围: [-0.628163, 4.460366]
+
+[5] 划分训练/验证集 ...
+    full_train: 训练集 9333（无验证集）
+C:\Users\86138\.conda\envs\fpy_kan\Lib\site-packages\sklearn\base.py:463: InconsistentVersionWarning: Trying to unpickle estimator MinMaxScaler from version 1.6.1 when using version 1.8.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+
+[6] 保存预处理数据 ...
+    已保存: F:\computer_science\machine_learning_fission_yield\pipeline\output\w6_gef_isomer\data\preprocessed_w6_gef_isomer.pkl
+
+============================================================
+预处理完成！摘要信息
+============================================================
+变体名    : w6_gef_isomer
+数据源    : csv (data/ scalers)
+样本数    : 9333 (train=9333, val=0)
+特征维度  : 3 (['Z_norm', 'A_norm', 'E_norm'])
+目标空间  : raw (p=0.35, key=Yield_power)
+输出文件  : F:\computer_science\machine_learning_fission_yield\pipeline\output\w6_gef_isomer\data\preprocessed_w6_gef_isomer.pkl
+============================================================
+>>> [2026-09-01 19:11:33] STAGE w6_gef-01 01_preprocess.py EXIT=0
+>>> [2026-09-01 19:11:33] STAGE w6_gef-02 02_train.py START
+============================================================
+KAN 模型训练（配置驱动，支持续训/网格细化/LBFGS）
+============================================================
+[1] 加载预处理数据: F:\computer_science\machine_learning_fission_yield\pipeline\output\w6_gef_isomer\data\preprocessed_w6_gef_isomer.pkl
+    样本数: 9333, 特征维度: 3
+    特征: ['Z_norm', 'A_norm', 'E_norm']
+[2] 构建 KAN 模型: width=[[3, 0], [16, 0], [16, 0], [1, 0]] (grid=15, k=3)
+    参数量: 9,222, 设备: cpu
+C:\Users\86138\AppData\Roaming\Python\Python312\site-packages\torch\optim\lr_scheduler.py:62: UserWarning: The verbose parameter is deprecated. Please use get_last_lr() to access the learning rate.
+  warnings.warn(
+[3] 优化器: AdamW, 调度器: CosineHoldAtMin, 损失: MSELoss
+
+[4] 开始训练（共 2000 轮，batch=512，早停 patience=400, min_delta=5e-06, monitor=train_loss）；续训关闭
+    Epoch    1/2000 | loss: 8.0221e-01 | lr: 5.00e-02 | grid: 15 | 早停计数: 0/400
+    Epoch   20/2000 | loss: 1.1240e-02 | lr: 4.97e-02 | grid: 15 | 早停计数: 5/400
+    Epoch   40/2000 | loss: 7.2232e-03 | lr: 4.88e-02 | grid: 15 | 早停计数: 12/400
+    Epoch   60/2000 | loss: 4.6430e-03 | lr: 4.73e-02 | grid: 15 | 早停计数: 3/400
+    Epoch   80/2000 | loss: 4.3697e-03 | lr: 4.52e-02 | grid: 15 | 早停计数: 23/400
+    Epoch  100/2000 | loss: 4.0289e-03 | lr: 4.27e-02 | grid: 15 | 早停计数: 43/400
+    Epoch  120/2000 | loss: 4.4462e-03 | lr: 3.97e-02 | grid: 15 | 早停计数: 63/400
+    Epoch  140/2000 | loss: 4.4509e-03 | lr: 3.64e-02 | grid: 15 | 早停计数: 7/400
+    Epoch  160/2000 | loss: 3.8317e-03 | lr: 3.27e-02 | grid: 15 | 早停计数: 8/400
+    Epoch  180/2000 | loss: 4.2083e-03 | lr: 2.89e-02 | grid: 15 | 早停计数: 4/400
+    Epoch  200/2000 | loss: 2.2937e-03 | lr: 2.50e-02 | grid: 15 | 早停计数: 4/400
+    Epoch  220/2000 | loss: 2.0410e-03 | lr: 2.11e-02 | grid: 15 | 早停计数: 4/400
+    Epoch  240/2000 | loss: 1.4905e-03 | lr: 1.73e-02 | grid: 15 | 早停计数: 1/400
+    Epoch  260/2000 | loss: 1.3761e-03 | lr: 1.37e-02 | grid: 15 | 早停计数: 7/400
+    Epoch  280/2000 | loss: 1.1032e-03 | lr: 1.03e-02 | grid: 15 | 早停计数: 1/400
+    Epoch  300/2000 | loss: 9.4961e-04 | lr: 7.33e-03 | grid: 15 | 早停计数: 4/400
+    Epoch  320/2000 | loss: 7.5111e-04 | lr: 4.78e-03 | grid: 15 | 早停计数: 0/400
+    Epoch  340/2000 | loss: 6.0557e-04 | lr: 2.73e-03 | grid: 15 | 早停计数: 0/400
+    Epoch  360/2000 | loss: 5.5350e-04 | lr: 1.23e-03 | grid: 15 | 早停计数: 2/400
+    Epoch  380/2000 | loss: 5.0152e-04 | lr: 3.18e-04 | grid: 15 | 早停计数: 2/400
+    Epoch  400/2000 | loss: 4.8499e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 11/400
+    Epoch  420/2000 | loss: 4.9248e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 12/400
+    Epoch  440/2000 | loss: 4.9439e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 32/400
+    Epoch  460/2000 | loss: 4.8334e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 52/400
+    Epoch  480/2000 | loss: 4.8715e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 72/400
+    Epoch  500/2000 | loss: 4.8837e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 92/400
+    Epoch  520/2000 | loss: 4.8914e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 112/400
+    Epoch  540/2000 | loss: 4.8905e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 132/400
+    Epoch  560/2000 | loss: 4.8913e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 152/400
+    Epoch  580/2000 | loss: 4.8995e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 172/400
+    Epoch  600/2000 | loss: 4.8514e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 192/400
+    Epoch  620/2000 | loss: 4.9378e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 212/400
+    Epoch  640/2000 | loss: 4.8296e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 232/400
+    Epoch  660/2000 | loss: 4.8711e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 252/400
+    Epoch  680/2000 | loss: 4.8329e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 272/400
+    Epoch  700/2000 | loss: 4.8342e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 292/400
+    Epoch  720/2000 | loss: 4.8191e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 15/400
+    Epoch  740/2000 | loss: 4.8786e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 35/400
+    Epoch  760/2000 | loss: 4.9207e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 55/400
+    Epoch  780/2000 | loss: 4.8728e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 75/400
+    Epoch  800/2000 | loss: 4.8381e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 95/400
+    Epoch  820/2000 | loss: 4.8144e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 115/400
+    Epoch  840/2000 | loss: 4.8851e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 135/400
+    Epoch  860/2000 | loss: 4.8844e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 155/400
+    Epoch  880/2000 | loss: 4.8898e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 175/400
+    Epoch  900/2000 | loss: 4.8264e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 195/400
+    Epoch  920/2000 | loss: 4.8083e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 215/400
+    Epoch  940/2000 | loss: 4.8129e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 235/400
+    Epoch  960/2000 | loss: 4.8791e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 255/400
+    Epoch  980/2000 | loss: 4.8003e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 275/400
+    Epoch 1000/2000 | loss: 4.7707e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 295/400
+    Epoch 1020/2000 | loss: 4.8152e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 315/400
+    Epoch 1040/2000 | loss: 4.8891e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 335/400
+    Epoch 1060/2000 | loss: 4.8201e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 355/400
+    Epoch 1080/2000 | loss: 4.8228e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 375/400
+    Epoch 1100/2000 | loss: 4.8628e-04 | lr: 1.00e-05 | grid: 15 | 早停计数: 395/400
+
+  ⏹ 早停触发：连续 400 轮损失未改善（最佳 @ epoch 705）
+
+    训练完成：最佳损失 4.7707e-04（adam epoch/step 705），用时 7864.4s
+
+============================================================
+训练完成！摘要信息
+============================================================
+变体名    : w6_gef_isomer
+最终 grid : 15
+最终 loss  : 4.8162e-04
+最佳 loss  : 4.7707e-04 (adam epoch/step 705)
+best 模型  : F:\computer_science\machine_learning_fission_yield\pipeline\output\w6_gef_isomer\models\kan_best_w6_gef_isomer.pth
+latest 模型: F:\computer_science\machine_learning_fission_yield\pipeline\output\w6_gef_isomer\models\kan_latest_w6_gef_isomer.pth
+resume 点 : F:\computer_science\machine_learning_fission_yield\pipeline\output\w6_gef_isomer\models\kan_resume_w6_gef_isomer.pth（可设 train.resume=true 续训）
+final 模型 : F:\computer_science\machine_learning_fission_yield\pipeline\output\w6_gef_isomer\models\kan_final_w6_gef_isomer.pth
+============================================================
+>>> [2026-09-01 21:22:43] STAGE w6_gef-02 02_train.py EXIT=0
+>>> [2026-09-01 21:22:43] STAGE w6_gef-03 03_evaluate.py START
+============================================================
+KAN 模型评估（配置驱动）
+============================================================
+[1] 加载预处理数据: F:\computer_science\machine_learning_fission_yield\pipeline\output\w6_gef_isomer\data\preprocessed_w6_gef_isomer.pkl
+[2] 加载模型: F:\computer_science\machine_learning_fission_yield\pipeline\output\w6_gef_isomer\models\kan_best_w6_gef_isomer.pth
+    架构: KAN[16, 16] (grid=15, k=3)
+    参数量: 9,222, 设备: cpu, 目标空间=raw, p=0.35
+[3] 评估集: train (in-sample), 样本数 9333
+    目标空间: raw，负值裁剪阈值: 0.0
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+[4] 指标 -> 归一化空间 R²=0.9995, MSE=4.861e-04
+    原始空间 R²=0.9993, RMSE=2.357e-03, MAE=6.851e-04
+    高产额区(阈值>5.34e-03) R²=0.9990, RMSE=4.710e-03
+[5] 已保存评估图: F:\computer_science\machine_learning_fission_yield\pipeline\output\w6_gef_isomer\results\eval_w6_gef_isomer_train_in-sample.png
+[8] 已保存评估报告: F:\computer_science\machine_learning_fission_yield\pipeline\output\w6_gef_isomer\results\eval_report_w6_gef_isomer.json
+
+============================================================
+评估完成！摘要信息
+============================================================
+变体名        : w6_gef_isomer
+评估集        : train (in-sample)
+归一化空间 R²  : 0.9995 (MSE=4.861e-04)
+原始空间 R²    : 0.9993 (RMSE=2.357e-03, MAE=6.851e-04)
+高产额区 R²    : 0.9990 (阈值>5.34e-03)
+评估图        : F:\computer_science\machine_learning_fission_yield\pipeline\output\w6_gef_isomer\results\eval_w6_gef_isomer_train_in-sample.png
+报告          : F:\computer_science\machine_learning_fission_yield\pipeline\output\w6_gef_isomer\results\eval_report_w6_gef_isomer.json
+============================================================
+>>> [2026-09-01 21:22:53] STAGE w6_gef-03 03_evaluate.py EXIT=0
+>>> [2026-09-01 21:22:53] STAGE w6_gef-04 04_energy_dep.py START
+============================================================
+裂变产额能量依赖性分析（配置驱动）
+============================================================
+[1] 加载模型: kan_best_w6_gef_isomer.pth
+    架构: KAN[16, 16] (grid=15, k=3)
+    特征: ['Z_norm', 'A_norm', 'E_norm'], 使用delta_np=False, 目标空间=raw, p=0.35
+[2] 加载基准核素表: F:\computer_science\machine_learning_fission_yield\data/235UALL.csv
+    核素数: 1032（与外部 04g/04i 的 iloc[:1032] 一致）
+C:\Users\86138\.conda\envs\fpy_kan\Lib\site-packages\sklearn\base.py:463: InconsistentVersionWarning: Trying to unpickle estimator MinMaxScaler from version 1.6.1 when using version 1.8.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+[3] 物理 Z 范围: [23, 71], A 范围: [66, 172]
+[4] 变体未启用 delta_np，跳过预计算
+C:\Users\86138\.conda\envs\fpy_kan\Lib\site-packages\sklearn\base.py:463: InconsistentVersionWarning: Trying to unpickle estimator MinMaxScaler from version 1.6.1 when using version 1.8.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+C:\Users\86138\.conda\envs\fpy_kan\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but MinMaxScaler was fitted with feature names
+  warnings.warn(
+[5] 激发能网格: 0~14 MeV, 步长 1.0, 共 15 点
+[6] 预测输入构建完成: 15480 行 (1032核素 × 15能量点), 3 维
+[7] 预测完成。原始空间产额范围: [0.00e+00, 8.77e-01]
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+[9] 已保存图1: F:\computer_science\machine_learning_fission_yield\pipeline\output\w6_gef_isomer\results\yield_vs_A_w6_gef_isomer.png
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+    已保存图2: F:\computer_science\machine_learning_fission_yield\pipeline\output\w6_gef_isomer\results\yield_vs_Z_w6_gef_isomer.png
+[10] 已保存逐点预测 CSV: F:\computer_science\machine_learning_fission_yield\pipeline\output\w6_gef_isomer\results\energy_dep_w6_gef_isomer.csv
+     已保存聚合 CSV: F:\computer_science\machine_learning_fission_yield\pipeline\output\w6_gef_isomer\results\yield_sum_by_A_w6_gef_isomer.csv
+     已保存聚合 CSV: F:\computer_science\machine_learning_fission_yield\pipeline\output\w6_gef_isomer\results\yield_sum_by_Z_w6_gef_isomer.csv
+
+============================================================
+能量依赖性分析完成！摘要信息
+============================================================
+变体名        : w6_gef_isomer
+模型架构      : KAN[16, 16] (grid=15, k=3)
+基准核素表    : F:\computer_science\machine_learning_fission_yield\data/235UALL.csv（1032 唯一核素）
+能量网格      : 0~14 MeV，步长 1.0，15 点
+目标空间      : raw，使用delta_np=False
+预测产额范围  : [0.00e+00, 8.77e-01]
+逐点预测 CSV  : F:\computer_science\machine_learning_fission_yield\pipeline\output\w6_gef_isomer\results\energy_dep_w6_gef_isomer.csv
+按A聚合 CSV   : F:\computer_science\machine_learning_fission_yield\pipeline\output\w6_gef_isomer\results\yield_sum_by_A_w6_gef_isomer.csv
+按Z聚合 CSV   : F:\computer_science\machine_learning_fission_yield\pipeline\output\w6_gef_isomer\results\yield_sum_by_Z_w6_gef_isomer.csv
+图1 (vs A)    : F:\computer_science\machine_learning_fission_yield\pipeline\output\w6_gef_isomer\results\yield_vs_A_w6_gef_isomer.png
+图2 (vs Z)    : F:\computer_science\machine_learning_fission_yield\pipeline\output\w6_gef_isomer\results\yield_vs_Z_w6_gef_isomer.png
+完成时间      : 2026-09-01 21:23:03
+============================================================
+>>> [2026-09-01 21:23:04] STAGE w6_gef-04 04_energy_dep.py EXIT=0
+===== [2026-09-01 21:23:04] VARIANT w6_gef DONE =====

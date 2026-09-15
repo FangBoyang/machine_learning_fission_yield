@@ -1,0 +1,46 @@
+# 变体 q_ft：基于 q_gef_isomer_delta_np(GEF 异构合并 warmup, [4,16,1]@G85 grid extension) 的【235UALL finetune】
+# 继承 n_power_delta_np（target.p=0.25 + delta_np discrete），覆盖 data/model/finetune/eval/train。
+# 与 p_ft 对应，仅把预训练基从 p 换成 q（同单隐藏层家族、容量~9.3k 参数；q 用极细网格 G=85）。
+# - init_from / reuse_scalers_from = q_gef_isomer_delta_np（必须同源同宽，权重/scalers 才可加载；q 末态 grid=85）。
+# - 架构 model 段与 q warmup 末态一致 [4,16,1]/grid85/k3（init_from 会按 q 真实 grid 重建，此处仅自洽文档）。
+# - full finetune（freeze: []）；lr=0.001（远低于 warmup 的 0.05）。
+# - val 仅来自前 3096 行（val_ratio=0.2），重要区 [3096,4127) 100% 进训练；早停 monitor=val_loss。
+# - reuse_scalers_from=q：复用 q 的 scalers（含 GEF_isomer_merged 上拟合的 Yield_power），保证目标空间与 warmup 一致。
+inherit: n_power_delta_np.yaml
+experiment:
+  name: q_ft_235UALL_power_delta_np
+  description: "基于q_gef_isomer_delta_np([4,16,1]@G85)warmup的235UALL finetune：复用权重+scalers，val仅来自前3096行，val_loss早停"
+data:
+  source: csv
+  csv_path: data/235UALL.csv
+  header: true
+  columns: [Z, A, E, Yield, Error]
+  split:
+    mode: held_out
+    val_from_first_n: 3096
+    val_ratio: 0.2
+    seed: 42
+model:
+  hidden_layers: [16]
+  grid: 85
+  k: 3
+target:
+  power: 0.25
+finetune:
+  init_from: q_gef_isomer_delta_np
+  reuse_scalers_from: q_gef_isomer_delta_np
+  freeze: []
+eval:
+  eval_set: val
+  important_range: [3096, 4127]
+train:
+  optimizer:
+    lr: 0.001
+  scheduler:
+    type: CosineHoldAtMin
+    T_max: 400
+    eta_min: 1e-5
+  early_stopping:
+    monitor: val_loss
+    patience: 300
+  checkpoint_every: 50

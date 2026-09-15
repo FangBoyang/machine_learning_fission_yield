@@ -1,0 +1,47 @@
+# v_ens — 集成阶段配置（由 05_ensemble.py 消费）
+#
+# 性质：本配置不参与训练（无 01/02 阶段），成员列表指向已训练好的 finetune 变体。
+# 成员约定：仅纳入 v 开头的变体（v1_ft..v6_ft，其 warmup seed=1..6），
+#          不含 p3_ft（p3 的 warmup 是 seed 42，不属于 v 系列）。
+# 目的：6 个「仅初始化随机种子不同」的同构模型做集成——
+#      A) 集成精度 vs 最优单成员；B) 成员间离散度 σ 的不确定度校准。
+inherit: base.yaml
+experiment:
+  name: v_ens_seed_p3
+  description: "6 个同构 v*_ft（p=0.35，warmup seed 1..6）的多种子集成：精度对比 + 不确定度校准（UQ）。"
+
+ensemble:
+  # ---- 成员：v 系列的 235UALL finetune（各自 init_from 对应 seed 的 v*_gef warmup）----
+  members:
+    - v1_ft_235UALL_power_delta_np
+    - v2_ft_235UALL_power_delta_np
+    - v3_ft_235UALL_power_delta_np
+    - v4_ft_235UALL_power_delta_np
+    - v5_ft_235UALL_power_delta_np
+    - v6_ft_235UALL_power_delta_np
+
+  # 手动排除的成员（默认空）。脚本不做自动剔除——避免静默改变集成结果，
+  # 所有成员的个体指标都会列出，由人判断后在此显式登记。
+  drop_members: []
+
+  # 评估集：val = held-out 验证集（泛化代理）；train = 训练集（in-sample）
+  eval_set: val
+
+  # 平均空间：各成员各自反变换到「原始产额空间」后再平均。
+  # 不在归一化/幂次空间平均——幂变换非线性，先平均再反变换会因 Jensen 不等式引入偏差。
+  average_space: original
+
+  # 集成方法（精度对比用；UQ 的 σ 恒以 mean_equal 为准）
+  #   mean_equal  : 等权平均（主方法）
+  #   median      : 中位数（对个别离群成员鲁棒）
+  #   r2_weighted : 权重 ∝ 各成员 R²（沿用 .trash/ensemble_top3.py 口径，便于跨实验对比）
+  methods: [mean_equal, median, r2_weighted]
+
+  # 成员间标准差的自由度修正：1=样本标准差（无偏估计），0=总体标准差
+  sigma_ddof: 1
+
+  # σ-产额 分箱数（按真实产额等频分箱，观察 σ 是否随产额增大）
+  sigma_bins: 5
+
+  # 是否出图（奇偶图带 ±1σ 误差棒 + σ vs 产额散点）
+  make_figure: true

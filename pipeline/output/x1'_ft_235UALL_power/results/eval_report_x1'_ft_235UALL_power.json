@@ -1,0 +1,77 @@
+{
+  "model_info": {
+    "name": "x1'_ft_235UALL_power",
+    "model_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\x1'_ft_235UALL_power\\models\\kan_best_x1'_ft_235UALL_power.pth",
+    "architecture": [
+      16,
+      16
+    ],
+    "parameters": 9222,
+    "features": [
+      "Z_norm",
+      "A_norm",
+      "E_norm"
+    ],
+    "target_space": "raw"
+  },
+  "eval_set": "val (held-out)",
+  "ensemble": null,
+  "uncertainty": null,
+  "metrics": {
+    "normalized_space": {
+      "r2": 0.9852895736694336,
+      "mse": 0.016982456669211388
+    },
+    "original_space": {
+      "r2": 0.9762908220291138,
+      "rmse": 0.01688831320345707,
+      "mae": 0.005282238125801086
+    },
+    "high_yield_region": {
+      "threshold": 0.002904614433646202,
+      "sample_count": 155,
+      "r2": 0.9656230211257935,
+      "rmse": 0.033740401923154195
+    }
+  },
+  "important_region": {
+    "range": [
+      3096,
+      4127
+    ],
+    "sample_count": 1031,
+    "r2": 0.9621109366416931,
+    "rmse": 0.04095614752955303,
+    "mae": 0.018262622877955437,
+    "high_yield_r2": 0.8700767159461975,
+    "high_yield_rmse": 0.07013996134299774,
+    "note": "in-sample (该区在 finetune 中属于训练集)",
+    "zero_shot_r2": 0.8790164589881897,
+    "zero_shot_rmse": 0.07318556186095283,
+    "zero_shot_high_yield_r2": 0.561469316482544,
+    "finetune_gain_r2": 0.08309447765350342
+  },
+  "zero_shot_pretrained": {
+    "model": "x1'_gef_isomer",
+    "path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\x1'_gef_isomer\\models\\kan_best_x1'_gef_isomer.pth",
+    "r2": 0.8994280695915222,
+    "rmse": 0.034782942667209854,
+    "mae": 0.010817686095833778,
+    "high_yield_r2": 0.8542664051055908,
+    "high_yield_rmse": 0.06946982633475024,
+    "note": "零样本：预训练基未微调直接预测（对照微调增益）"
+  },
+  "data_stats": {
+    "eval_samples": 619,
+    "true_yield_range": [
+      0.0,
+      0.9154092073440552
+    ],
+    "pred_yield_range": [
+      0.0,
+      0.8795257210731506
+    ]
+  },
+  "visualization_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\x1'_ft_235UALL_power\\results\\eval_x1'_ft_235UALL_power_val_held-out.png",
+  "timestamp": "2026-09-09 17:31:41"
+}

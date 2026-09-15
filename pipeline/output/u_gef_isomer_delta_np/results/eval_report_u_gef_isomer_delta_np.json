@@ -1,0 +1,53 @@
+{
+  "model_info": {
+    "name": "u_gef_isomer_delta_np",
+    "model_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\u_gef_isomer_delta_np\\models\\kan_best_u_gef_isomer_delta_np.pth",
+    "architecture": [
+      10,
+      9,
+      9,
+      9
+    ],
+    "parameters": 8880,
+    "features": [
+      "Z_norm",
+      "A_norm",
+      "E_norm",
+      "delta_np"
+    ],
+    "target_space": "raw"
+  },
+  "eval_set": "train (in-sample)",
+  "metrics": {
+    "normalized_space": {
+      "r2": 0.9988052248954773,
+      "mse": 0.001194791286252439
+    },
+    "original_space": {
+      "r2": 0.998462438583374,
+      "rmse": 0.0035334047837600633,
+      "mae": 0.0011026904685422778
+    },
+    "high_yield_region": {
+      "threshold": 0.005342515185475349,
+      "sample_count": 2334,
+      "r2": 0.997740626335144,
+      "rmse": 0.007061539160365143
+    }
+  },
+  "important_region": null,
+  "zero_shot_pretrained": null,
+  "data_stats": {
+    "eval_samples": 9333,
+    "true_yield_range": [
+      0.0,
+      0.8999999761581421
+    ],
+    "pred_yield_range": [
+      0.0,
+      0.8848230242729187
+    ]
+  },
+  "visualization_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\u_gef_isomer_delta_np\\results\\eval_u_gef_isomer_delta_np_train_in-sample.png",
+  "timestamp": "2026-08-30 18:09:55"
+}

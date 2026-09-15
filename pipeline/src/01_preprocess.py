@@ -16,6 +16,13 @@ data.split：
 - mode='held_out'     ：留出验证集；val_from_first_n>0 时 val 仅从 [0,val_from_first_n)
   内随机划分（重要区全进 train），满足“val 只来自前 N 行、训练集涵盖后面数据”的约束。
 
+data.augment（可选，默认关闭，关闭时行为与历史变体 v/w 逐字节一致）：
+在第 3 步之后、第 5 步划分之前，按原始产额分位数分档复制行并加相对高斯噪声
+（噪声加在原始产额空间）。详见 common.augment_yield_noise 的文档字符串。
+启用后会多出两列：Yield（副本为带噪值，用于训练目标）与 Yield_original
+（恒为源行干净值，用于 raw_data，保证 03 的指标仍是对原始 GEF 数据计算）。
+与 split.mode=held_out 冲突（同一原始行的副本会同时进 train/val），会直接报错。
+
 特征/目标构建统一走 common.make_features_and_target；划分走 common.apply_split。
 用法：
     python src/01_preprocess.py --config configs/<variant>.yaml
@@ -33,7 +40,8 @@ from sklearn.preprocessing import StandardScaler
 
 from common import (load_config, get_variant, output_path,
                     build_features, compute_delta_np, make_features_and_target,
-                    load_scalers_from_pretrained, apply_split, PROJECT_ROOT)
+                    load_scalers_from_pretrained, apply_split,
+                    augment_yield_noise, PROJECT_ROOT)
 
 
 def _safe_load_scaler(filename):
@@ -140,6 +148,21 @@ def main():
         df['delta_np'] = raw_delta  # 供 build_features / make_features_and_target 读取
         print(f"    delta_np 范围: [{raw_delta.min():.6f}, {raw_delta.max():.6f}]")
 
+    # 3.5 产额噪声增广（可选，data.augment.enabled 控制）
+    #   位置有硬性要求：
+    #   - 必须在第 2 步 scaler 拟合【之后】：保证标准化统计量与未增广时一致，
+    #     finetune 复用该 scaler 时空间不变。
+    #   - 必须在第 5 步 apply_split【之前】：划分基于增广后的行。
+    #   增广后 df 多出两列：Yield（副本为带噪值，供训练目标用）与
+    #   Yield_original（恒为源行干净值，供 raw_data / 03 评估用）。
+    n_before_aug = int(df.shape[0])
+    df, aug_source_index = augment_yield_noise(df, cfg)
+    if aug_source_index is not None:
+        _a = cfg['data']['augment']
+        print(f"\n[3.5] 产额噪声增广: {n_before_aug} -> {df.shape[0]} 行 | "
+              f"分档分位 {_a.get('quantile_edges')} | 副本数 {_a.get('n_copies')} | "
+              f"σ {_a.get('rel_sigma')} | mode={_a.get('noise_mode', 'multiplicative')}")
+
     # 4. 构建特征 X 与目标 y（统一走 common，GEF 与 finetune 共用）
     print("\n[4] 构建特征 X 与目标 y ...")
     X, y, feature_names, target_key, target_power, target_space = make_features_and_target(df, cfg, scalers)
@@ -166,15 +189,20 @@ def main():
 
     # 7. 保存 pkl
     print("\n[6] 保存预处理数据 ...")
+    # 注意：增广后行数变为 N_aug，故所有逐行数组都必须从【增广后】的 df 取，
+    # 不能沿用第 3 步基于原始 df 算出的 Z_original/A_original/N/I/raw_delta。
+    # Yield_original 恒为源行干净产额（副本行也是），因此 03 的 R² 仍是对原始
+    # GEF 数据计算，只是高产区按副本数被重复计数（K 加权）。
     raw_data = {
-        'Z_original': None if raw_delta is None else Z_original.astype(np.float32),
-        'A_original': None if raw_delta is None else A_original.astype(np.float32),
-        'N': None if raw_delta is None else N.astype(np.float32),
+        'Z_original': df['Z_original'].values.astype(np.float32) if 'Z_original' in df else None,
+        'A_original': df['A_original'].values.astype(np.float32) if 'A_original' in df else None,
+        'N': df['N'].values.astype(np.float32) if 'N' in df else None,
         'E_original': E_original,
-        'I': None if raw_delta is None else I.astype(np.float32),
-        'delta_np': None if raw_delta is None else raw_delta.astype(np.float32),
-        'Yield_original': df['Yield'].values.astype(np.float32),
+        'I': df['I'].values.astype(np.float32) if 'I' in df else None,
+        'delta_np': df['delta_np'].values.astype(np.float32) if 'delta_np' in df else None,
+        'Yield_original': df['Yield_original'].values.astype(np.float32),
         'Error': df['Error'].values.astype(np.float32) if 'Error' in df else None,
+        'aug_source_index': aug_source_index,   # 增广行 -> 原始行映射（未增广时为 None）
     }
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     data_dict = {
@@ -201,6 +229,12 @@ def main():
             'n_val': int(X_val.shape[0]) if X_val is not None else 0,
             'n_features': int(X.shape[1]),
             'device': device,
+            # 增广审计（只存标量；逐行映射 aug_source_index 在 raw_data 中）
+            'augment': {
+                'enabled': aug_source_index is not None,
+                'n_before': n_before_aug,
+                'n_after': int(df.shape[0]),
+            },
         },
         'device': device,
     }
@@ -217,6 +251,11 @@ def main():
     print(f"数据源    : {cfg['data'].get('source', 'gef')}"
           + (f" (复用 {reuse} 的 scalers)" if reuse else " (data/ scalers)"))
     print(f"样本数    : {X.shape[0]} (train={X_train.shape[0]}, val={0 if X_val is None else X_val.shape[0]})")
+    if aug_source_index is not None:
+        print(f"噪声增广  : {n_before_aug} -> {X.shape[0]} 行 | 副本数 "
+              f"{cfg['data']['augment'].get('n_copies')} | σ "
+              f"{cfg['data']['augment'].get('rel_sigma')} | "
+              f"mode={cfg['data']['augment'].get('noise_mode', 'multiplicative')}")
     print(f"特征维度  : {X.shape[1]} ({feature_names})")
     print(f"目标空间  : {target_space} (p={target_power}, key={target_key})")
     print(f"输出文件  : {out_path}")

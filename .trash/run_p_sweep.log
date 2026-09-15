@@ -1,0 +1,14 @@
+PIPELINE START [2026-08-30 20:50:41]
+===== [2026-08-30 20:50:41] VARIANT p2_gef (p2_gef_isomer_delta_np) START -> log: output/p2_gef_isomer_delta_np/p2_gef_pipeline.log =====
+===== [2026-08-31 00:44:10] VARIANT p2_gef DONE =====
+===== [2026-08-31 00:44:10] VARIANT p3_gef (p3_gef_isomer_delta_np) START -> log: output/p3_gef_isomer_delta_np/p3_gef_pipeline.log =====
+===== [2026-08-31 02:27:20] VARIANT p3_gef DONE =====
+===== [2026-08-31 02:27:21] VARIANT p4_gef (p4_gef_isomer_delta_np) START -> log: output/p4_gef_isomer_delta_np/p4_gef_pipeline.log =====
+===== [2026-08-31 04:07:44] VARIANT p4_gef DONE =====
+===== [2026-08-31 04:07:44] VARIANT p2_ft (p2_ft_235UALL_power_delta_np) START -> log: output/p2_ft_235UALL_power_delta_np/p2_ft_pipeline.log =====
+===== [2026-08-31 04:14:05] VARIANT p2_ft DONE =====
+===== [2026-08-31 04:14:05] VARIANT p3_ft (p3_ft_235UALL_power_delta_np) START -> log: output/p3_ft_235UALL_power_delta_np/p3_ft_pipeline.log =====
+===== [2026-08-31 04:20:09] VARIANT p3_ft DONE =====
+===== [2026-08-31 04:20:10] VARIANT p4_ft (p4_ft_235UALL_power_delta_np) START -> log: output/p4_ft_235UALL_power_delta_np/p4_ft_pipeline.log =====
+===== [2026-08-31 04:26:49] VARIANT p4_ft DONE =====
+ALL DONE [2026-08-31 04:26:49]

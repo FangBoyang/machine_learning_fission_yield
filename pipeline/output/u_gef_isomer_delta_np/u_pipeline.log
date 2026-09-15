@@ -1,0 +1,100 @@
+===== [2026-08-30 16:26:23] VARIANT u (u_gef_isomer_delta_np) START =====
+>>> [2026-08-30 16:26:23] STAGE u-01 01_preprocess.py START
+============================================================
+数据预处理（配置驱动，通用数据源）
+============================================================
+[1] 读取通用 CSV 数据 (source=csv): F:\computer_science\machine_learning_fission_yield\data/GEF_isomer_merged.csv
+    样本数: 9333, 列名: ['Z_norm', 'A_norm', 'E_norm', 'Yield', 'Error']
+
+[2] 从 data/ 加载 scalers ...
+C:\Users\86138\.conda\envs\fpy_kan\Lib\site-packages\sklearn\base.py:463: InconsistentVersionWarning: Trying to unpickle estimator MinMaxScaler from version 1.6.1 when using version 1.8.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+    已从 data/ 载入 scalers: ['standard_Z', 'standard_A', 'delta_np', 'Yield_power']
+
+[3] 计算 delta_np 特征 ...
+    delta_np 范围: [0.083333, 1.918919]
+
+[4] 构建特征 X 与目标 y ...
+    特征顺序: ['Z_norm', 'A_norm', 'E_norm', 'delta_np'], 维度: 4
+    目标空间: raw, 幂次 p: 0.25, scaler key: Yield_power
+    归一化目标范围: [-0.776037, 3.647618]
+
+[5] 划分训练/验证集 ...
+    full_train: 训练集 9333（无验证集）
+C:\Users\86138\.conda\envs\fpy_kan\Lib\site-packages\sklearn\base.py:463: InconsistentVersionWarning: Trying to unpickle estimator MinMaxScaler from version 1.6.1 when using version 1.8.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+
+[6] 保存预处理数据 ...
+    已保存: F:\computer_science\machine_learning_fission_yield\pipeline\output\u_gef_isomer_delta_np\data\preprocessed_u_gef_isomer_delta_np.pkl
+
+============================================================
+预处理完成！摘要信息
+============================================================
+变体名    : u_gef_isomer_delta_np
+数据源    : csv (data/ scalers)
+样本数    : 9333 (train=9333, val=0)
+特征维度  : 4 (['Z_norm', 'A_norm', 'E_norm', 'delta_np'])
+目标空间  : raw (p=0.25, key=Yield_power)
+输出文件  : F:\computer_science\machine_learning_fission_yield\pipeline\output\u_gef_isomer_delta_np\data\preprocessed_u_gef_isomer_delta_np.pkl
+============================================================
+>>> [2026-08-30 16:26:27] STAGE u-01 01_preprocess.py EXIT=0
+>>> [2026-08-30 16:26:27] STAGE u-02 02_train.py START
+============================================================
+KAN 模型训练（配置驱动，支持续训/网格细化/LBFGS）
+============================================================
+[1] 加载预处理数据: F:\computer_science\machine_learning_fission_yield\pipeline\output\u_gef_isomer_delta_np\data\preprocessed_u_gef_isomer_delta_np.pkl
+    样本数: 9333, 特征维度: 4
+    特征: ['Z_norm', 'A_norm', 'E_norm', 'delta_np']
+[2] 构建 KAN 模型: width=[[4, 0], [10, 0], [9, 0], [9, 0], [9, 0], [1, 0]] (grid=15, k=3)
+    参数量: 8,880, 设备: cpu
+C:\Users\86138\AppData\Roaming\Python\Python312\site-packages\torch\optim\lr_scheduler.py:62: UserWarning: The verbose parameter is deprecated. Please use get_last_lr() to access the learning rate.
+  warnings.warn(
+[3] 优化器: AdamW, 调度器: CosineHoldAtMin, 损失: MSELoss
+
+[4] 开始训练（共 1500 轮，batch=512，早停 patience=400, min_delta=5e-06, monitor=train_loss）；续训关闭
+    Epoch    1/1500 | loss: 8.7104e-01 | lr: 1.00e-02 | grid: 15 | 早停计数: 0/400
+    Epoch   20/1500 | loss: 9.3596e-03 | lr: 9.94e-03 | grid: 15 | 早停计数: 4/400
+    Epoch   40/1500 | loss: 8.2099e-03 | lr: 9.76e-03 | grid: 15 | 早停计数: 3/400
+    Epoch   60/1500 | loss: 5.4530e-03 | lr: 9.46e-03 | grid: 15 | 早停计数: 5/400
+    Epoch   80/1500 | loss: 4.4456e-03 | lr: 9.05e-03 | grid: 15 | 早停计数: 0/400
+    Epoch  100/1500 | loss: 4.8992e-03 | lr: 8.54e-03 | grid: 15 | 早停计数: 5/400
+    Epoch  120/1500 | loss: 4.4961e-03 | lr: 7.94e-03 | grid: 15 | 早停计数: 6/400
+    Epoch  140/1500 | loss: 4.2527e-03 | lr: 7.27e-03 | grid: 15 | 早停计数: 3/400
+    Epoch  160/1500 | loss: 3.5916e-03 | lr: 6.55e-03 | grid: 15 | 早停计数: 12/400
+    Epoch  180/1500 | loss: 3.6162e-03 | lr: 5.79e-03 | grid: 15 | 早停计数: 17/400
+    Epoch  200/1500 | loss: 3.1159e-03 | lr: 5.00e-03 | grid: 15 | 早停计数: 4/400
+    Epoch  220/1500 | loss: 2.5829e-03 | lr: 4.22e-03 | grid: 15 | 早停计数: 1/400
+    Epoch  240/1500 | loss: 2.4429e-03 | lr: 3.46e-03 | grid: 15 | 早停计数: 1/400
+    Epoch  260/1500 | loss: 2.0901e-03 | lr: 2.74e-03 | grid: 15 | 早停计数: 6/400
+    Epoch  280/1500 | loss: 1.7855e-03 | lr: 2.07e-03 | grid: 15 | 早停计数: 4/400
+    Epoch  300/1500 | loss: 1.5446e-03 | lr: 1.47e-03 | grid: 15 | 早停计数: 0/400
+    Epoch  320/1500 | loss: 1.5383e-03 | lr: 9.64e-04 | grid: 15 | 早停计数: 5/400
+    Epoch  340/1500 | loss: 1.3723e-03 | lr: 5.54e-04 | grid: 15 | 早停计数: 4/400
+    Epoch  360/1500 | loss: 1.2914e-03 | lr: 2.54e-04 | grid: 15 | 早停计数: 2/400
+    Epoch  380/1500 | loss: 1.2086e-03 | lr: 7.15e-05 | grid: 15 | 早停计数: 3/400
+    Epoch  400/1500 | loss: 1.2186e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 1/400
+    Epoch  420/1500 | loss: 1.1971e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 17/400
+    Epoch  440/1500 | loss: 1.2094e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 37/400
+    Epoch  460/1500 | loss: 1.1973e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 57/400
+    Epoch  480/1500 | loss: 1.2005e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 3/400
+    Epoch  500/1500 | loss: 1.2103e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 23/400
+    Epoch  520/1500 | loss: 1.2206e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 43/400
+    Epoch  540/1500 | loss: 1.2067e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 63/400
+    Epoch  560/1500 | loss: 1.1848e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 83/400
+    Epoch  580/1500 | loss: 1.1976e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 103/400
+    Epoch  600/1500 | loss: 1.1835e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 123/400
+    Epoch  620/1500 | loss: 1.1944e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 143/400
+    Epoch  640/1500 | loss: 1.1840e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 9/400
+    Epoch  660/1500 | loss: 1.1863e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 29/400
+    Epoch  680/1500 | loss: 1.1953e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 49/400
+    Epoch  700/1500 | loss: 1.1840e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 69/400
+    Epoch  720/1500 | loss: 1.1845e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 89/400
+    Epoch  740/1500 | loss: 1.1981e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 109/400
+    Epoch  760/1500 | loss: 1.1880e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 129/400
+    Epoch  780/1500 | loss: 1.1877e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 149/400
+    Epoch  800/1500 | loss: 1.1794e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 169/400
+    Epoch  820/1500 | loss: 1.1823e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 189/400
+>>> [2026-08-30 18:09:22] STAGE u-02 02_train.py EXIT=1
+!! TRAIN FAILED u

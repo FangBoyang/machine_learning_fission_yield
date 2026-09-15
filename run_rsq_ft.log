@@ -1,0 +1,8 @@
+PIPELINE START [2026-08-30 09:18:15]
+===== [2026-08-30 09:18:15] VARIANT r_ft (r_ft_235UALL_power_delta_np) START -> log: output/r_ft_235UALL_power_delta_np/r_ft_pipeline.log =====
+===== [2026-08-30 09:24:45] VARIANT r_ft DONE =====
+===== [2026-08-30 09:24:46] VARIANT s_ft (s_ft_235UALL_power_delta_np) START -> log: output/s_ft_235UALL_power_delta_np/s_ft_pipeline.log =====
+===== [2026-08-30 09:50:28] VARIANT s_ft DONE =====
+===== [2026-08-30 09:50:28] VARIANT q_ft (q_ft_235UALL_power_delta_np) START -> log: output/q_ft_235UALL_power_delta_np/q_ft_pipeline.log =====
+===== [2026-08-30 09:58:08] VARIANT q_ft DONE =====
+ALL DONE [2026-08-30 09:58:09]

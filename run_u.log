@@ -1,0 +1,6 @@
+PIPELINE START [2026-08-30 16:26:23]
+===== [2026-08-30 16:26:23] VARIANT u (u_gef_isomer_delta_np) START -> log: output/u_gef_isomer_delta_np/u_pipeline.log =====
+!! TRAIN FAILED u
+===== [2026-08-30 18:09:22] VARIANT u_ft (u_ft_235UALL_power_delta_np) START -> log: output/u_ft_235UALL_power_delta_np/u_ft_pipeline.log =====
+===== [2026-08-30 18:14:04] VARIANT u_ft DONE =====
+ALL DONE [2026-08-30 18:14:04]

@@ -15,6 +15,14 @@
   该区在 finetune 中属于训练集，明确标注 in-sample。
 - finetune.init_from 存在时：额外评估“零样本预训练基”在同评估集上的表现作为对照。
 
+集成模式：
+- 若配置含 ensemble.members，则逐成员加载各自 pkl 与 ckpt（各自的目标 scaler/
+  幂次 p），预测后在「原始产额空间」取平均（与 05_ensemble.py 口径一致），
+  并额外输出成员间标准差 σ。指标与图基于集成均值计算。
+- 集成变体自身没有 preprocessed_<variant>.pkl，故 scaler/幂次一律取自各成员
+  自己的 pkl；各成员 val_indices/特征/目标设定会强制校验一致。
+- 不含 ensemble.members 时，行为与改造前完全一致（单模型）。
+
 用法：
     python src/03_evaluate.py --config configs/<variant>.yaml
 """
@@ -60,6 +68,61 @@ def _predict(model, X, device, batch_size=512):
             batch = Xt[i:i + batch_size]
             out.append(model(batch).detach().cpu().numpy())
     return np.concatenate(out, axis=0).reshape(-1)
+
+
+def _load_member_bundle(variant):
+    """加载单个成员：预处理 pkl + 模型 + 该成员自己的目标 scaler/幂次 p。
+
+    集成变体自身没有 preprocessed_<variant>.pkl，scaler 与幂次只能从各成员
+    自己的 pkl 取——幂次变体（p=0.35）的 scaler 是对 t=y^p 重新拟合的，
+    取错（比如回退 p=1.0）会静默导致反变换错误而不报错。
+    """
+    pkl_path = output_path(variant, 'data', f'preprocessed_{variant}.pkl')
+    if not os.path.exists(pkl_path):
+        raise FileNotFoundError(f"未找到预处理文件: {pkl_path}（请先运行 01_preprocess.py）")
+    with open(pkl_path, 'rb') as f:
+        data = pickle.load(f)
+    device = data['device']
+    model, ckpt, model_path, model_cfg = _load_model(variant, device)
+
+    info = data.get('data_info', {}) or {}
+    target_space = model_cfg['target']['space']
+    clip_min = float(model_cfg['target']['clip_min'])
+    target_power = float(info.get('target_power', 1.0))
+    scaler_key = info.get('target_key', 'Yield_log' if target_space == 'log' else 'Yield_original')
+    scalers = data.get('scalers', {}) or {}
+    scaler = (scalers.get(scaler_key)
+              or scalers.get('Yield_original')
+              or scalers.get('Yield_log'))
+    return {
+        'name': variant, 'data': data, 'device': device,
+        'model': model, 'model_path': model_path, 'model_cfg': model_cfg,
+        'target_space': target_space, 'clip_min': clip_min,
+        'target_power': target_power, 'scaler': scaler,
+        'n_params': int(sum(p.numel() for p in model.parameters())),
+    }
+
+
+def _check_bundles_consistent(bundles):
+    """校验各成员的验证集索引/特征/目标设定是否一致（不一致则无法逐点集成）。"""
+    ref = bundles[0]
+    ref_split = (ref['data'].get('data_info', {}) or {}).get('split', {}) or {}
+    ref_val = ref_split.get('val_indices')
+    ref_feats = list(ref['data'].get('feature_names', []))
+    for b in bundles:
+        sp = (b['data'].get('data_info', {}) or {}).get('split', {}) or {}
+        bv = sp.get('val_indices')
+        if (ref_val is None) != (bv is None):
+            raise ValueError("集成成员的验证集划分不一致（一个有 val_indices，一个没有）")
+        if ref_val is not None and not np.array_equal(np.asarray(ref_val), np.asarray(bv)):
+            raise ValueError(f"成员 {b['name']} 的 val_indices 与 {ref['name']} 不一致，无法逐点集成")
+        if list(b['data'].get('feature_names', [])) != ref_feats:
+            raise ValueError(f"成员 {b['name']} 的特征与 {ref['name']} 不一致")
+    for key in ('target_space', 'clip_min', 'target_power'):
+        vals = {b['name']: b[key] for b in bundles}
+        if len({str(v) for v in vals.values()}) > 1:
+            raise ValueError(f"集成成员在 `{key}` 上不一致：{vals}")
+    return True
 
 
 def _inverse_target(y_norm, scaler, target_space, target_power=1.0):
@@ -164,22 +227,40 @@ def main():
     print("KAN 模型评估（配置驱动）")
     print("=" * 60)
 
-    # 2. 加载预处理 pkl
-    pkl_path = output_path(variant, 'data', f'preprocessed_{variant}.pkl')
-    if not os.path.exists(pkl_path):
-        raise FileNotFoundError(f"未找到预处理文件: {pkl_path}（请先运行 01_preprocess.py）")
-    with open(pkl_path, 'rb') as f:
-        data = pickle.load(f)
-    print(f"[1] 加载预处理数据: {pkl_path}")
+    # 2. 加载预处理数据 + 模型（结构取自 checkpoint 内嵌 config）
+    #    集成模式：cfg 含 ensemble.members 时逐成员加载，预测后在「原始产额空间」
+    #    平均（与 05_ensemble.py 一致）；单模型时 member_names=[variant]，行为不变。
+    ens_cfg = cfg.get('ensemble', {}) or {}
+    member_names = list(ens_cfg.get('members', []) or [])
+    if member_names:
+        drop = set(ens_cfg.get('drop_members', []) or [])
+        member_names = [m for m in member_names if m not in drop]
+        if not member_names:
+            raise ValueError("ensemble.members 为空（或全部被 drop_members 排除）")
+    is_ensemble = len(member_names) > 0
+    if not is_ensemble:
+        member_names = [variant]
 
-    # 3. 加载模型（结构取自 checkpoint 内嵌 config）
+    bundles = []
+    for mn in member_names:
+        b = _load_member_bundle(mn)
+        bundles.append(b)
+        print(f"[1] 加载预处理数据: {output_path(mn, 'data', f'preprocessed_{mn}.pkl')}")
+        print(f"[2] 加载模型: {b['model_path']}")
+        print(f"    架构: KAN{list(b['model_cfg']['model']['hidden_layers'])} "
+              f"(grid={b['model_cfg']['model']['grid']}, k={b['model_cfg']['model']['k']})")
+        print(f"    参数量: {b['n_params']:,}, 设备: {b['device']}, "
+              f"目标空间={b['target_space']}, p={b['target_power']}")
+
+    data = bundles[0]['data']
     device = data['device']
-    model, ckpt, model_path, model_cfg = _load_model(variant, device)
-    n_params = sum(p.numel() for p in model.parameters())
-    print(f"[2] 加载模型: {model_path}")
-    print(f"    架构: KAN{list(model_cfg['model']['hidden_layers'])} "
-          f"(grid={model_cfg['model']['grid']}, k={model_cfg['model']['k']})")
-    print(f"    参数量: {n_params:,}, 设备: {device}")
+    model_cfg = bundles[0]['model_cfg']
+    n_params = bundles[0]['n_params']
+    model_path = bundles[0]['model_path']
+    if is_ensemble:
+        _check_bundles_consistent(bundles)
+        model_path = f"ensemble({len(bundles)}): " + ", ".join(b['name'] for b in bundles)
+        print(f"    ✅ 集成模式：{len(bundles)} 个成员，一致性校验通过，原始产额空间平均")
 
     # 4. 选择评估集
     eval_cfg = cfg.get('eval', {}) or {}
@@ -212,17 +293,38 @@ def main():
     target_scaler = data['scalers'].get(scaler_key)
     if target_scaler is None:
         target_scaler = data['scalers'].get('Yield_original') or data['scalers'].get('Yield_log')
-    y_pred_norm = _predict(model, X_eval, device)
-    y_pred_original = _inverse_target(y_pred_norm, target_scaler, target_space, target_power)
-    y_pred_original = np.clip(y_pred_original, clip_min, None)
-    print(f"    目标空间: {target_space}，负值裁剪阈值: {clip_min}")
+    def _predict_all(X):
+        """在 X 上预测。返回 (原始空间预测, 成员间σ或None, 归一化空间预测)。
+
+        集成模式：各成员用自己的 scaler/幂次各自反变换后，在「原始产额空间」取平均
+        （与 05_ensemble.py 的 average_space=original 一致），σ = 成员间标准差。
+        单模型时退化为原来的单条路径（bundles 只有 1 个成员）。
+        """
+        preds_norm, preds_orig = [], []
+        for b in bundles:
+            pn = _predict(b['model'], X, device)
+            preds_norm.append(pn)
+            preds_orig.append(np.clip(
+                _inverse_target(pn, b['scaler'], b['target_space'], b['target_power']),
+                b['clip_min'], None))
+        preds_orig = np.stack(preds_orig, axis=0)
+        preds_norm = np.stack(preds_norm, axis=0)
+        if is_ensemble:
+            return preds_orig.mean(axis=0), preds_orig.std(axis=0, ddof=1), preds_norm.mean(axis=0)
+        return preds_orig[0], None, preds_norm[0]
+
+    y_pred_original, y_pred_std, y_pred_norm = _predict_all(X_eval)
+    print(f"    目标空间: {target_space}，负值裁剪阈值: {clip_min}"
+          + (f"；成员间 σ 均值={y_pred_std.mean():.3e}" if y_pred_std is not None else ""))
 
     # 6. 指标 + 图
     r2_orig, rmse_orig, mae_orig, high_thr, r2_high, rmse_high = _compute_metrics(y_true_orig, y_pred_original)
     r2_norm = r2_score(y_eval_norm, y_pred_norm)
     mse_norm = mean_squared_error(y_eval_norm, y_pred_norm)
+    # 注意：fig_tag 会进入文件名，不能含 Windows 非法字符（| / : 等）
+    fig_tag = tag + (f'_ensemble{len(bundles)}' if is_ensemble else '')
     img_path = _make_figure(variant, target_space, X_eval, data['feature_names'],
-                            y_true_orig, y_pred_original, r2_orig, r2_high, high_thr, tag)
+                            y_true_orig, y_pred_original, r2_orig, r2_high, high_thr, fig_tag)
     print(f"[4] 指标 -> 归一化空间 R²={r2_norm:.4f}, MSE={mse_norm:.3e}")
     print(f"    原始空间 R²={r2_orig:.4f}, RMSE={rmse_orig:.3e}, MAE={mae_orig:.3e}")
     print(f"    高产额区(阈值>{high_thr:.2e}) R²={r2_high:.4f}, RMSE={rmse_high:.3e}")
@@ -247,7 +349,7 @@ def main():
         if pos.size > 0:
             X_imp = data['X_train'][pos]
             y_imp_true = full_yield[imp_full]
-            y_imp_pred = np.clip(_inverse_target(_predict(model, X_imp, device), target_scaler, target_space, target_power), clip_min, None)
+            y_imp_pred, _, _ = _predict_all(X_imp)   # 集成时同样对成员平均
             ir2, irmse, imae, ithr, ir2h, irmseh = _compute_metrics(y_imp_true, y_imp_pred)
             important_report = {
                 'range': [start, end], 'sample_count': int(pos.size),
@@ -288,6 +390,14 @@ def main():
             'features': data['feature_names'], 'target_space': target_space,
         },
         'eval_set': tag,
+        'ensemble': ({'n_members': len(bundles),
+                      'members': [b['name'] for b in bundles],
+                      'average_space': 'original'} if is_ensemble else None),
+        'uncertainty': (None if y_pred_std is None else {
+            'sigma_mean': float(y_pred_std.mean()),
+            'sigma_max': float(y_pred_std.max()),
+            'note': '成员间标准差（集成离散度，认知不确定度代理）',
+        }),
         'metrics': {
             'normalized_space': {'r2': float(r2_norm), 'mse': float(mse_norm)},
             'original_space': {'r2': float(r2_orig), 'rmse': rmse_orig, 'mae': float(mae_orig)},
@@ -315,6 +425,10 @@ def main():
     print("评估完成！摘要信息")
     print("=" * 60)
     print(f"变体名        : {variant}")
+    if is_ensemble:
+        print(f"集成成员      : {len(bundles)} 个（{', '.join(b['name'] for b in bundles)}）")
+        print(f"集成方式      : 各成员各自反变换到原始产额空间后平均（附成员间 ±1σ）")
+        print(f"成员间 σ      : 均值={y_pred_std.mean():.3e}, 最大={y_pred_std.max():.3e}")
     print(f"评估集        : {tag}")
     print(f"归一化空间 R²  : {r2_norm:.4f} (MSE={mse_norm:.3e})")
     print(f"原始空间 R²    : {r2_orig:.4f} (RMSE={rmse_orig:.3e}, MAE={mae_orig:.3e})")

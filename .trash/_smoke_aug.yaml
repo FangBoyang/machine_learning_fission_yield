@@ -1,0 +1,13 @@
+# 临时：验证 01_preprocess 的产额噪声增广接线（跑完即移入 .trash）
+inherit: w1_gef_isomer.yaml
+experiment:
+  name: _smoke_aug
+  description: "临时：data.augment 接线验证（开启增广）"
+data:
+  augment:
+    enabled: true
+    seed: 42
+    quantile_edges: [0.5, 0.9]
+    n_copies: [0, 1, 2]
+    rel_sigma: [0.0, 0.05, 0.10]
+    noise_mode: multiplicative

@@ -1,0 +1,9 @@
+# 变体 u_ft_freeze0：u warmup([10,9,9,9] G15 k3) 上微调 235UALL，【全部参数训练】(freeze: [])。
+# 即原 u_ft 的显式命名版，作为 freeze 0/1/2/3/4 对照梯度的基线。
+# 除显式写出 freeze: [] 与 name 外，完全继承 u_ft（架构/数据/超参/lr=0.001 一致）。
+inherit: u_ft_235UALL_power_delta_np.yaml
+experiment:
+  name: u_ft_freeze0_235UALL_power_delta_np
+  description: "u 架构[4,10,9,9,9,1]@G15 微调 235UALL：冻结 0 层(全训练)，lr=0.001，freeze 梯度基线"
+finetune:
+  freeze: []      # 全解冻，所有 5 个 KANLayer 均可训练

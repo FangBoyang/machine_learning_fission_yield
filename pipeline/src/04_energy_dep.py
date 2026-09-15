@@ -11,6 +11,15 @@
 用法：
     python src/04_energy_dep.py --config configs/<variant>.yaml
 
+集成模式：
+- 若配置含 ensemble.members，则逐成员加载各自 ckpt 与各自的目标 scaler/幂次 p，
+  各自反变换到原始产额空间后跨成员取平均（与 05_ensemble.py 的
+  average_space=original 口径一致），并额外输出成员间标准差 σ。
+- 关键：集成变体自身没有 preprocessed_<variant>.pkl，绝不能走「按 variant 找 pkl」
+  的老路径——那样 target_power 会静默回退成 1.0（实际 p=0.35），反变换全错。
+  故 scaler/幂次一律取自各成员自己的 pkl。
+- 不含 ensemble.members 时，行为与改造前完全一致（单模型）。
+
 关键约定（与 03_evaluate 一致）：
 - 模型结构从 checkpoint 的 'config' 字段读取，不依赖外部 YAML。
 - 输入特征顺序严格使用 checkpoint config 的 data.features（delta_np 变体含 4 维，否则 3 维）。
@@ -69,6 +78,83 @@ def _inverse_target(y_norm, scaler, target_space, clip_min, target_power=1.0):
     return np.clip(y, clip_min, None)
 
 
+def _load_member_bundle(variant, device):
+    """加载单个变体的完整「预测单元」：模型 + ckpt 内嵌配置 + 目标 scaler/幂次 p。
+
+    scaler 与幂次 p 一律取自该变体自己的 preprocessed_<variant>.pkl——
+    幂次变体（p=0.35）的 scaler 是对 t=y^p 重新拟合的，用 data/yield_scaler.pkl
+    反变换会错。集成变体自身没有 pkl，故只能从成员处取，不能从 variant 处取。
+    """
+    model, ckpt = _load_model(variant, device)
+    model_cfg = ckpt['config']
+    data_cfg = model_cfg['data']
+    target_space = model_cfg['target']['space']
+    clip_min = float(model_cfg['target']['clip_min'])
+
+    target_power = 1.0
+    target_key = 'Yield_log' if target_space == 'log' else 'Yield_original'
+    pkl_scaler = None
+    pkl_path = output_path(variant, 'data', f'preprocessed_{variant}.pkl')
+    if os.path.exists(pkl_path):
+        with open(pkl_path, 'rb') as f:
+            pdata = pickle.load(f)
+        info = pdata.get('data_info', {}) or {}
+        target_power = float(info.get('target_power', 1.0))
+        target_key = info.get('target_key', target_key)
+        pkl_scaler = (pdata.get('scalers', {}) or {}).get(target_key)
+    scaler = pkl_scaler if pkl_scaler is not None else _load_target_scaler(target_space)
+
+    _best = output_path(variant, 'models', f'kan_best_{variant}.pth')
+    _final = output_path(variant, 'models', f'kan_final_{variant}.pth')
+
+    return {
+        'name': variant,
+        'model': model,
+        'model_cfg': model_cfg,
+        'model_path': _best if os.path.exists(_best) else _final,
+        'features': list(data_cfg['features']),
+        'use_delta_np': bool(data_cfg.get('use_delta_np', False)),
+        'delta_np_mode': data_cfg.get('delta_np_mode', 'discrete'),
+        'target_space': target_space,
+        'clip_min': clip_min,
+        'target_power': target_power,
+        'scaler': scaler,
+        'n_params': int(sum(p.numel() for p in model.parameters())),
+    }
+
+
+def _check_bundles_consistent(bundles):
+    """校验各成员的特征/目标空间/幂次等是否一致（不一致则无法在同一输入网格上集成）。"""
+    ref = bundles[0]
+    for key in ('features', 'use_delta_np', 'delta_np_mode', 'target_space',
+                'clip_min', 'target_power'):
+        vals = {b['name']: b[key] for b in bundles}
+        uniq = {str(v) for v in vals.values()}
+        if len(uniq) > 1:
+            raise ValueError(f"集成成员在 `{key}` 上不一致，无法共同预测：{vals}")
+    return True
+
+
+def _combine_member_aggs(preds_orig, Z_physical, A_physical, E_full, nuc_idx_full, keys):
+    """集成模式下按 keys 聚合：先逐成员聚合，再跨成员求均值与标准差。
+
+    不能直接对逐点 σ 求和——求和操作会引入成员间的相关性，先各自聚合才是对的。
+    """
+    frames = []
+    for j in range(preds_orig.shape[0]):
+        d = pd.DataFrame({
+            'Z_physical': Z_physical[nuc_idx_full],
+            'A_physical': A_physical[nuc_idx_full],
+            'E_physical': E_full,
+            'Yield_pred': preds_orig[j],
+        })
+        frames.append(d.groupby(keys, as_index=False)['Yield_pred'].sum())
+    return (pd.concat(frames, axis=0)
+            .groupby(keys, as_index=False)
+            .agg(Yield_pred=('Yield_pred', 'mean'),
+                 Yield_pred_std=('Yield_pred', 'std')))
+
+
 def main():
     parser = argparse.ArgumentParser(description="裂变产额能量依赖性分析（配置驱动）")
     parser.add_argument('--config', type=str, required=True, help="YAML 配置文件路径")
@@ -84,37 +170,43 @@ def main():
     print("=" * 60)
 
     # 2. 加载模型（结构取自 checkpoint 内嵌 config）
+    #    集成模式：cfg 含 ensemble.members 时逐成员加载，各自 ckpt + 各自的目标
+    #    scaler/幂次 p，预测后在「原始产额空间」平均（与 05_ensemble 一致）。
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    model, ckpt = _load_model(variant, device)
-    _best = output_path(variant, 'models', f'kan_best_{variant}.pth')
-    _final = output_path(variant, 'models', f'kan_final_{variant}.pth')
-    model_path = _best if os.path.exists(_best) else _final
-    model_cfg = ckpt['config']
-    mcfg = model_cfg['model']
-    data_cfg = model_cfg['data']
-    features = list(data_cfg['features'])
-    use_delta_np = bool(data_cfg.get('use_delta_np', False))
-    delta_np_mode = data_cfg.get('delta_np_mode', 'discrete')
-    target_space = model_cfg['target']['space']
-    clip_min = float(model_cfg['target']['clip_min'])
-    # 从预处理 pkl 读取正确的目标 scaler / 幂次 p（幂次变体 j 的 scaler 是对 t=y^p
-    # 重新拟合的，不能用 data/ 下 yield_scaler.pkl，否则反变换会错）。
-    pkl_path = output_path(variant, 'data', f'preprocessed_{variant}.pkl')
-    target_power = 1.0
-    target_key = 'Yield_log' if target_space == 'log' else 'Yield_original'
-    if os.path.exists(pkl_path):
-        with open(pkl_path, 'rb') as f:
-            _pdata = pickle.load(f)
-        _info = _pdata.get('data_info', {})
-        target_power = float(_info.get('target_power', 1.0))
-        target_key = _info.get('target_key', target_key)
-        _pkl_scaler = _pdata.get('scalers', {}).get(target_key)
-    else:
-        _pkl_scaler = None
-    n_params = sum(p.numel() for p in model.parameters())
-    print(f"[1] 加载模型: {model_path}")
-    print(f"    架构: KAN{list(mcfg['hidden_layers'])} (grid={mcfg['grid']}, k={mcfg['k']})")
-    print(f"    特征: {features}, 使用delta_np={use_delta_np}, 目标空间={target_space}")
+    ens_cfg = cfg.get('ensemble', {}) or {}
+    members = list(ens_cfg.get('members', []) or [])
+    is_ensemble = len(members) > 0
+    member_names = list(members) if is_ensemble else [variant]
+    if is_ensemble:
+        drop = set(ens_cfg.get('drop_members', []) or [])
+        member_names = [m for m in member_names if m not in drop]
+        if not member_names:
+            raise ValueError("ensemble.members 为空（或全部被 drop_members 排除）")
+
+    bundles = []
+    for mn in member_names:
+        b = _load_member_bundle(mn, device)
+        bundles.append(b)
+        print(f"[1] 加载模型: {os.path.basename(b['model_path'])}")
+        print(f"    架构: KAN{list(b['model_cfg']['model']['hidden_layers'])} "
+              f"(grid={b['model_cfg']['model']['grid']}, k={b['model_cfg']['model']['k']})")
+        print(f"    特征: {b['features']}, 使用delta_np={b['use_delta_np']}, "
+              f"目标空间={b['target_space']}, p={b['target_power']}")
+
+    ref = bundles[0]
+    model_cfg, mcfg = ref['model_cfg'], ref['model_cfg']['model']
+    features = ref['features']
+    use_delta_np = ref['use_delta_np']
+    delta_np_mode = ref['delta_np_mode']
+    target_space = ref['target_space']
+    clip_min = ref['clip_min']
+    target_power = ref['target_power']
+    model_path = ref['model_path']
+    n_params = ref['n_params']
+    if is_ensemble:
+        _check_bundles_consistent(bundles)
+        print(f"    ✅ 集成模式：{len(bundles)} 个成员，一致性校验通过，"
+              f"原始产额空间平均")
 
     # 3. 加载 235UALL.csv 基准核素表
     ref_rel = ed_cfg.get('reference_csv', 'data/235UALL.csv')
@@ -187,20 +279,28 @@ def main():
     print(f"[6] 预测输入构建完成: {n_rows} 行 ({n_nuc}核素 × {n_E}能量点), {len(features)} 维")
 
     # 8. 批量预测（batch_size 取 energy_dep.batch_size）
+    #    每个成员用自己的目标 scaler/幂次 p 反变换到原始空间后，再跨成员平均
+    #    （与 05_ensemble.py 的 average_space=original 口径一致）。
     batch_size = int(ed_cfg.get('batch_size', 256))
-    # 优先用预处理 pkl 内嵌的 scaler（幂次变体的 scaler 在 pkl 中），否则回退到 data/ 下
-    target_scaler = _pkl_scaler if _pkl_scaler is not None else _load_target_scaler(target_space)
     Xt = torch.tensor(X, dtype=torch.float32).to(device)
-    pred_norm = []
-    with torch.no_grad():
-        for i in range(0, n_rows, batch_size):
-            batch = Xt[i:i + batch_size]
-            pred_norm.append(model(batch).detach().cpu().numpy())
-    pred_norm = np.concatenate(pred_norm, axis=0).reshape(-1)
+    preds_orig = []
+    for b in bundles:
+        b['model'].eval()
+        pred_norm = []
+        with torch.no_grad():
+            for i in range(0, n_rows, batch_size):
+                pred_norm.append(b['model'](Xt[i:i + batch_size]).detach().cpu().numpy())
+        pred_norm = np.concatenate(pred_norm, axis=0).reshape(-1)
+        preds_orig.append(_inverse_target(pred_norm, b['scaler'], b['target_space'],
+                                          b['clip_min'], b['target_power']))
+    preds_orig = np.stack(preds_orig, axis=0)      # [k, n_rows]，k = 成员数
+    y_pred = preds_orig.mean(axis=0)
+    y_std = preds_orig.std(axis=0, ddof=1) if preds_orig.shape[0] > 1 else None
 
     # 9. 反归一化到原始空间 + 负值裁剪（含幂次反变换）
-    y_pred = _inverse_target(pred_norm, target_scaler, target_space, clip_min, target_power)
-    print(f"[7] 预测完成。原始空间产额范围: [{y_pred.min():.2e}, {y_pred.max():.2e}]")
+    print(f"[7] 预测完成。原始空间产额范围: [{y_pred.min():.2e}, {y_pred.max():.2e}]"
+          + (f"；成员间 σ 范围: [{y_std.min():.2e}, {y_std.max():.2e}]"
+             if y_std is not None else ""))
 
     # 10. 可选质量守恒后处理（按 A 分组归一到 2）
     mass_conservation = bool(pp_cfg.get('mass_conservation', False))
@@ -223,12 +323,21 @@ def main():
         'E_physical': E_full,
         'Yield_pred': y_pred,
     })
+    if y_std is not None:
+        df_out['Yield_pred_std'] = y_std
     if mass_conservation:
         df_out['Yield_pred_mass_conserved'] = y_pred_mc
 
     # 11. 按 A / Z 聚合（原始预测，未做质量守恒）
-    df_sum_by_A = df_out.groupby(['A_physical', 'E_physical'], as_index=False)['Yield_pred'].sum()
-    df_sum_by_Z = df_out.groupby(['Z_physical', 'E_physical'], as_index=False)['Yield_pred'].sum()
+    #     集成模式：先逐成员聚合、再跨成员求均值与标准差（见 _combine_member_aggs）。
+    if y_std is None:
+        df_sum_by_A = df_out.groupby(['A_physical', 'E_physical'], as_index=False)['Yield_pred'].sum()
+        df_sum_by_Z = df_out.groupby(['Z_physical', 'E_physical'], as_index=False)['Yield_pred'].sum()
+    else:
+        df_sum_by_A = _combine_member_aggs(preds_orig, Z_physical, A_physical, E_full,
+                                           nuc_idx_full, ['A_physical', 'E_physical'])
+        df_sum_by_Z = _combine_member_aggs(preds_orig, Z_physical, A_physical, E_full,
+                                           nuc_idx_full, ['Z_physical', 'E_physical'])
 
     # 12. 画图（英文标注）
     plt.rcParams['font.family'] = ['DejaVu Sans', 'Arial', 'Helvetica', 'sans-serif']
@@ -242,6 +351,11 @@ def main():
         sub = df_sum_by_A[df_sum_by_A['E_physical'] == E_phy]
         ax1.plot(sub['A_physical'], sub['Yield_pred'], color=colors[idx], alpha=0.7, linewidth=1.5,
                  label=f'{E_phy:.0f} MeV' if idx % 3 == 0 else None)
+        if 'Yield_pred_std' in sub.columns:   # 集成模式：成员间 ±1σ 带
+            ax1.fill_between(sub['A_physical'],
+                             np.clip(sub['Yield_pred'] - sub['Yield_pred_std'], 0.0, None),
+                             sub['Yield_pred'] + sub['Yield_pred_std'],
+                             color=colors[idx], alpha=0.15, linewidth=0)
         if E_phy == E_physical_grid[0] or E_phy == E_physical_grid[-1]:
             ax1.scatter(sub['A_physical'], sub['Yield_pred'], color=colors[idx], s=18, alpha=0.8,
                         label=f'{E_phy:.0f} MeV (pts)' if (E_phy == E_physical_grid[0] or E_phy == E_physical_grid[-1]) and idx % 3 != 0 else None)
@@ -250,7 +364,7 @@ def main():
     ax1.set_title(f'Fission Yield vs Mass Number (A) — {variant}')
     ax1.grid(True, alpha=0.3)
     ax1.legend(loc='upper right', fontsize=9, ncol=2)
-    ax1.set_ylim(0, df_sum_by_A['Yield_pred'].max() * 1.1)
+    ax1.set_ylim(0, (df_sum_by_A['Yield_pred'] + df_sum_by_A.get('Yield_pred_std', 0.0)).max() * 1.1)
     plt.tight_layout()
     fig1_path = output_path(variant, 'results', f'yield_vs_A_{variant}.png')
     fig1.savefig(fig1_path, dpi=150, bbox_inches='tight')
@@ -263,6 +377,11 @@ def main():
         sub = df_sum_by_Z[df_sum_by_Z['E_physical'] == E_phy]
         ax2.plot(sub['Z_physical'], sub['Yield_pred'], color=colors[idx], alpha=0.7, linewidth=1.5,
                  label=f'{E_phy:.0f} MeV' if idx % 3 == 0 else None)
+        if 'Yield_pred_std' in sub.columns:   # 集成模式：成员间 ±1σ 带
+            ax2.fill_between(sub['Z_physical'],
+                             np.clip(sub['Yield_pred'] - sub['Yield_pred_std'], 0.0, None),
+                             sub['Yield_pred'] + sub['Yield_pred_std'],
+                             color=colors[idx], alpha=0.15, linewidth=0)
         if E_phy == E_physical_grid[0] or E_phy == E_physical_grid[-1]:
             ax2.scatter(sub['Z_physical'], sub['Yield_pred'], color=colors[idx], s=18, alpha=0.8,
                         label=f'{E_phy:.0f} MeV (pts)' if (E_phy == E_physical_grid[0] or E_phy == E_physical_grid[-1]) and idx % 3 != 0 else None)
@@ -271,7 +390,7 @@ def main():
     ax2.set_title(f'Fission Yield vs Atomic Number (Z) — {variant}')
     ax2.grid(True, alpha=0.3)
     ax2.legend(loc='upper right', fontsize=9, ncol=2)
-    ax2.set_ylim(0, df_sum_by_Z['Yield_pred'].max() * 1.1)
+    ax2.set_ylim(0, (df_sum_by_Z['Yield_pred'] + df_sum_by_Z.get('Yield_pred_std', 0.0)).max() * 1.1)
     plt.tight_layout()
     fig2_path = output_path(variant, 'results', f'yield_vs_Z_{variant}.png')
     fig2.savefig(fig2_path, dpi=150, bbox_inches='tight')
@@ -296,6 +415,9 @@ def main():
     print("能量依赖性分析完成！摘要信息")
     print("=" * 60)
     print(f"变体名        : {variant}")
+    if is_ensemble:
+        print(f"集成成员      : {len(bundles)} 个（{', '.join(b['name'] for b in bundles)}）")
+        print(f"集成方式      : 各成员各自反变换到原始产额空间后平均（附成员间 ±1σ）")
     print(f"模型架构      : KAN{list(mcfg['hidden_layers'])} (grid={mcfg['grid']}, k={mcfg['k']})")
     print(f"基准核素表    : {ref_path}（{n_nuc} 唯一核素）")
     print(f"能量网格      : {e_range[0]}~{e_range[1]} MeV，步长 {e_step}，{n_E} 点")

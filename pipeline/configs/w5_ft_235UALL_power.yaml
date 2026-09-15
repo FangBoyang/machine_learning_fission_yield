@@ -1,0 +1,46 @@
+# w_ft seed=5 —— 复制 v5_ft，唯一实质改动：去掉 delta_np 特征。
+#
+# 关键约束：finetune 会直接沿用 warmup 的模型权重（02_train.py 中 `model = pre_model`），
+#   故 warmup 必须同样是 3 维输入，否则第一层形状不匹配会加载失败。
+#   因此 w{i}_ft 必须 init_from / reuse_scalers_from 指向 w{i}_gef_isomer。
+#   （另外 finetune 阶段的 model.seed 会被 warmup 权重覆盖，6 个 w_ft 的差异
+#     只能来自 6 个 warmup 的 seed 1..6。）
+# split.seed=42 与 v 系列保持一致，保证验证集逐点对齐、可与 v 直接对比。
+inherit: j_power_delta_np.yaml
+experiment:
+  name: w5_ft_235UALL_power
+  description: "复制v5_ft(235U finetune,[16,16]/grid15/k3,p=0.35,val前3096行,val_loss早停,patience100)，去掉delta_np，seed=5；init_from/reuse=w5_gef_isomer"
+data:
+  source: csv
+  csv_path: data/235UALL.csv
+  header: true
+  columns: [Z, A, E, Yield, Error]
+  split:
+    mode: held_out
+    val_from_first_n: 3096
+    val_ratio: 0.2
+    seed: 42
+  # ↓ 与 v 的唯一实质差异
+  features: [Z_norm, A_norm, E_norm]
+  use_delta_np: false
+model:
+  hidden_layers: [16, 16]
+  grid: 15
+  k: 3
+  seed: 5
+target:
+  power: 0.35
+finetune:
+  init_from: w5_gef_isomer
+  reuse_scalers_from: w5_gef_isomer
+  freeze: []
+eval:
+  eval_set: val
+  important_range: [3096, 4127]
+train:
+  optimizer:
+    lr: 0.001
+  early_stopping:
+    monitor: val_loss
+    patience: 100
+  checkpoint_every: 50

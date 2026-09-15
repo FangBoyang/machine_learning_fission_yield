@@ -1,0 +1,5 @@
+# 临时：回归验证「增广关闭时 01 输出与既有 v1 pkl 完全一致」（跑完即移入 .trash）
+inherit: v1_gef_isomer_delta_np.yaml
+experiment:
+  name: _smoke_noaug
+  description: "临时：向后兼容回归（关闭增广，应与 v1 pkl 逐字节等价）"

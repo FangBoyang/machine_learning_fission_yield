@@ -1,0 +1,6 @@
+PIPELINE START [2026-08-30 10:56:00]
+===== [2026-08-30 10:56:01] VARIANT t (t_gef_isomer_delta_np) START -> log: output/t_gef_isomer_delta_np/t_pipeline.log =====
+===== [2026-08-30 14:04:08] VARIANT t DONE =====
+===== [2026-08-30 14:04:08] VARIANT t_ft (t_ft_235UALL_power_delta_np) START -> log: output/t_ft_235UALL_power_delta_np/t_ft_pipeline.log =====
+===== [2026-08-30 14:19:37] VARIANT t_ft DONE =====
+ALL DONE [2026-08-30 14:19:37]

@@ -1,0 +1,18 @@
+# 变体 t2：基于 t_gef_isomer_delta_np warmup 的【冻结前层 + 降 lr】finetune（对照实验）
+# 继承 t_ft_235UALL_power_delta_np（即 t 的全解冻 finetune），仅做两处改动：
+#   1) finetune.freeze = ['act_fun.0'] —— 冻结【第一层（输入样条展开层）】，
+#      保留 GEF 9.3k 样本教出的"最通用"输入表示（Z/A/E/delta_np 如何被样条基展开），
+#      只让后面 3 个组合层去适配 235UALL（~3k 训练样本）。直击 t_ft 的灾难性遗忘假设。
+#   2) train.optimizer.lr = 5e-4（原 0.001 的一半，"略微降 lr"）—— 减缓对预训练权重的破坏速率。
+# 目的：在【同架构、同数据、同其余超参】下，干净对照"全解冻(t_ft, 已知 A 图灾难)" vs
+#      "冻前层+降lr(t2)"，以判定 t_ft 的失败是"遗忘"(冻结可救) 还是"深度本身不合适"(冻结也救不回)。
+# 复用 t 的 warmup：init_from / reuse_scalers_from = t_gef_isomer_delta_np（同宽同 grid，权重/scalers 可直接加载）。
+inherit: t_ft_235UALL_power_delta_np.yaml
+experiment:
+  name: t2_freeze_first_lowlr_ft_235UALL_power_delta_np
+  description: "t 架构[4,12,12,10,1]@G15 的冻结前层(act_fun.0)+降lr(5e-4)finetune：对照 t_ft 全解冻灾难，检验'深网络需冻结'假设"
+finetune:
+  freeze: ['act_fun.0']      # 冻第一层（输入样条展开，最通用 GEF 知识）；后 3 组合层全可训练
+train:
+  optimizer:
+    lr: 0.0005               # 5e-4，比 t_ft 的 0.001 略降一半，减缓遗忘

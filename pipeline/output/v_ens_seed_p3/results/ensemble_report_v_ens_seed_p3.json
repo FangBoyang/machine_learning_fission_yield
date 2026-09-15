@@ -1,0 +1,233 @@
+{
+  "ensemble": {
+    "name": "v_ens_seed_p3",
+    "n_members": 6,
+    "members": [
+      "v1_ft_235UALL_power_delta_np",
+      "v2_ft_235UALL_power_delta_np",
+      "v3_ft_235UALL_power_delta_np",
+      "v4_ft_235UALL_power_delta_np",
+      "v5_ft_235UALL_power_delta_np",
+      "v6_ft_235UALL_power_delta_np"
+    ],
+    "missing_members": [],
+    "dropped_members": [],
+    "eval_set": "val (held-out)",
+    "n_samples": 619,
+    "average_space": "original",
+    "methods": [
+      "mean_equal",
+      "median",
+      "r2_weighted"
+    ],
+    "canonical_method": "mean_equal"
+  },
+  "per_member": [
+    {
+      "name": "v1_ft_235UALL_power_delta_np",
+      "model_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\v1_ft_235UALL_power_delta_np\\models\\kan_best_v1_ft_235UALL_power_delta_np.pth",
+      "n_params": 9660,
+      "r2": 0.9810121873906408,
+      "rmse": 0.01511351329935335,
+      "mae": 0.005003977083494945,
+      "high_yield_r2": 0.9724974855193421,
+      "high_yield_rmse": 0.030178845257534045
+    },
+    {
+      "name": "v2_ft_235UALL_power_delta_np",
+      "model_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\v2_ft_235UALL_power_delta_np\\models\\kan_best_v2_ft_235UALL_power_delta_np.pth",
+      "n_params": 9660,
+      "r2": 0.9770170837700861,
+      "rmse": 0.01662763685686023,
+      "mae": 0.005470681096891174,
+      "high_yield_r2": 0.9667020993683161,
+      "high_yield_rmse": 0.03320663310014052
+    },
+    {
+      "name": "v3_ft_235UALL_power_delta_np",
+      "model_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\v3_ft_235UALL_power_delta_np\\models\\kan_best_v3_ft_235UALL_power_delta_np.pth",
+      "n_params": 9660,
+      "r2": 0.9749954644696706,
+      "rmse": 0.017343524569150563,
+      "mae": 0.005543516122879205,
+      "high_yield_r2": 0.9637740552831514,
+      "high_yield_rmse": 0.03463588405980839
+    },
+    {
+      "name": "v4_ft_235UALL_power_delta_np",
+      "model_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\v4_ft_235UALL_power_delta_np\\models\\kan_best_v4_ft_235UALL_power_delta_np.pth",
+      "n_params": 9660,
+      "r2": 0.9748900629380738,
+      "rmse": 0.017380040177965368,
+      "mae": 0.00549063023496566,
+      "high_yield_r2": 0.9635895168126732,
+      "high_yield_rmse": 0.034723991269434505
+    },
+    {
+      "name": "v5_ft_235UALL_power_delta_np",
+      "model_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\v5_ft_235UALL_power_delta_np\\models\\kan_best_v5_ft_235UALL_power_delta_np.pth",
+      "n_params": 9660,
+      "r2": 0.9790072509515902,
+      "rmse": 0.015891416895506588,
+      "mae": 0.00503029694767058,
+      "high_yield_r2": 0.9695860913040122,
+      "high_yield_rmse": 0.03173602547805835
+    },
+    {
+      "name": "v6_ft_235UALL_power_delta_np",
+      "model_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\v6_ft_235UALL_power_delta_np\\models\\kan_best_v6_ft_235UALL_power_delta_np.pth",
+      "n_params": 9660,
+      "r2": 0.9791966027634504,
+      "rmse": 0.01581958531451186,
+      "mae": 0.00508855411120225,
+      "high_yield_r2": 0.9698374396906158,
+      "high_yield_rmse": 0.0316046160641054
+    }
+  ],
+  "ensemble_metrics": {
+    "mean_equal": {
+      "r2": 0.9803034746260947,
+      "rmse": 0.015392982439992323,
+      "mae": 0.00499830385769648,
+      "high_yield_r2": 0.9714530811483886,
+      "high_yield_rmse": 0.0307465249238134,
+      "high_yield_threshold": 0.002904614550061524
+    },
+    "median": {
+      "r2": 0.9808647444560472,
+      "rmse": 0.015172079064502403,
+      "mae": 0.004954658450890382,
+      "high_yield_r2": 0.9722651509625329,
+      "high_yield_rmse": 0.030306048950360903,
+      "high_yield_threshold": 0.002904614550061524
+    },
+    "r2_weighted": {
+      "r2": 0.9803081333745749,
+      "rmse": 0.015391161908879939,
+      "mae": 0.004997980820516194,
+      "high_yield_r2": 0.9714598393630377,
+      "high_yield_rmse": 0.030742885233031664,
+      "high_yield_threshold": 0.002904614550061524
+    }
+  },
+  "best_single": {
+    "name": "v1_ft_235UALL_power_delta_np",
+    "model_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\v1_ft_235UALL_power_delta_np\\models\\kan_best_v1_ft_235UALL_power_delta_np.pth",
+    "n_params": 9660,
+    "r2": 0.9810121873906408,
+    "rmse": 0.01511351329935335,
+    "mae": 0.005003977083494945,
+    "high_yield_r2": 0.9724974855193421,
+    "high_yield_rmse": 0.030178845257534045
+  },
+  "gain_vs_best_single": {
+    "r2": -0.0007087127645460933,
+    "high_yield_r2": -0.0010444043709535444
+  },
+  "consistency": {
+    "val_indices_identical": true,
+    "x_eval_identical": true,
+    "scalers_identical": true,
+    "target_space": [
+      "raw"
+    ],
+    "target_power": [
+      0.35
+    ]
+  },
+  "uncertainty": {
+    "canonical_method": "mean_equal",
+    "sigma_ddof": 1,
+    "overall": {
+      "label": "all",
+      "n": 619,
+      "coverage_1sigma": 0.6742301458670988,
+      "coverage_2sigma": 0.813614262560778,
+      "target_1sigma": 0.6827,
+      "target_2sigma": 0.9545,
+      "k_68": 1.0409392845880028,
+      "k_95": 4.247635174861952,
+      "z_rms": 2.2544805547815003,
+      "sigma_mean": 0.002389526592764968,
+      "abs_err_mean": 0.00499830385769648
+    },
+    "high_yield": {
+      "label": "high_yield",
+      "n": 155,
+      "coverage_1sigma": 0.34838709677419355,
+      "coverage_2sigma": 0.5612903225806452,
+      "target_1sigma": 0.6827,
+      "target_2sigma": 0.9545,
+      "k_68": 2.781573074406769,
+      "k_95": 6.556258307362224,
+      "z_rms": 3.006320441299331,
+      "sigma_mean": 0.009240232429977244,
+      "abs_err_mean": 0.01951251813086621
+    },
+    "bins": [
+      {
+        "bin": 1,
+        "n": 123,
+        "y_min": 0.0,
+        "y_max": 4.6200001289908865e-12,
+        "y_mean": 3.2821307459471934e-13,
+        "sigma_mean": 2.9072685711992545e-06,
+        "abs_err_mean": 1.4960864222546321e-06,
+        "coverage_1sigma": 0.9834710743801653,
+        "sigma_over_abs_err": 1.943249085048137
+      },
+      {
+        "bin": 2,
+        "n": 124,
+        "y_min": 4.789999993870531e-12,
+        "y_max": 1.589999953921506e-07,
+        "y_mean": 2.091025518341698e-08,
+        "sigma_mean": 2.4167663602568037e-06,
+        "abs_err_mean": 1.792884176598078e-06,
+        "coverage_1sigma": 0.9274193548387096,
+        "sigma_over_abs_err": 1.3479768474740605
+      },
+      {
+        "bin": 3,
+        "n": 124,
+        "y_min": 1.700000069604357e-07,
+        "y_max": 4.059999992023222e-05,
+        "y_mean": 8.712201611779569e-06,
+        "sigma_mean": 5.813133860571449e-05,
+        "abs_err_mean": 0.00010882171585837896,
+        "coverage_1sigma": 0.6935483870967742,
+        "sigma_over_abs_err": 0.5341887705700842
+      },
+      {
+        "bin": 4,
+        "n": 124,
+        "y_min": 4.2100000428035855e-05,
+        "y_max": 0.009864257648587227,
+        "y_mean": 0.0018527579742083381,
+        "sigma_mean": 0.0006959835628154165,
+        "abs_err_mean": 0.0010932543733494376,
+        "coverage_1sigma": 0.4838709677419355,
+        "sigma_over_abs_err": 0.6366163079532076
+      },
+      {
+        "bin": 5,
+        "n": 124,
+        "y_min": 0.009914970025420189,
+        "y_max": 0.9154092073440552,
+        "y_mean": 0.1752632554290035,
+        "sigma_mean": 0.011168947097438433,
+        "abs_err_mean": 0.023745857391810614,
+        "coverage_1sigma": 0.2903225806451613,
+        "sigma_over_abs_err": 0.47035349842917606
+      }
+    ],
+    "corr_sigma_yield": 0.8490548228573364,
+    "note": "σ = 成员间标准差（认知不确定度代理）；覆盖良好时 cov1≈68%、cov2≈95%、z_rms≈1。k_68/k_95 = 使覆盖率达到 68%/95% 所需的 σ 缩放系数。"
+  },
+  "outputs": {
+    "perpoint_csv": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\v_ens_seed_p3\\results\\ensemble_perpoint_v_ens_seed_p3.csv",
+    "figure": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\v_ens_seed_p3\\results\\ensemble_sigma_v_ens_seed_p3.png",
+    "summary_md": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\v_ens_seed_p3\\results\\ensemble_summary_v_ens_seed_p3.md"
+  },
+  "timestamp": "2026-09-01 12:52:21"
+}

@@ -1,0 +1,26 @@
+PIPELINE START [2026-09-01 16:31:00]
+===== [2026-09-01 16:31:00] VARIANT w1_gef (w1_gef_isomer) START -> log: output/w1_gef_isomer/w1_gef_pipeline.log =====
+===== [2026-09-01 17:04:08] VARIANT w1_gef DONE =====
+===== [2026-09-01 17:04:08] VARIANT w2_gef (w2_gef_isomer) START -> log: output/w2_gef_isomer/w2_gef_pipeline.log =====
+===== [2026-09-01 17:23:35] VARIANT w2_gef DONE =====
+===== [2026-09-01 17:23:35] VARIANT w3_gef (w3_gef_isomer) START -> log: output/w3_gef_isomer/w3_gef_pipeline.log =====
+===== [2026-09-01 17:47:33] VARIANT w3_gef DONE =====
+===== [2026-09-01 17:47:34] VARIANT w4_gef (w4_gef_isomer) START -> log: output/w4_gef_isomer/w4_gef_pipeline.log =====
+===== [2026-09-01 18:15:51] VARIANT w4_gef DONE =====
+===== [2026-09-01 18:15:51] VARIANT w5_gef (w5_gef_isomer) START -> log: output/w5_gef_isomer/w5_gef_pipeline.log =====
+===== [2026-09-01 19:11:29] VARIANT w5_gef DONE =====
+===== [2026-09-01 19:11:29] VARIANT w6_gef (w6_gef_isomer) START -> log: output/w6_gef_isomer/w6_gef_pipeline.log =====
+===== [2026-09-01 21:23:04] VARIANT w6_gef DONE =====
+===== [2026-09-01 21:23:04] VARIANT w1_ft (w1_ft_235UALL_power) START -> log: output/w1_ft_235UALL_power/w1_ft_pipeline.log =====
+===== [2026-09-01 21:29:17] VARIANT w1_ft DONE =====
+===== [2026-09-01 21:29:17] VARIANT w2_ft (w2_ft_235UALL_power) START -> log: output/w2_ft_235UALL_power/w2_ft_pipeline.log =====
+===== [2026-09-01 21:35:02] VARIANT w2_ft DONE =====
+===== [2026-09-01 21:35:02] VARIANT w3_ft (w3_ft_235UALL_power) START -> log: output/w3_ft_235UALL_power/w3_ft_pipeline.log =====
+===== [2026-09-01 21:41:12] VARIANT w3_ft DONE =====
+===== [2026-09-01 21:41:12] VARIANT w4_ft (w4_ft_235UALL_power) START -> log: output/w4_ft_235UALL_power/w4_ft_pipeline.log =====
+===== [2026-09-01 21:47:02] VARIANT w4_ft DONE =====
+===== [2026-09-01 21:47:03] VARIANT w5_ft (w5_ft_235UALL_power) START -> log: output/w5_ft_235UALL_power/w5_ft_pipeline.log =====
+===== [2026-09-01 21:53:37] VARIANT w5_ft DONE =====
+===== [2026-09-01 21:53:37] VARIANT w6_ft (w6_ft_235UALL_power) START -> log: output/w6_ft_235UALL_power/w6_ft_pipeline.log =====
+===== [2026-09-01 21:59:38] VARIANT w6_ft DONE =====
+ALL DONE [2026-09-01 21:59:38]

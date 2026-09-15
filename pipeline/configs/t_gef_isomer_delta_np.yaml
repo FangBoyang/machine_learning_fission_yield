@@ -1,0 +1,45 @@
+# 变体 t：三隐藏层 [4,12,12,10,1] 的 GEF 异构合并 warmup，固定网格 G=15（无 grid extension）
+# 继承 n_power_delta_np（target.p=0.25 + delta_np，GEF 100% 训练硬约束）。
+#
+# 为什么是 [12,12,10]（三个隐藏层宽度）：
+#   按"总参数量 ≈ 数据量"插值阈值，在 GEF_isomer_merged（9,333 样本）上平衡总参数量。
+#   实测 pykan 在 G=15,k=3 下，等宽三隐层 [4,w,w,w,1] 参数量随 w 跳变：
+#     w=11 -> 8,672（差 -661，~ -7%）   w=12 -> 10,076（差 +743，~ +8%）
+#   无法用等宽精确命中 9,333。故在"平衡（各层宽度相近，非递增）"约束下搜索，
+#   得到最优近等宽锥形 [4,12,12,10,1] = 9,348 参数（差 +15，仅 0.2%，几乎精确命中 9,333）。
+#   12/12/10 三层宽度彼此接近（平衡），且总参数量与 GEF 样本数几乎相等，
+#   兼顾"深度（3 层）"与"参数-数据平衡"。对比单隐层 r [4,58,1]=9,140、双隐层 p [4,16,16,1]=9,660：
+#   t 用更深的组合结构在同一容量档检验"窄深是否成立"。
+#
+# 其他超参（经验设定）：固定 G 无 refine，单段 CosineHoldAtMin 平滑衰减到谷底；
+#   lr=0.01（固定网格标准档）；warmup 全程 100% 训练，早停盯 train_loss；不含 LBFGS 收尾（后续要 finetune，Adam 足够）。
+inherit: n_power_delta_np.yaml
+experiment:
+  name: t_gef_isomer_delta_np
+  description: "三隐藏层[4,12,12,10,1] GEF异构合并warmup，固定G=15(k=3,p=0.25,full_train,monitor=train_loss)"
+data:
+  source: csv            # 新文件带表头，必须用 csv 分支
+  header: true
+  csv_path: data/GEF_isomer_merged.csv
+  split: full_train      # GEF 硬约束：100% 训练，无验证集
+model:
+  hidden_layers: [12, 12, 10]   # 三隐藏层 -> width=[4,12,12,10,1]；按 GEF 参数平衡得 9348 参数≈9333
+  grid: 15               # 固定网格（不做 grid extension）
+  k: 3
+target:
+  power: 0.25            # 与 p / q / r 一致（对 t=y^0.25 做 MSE）
+train:
+  epochs: 1500
+  optimizer:
+    lr: 0.01             # 固定网格标准档
+  scheduler:
+    type: CosineHoldAtMin   # 单段：从初始 lr 衰减 T_max 轮后保持谷底（无 refine 重置）
+    T_max: 400
+    eta_min: 1e-5
+  early_stopping:
+    patience: 400        # > 无 refine，正常收敛不会误触发；靠它判 plateau
+    min_delta: 5e-6
+    monitor: train_loss
+  lbfgs:
+    enabled: false      # warmup 不开 LBFGS 收尾（后续要 finetune）
+  checkpoint_every: 50  # 周期落 latest+resume，便于安全中断后续训

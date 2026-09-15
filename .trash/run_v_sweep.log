@@ -1,0 +1,26 @@
+PIPELINE START [2026-08-31 22:31:31]
+===== [2026-08-31 22:31:32] VARIANT v1_gef (v1_gef_isomer_delta_np) START -> log: output/v1_gef_isomer_delta_np/v1_gef_pipeline.log =====
+===== [2026-09-01 01:14:36] VARIANT v1_gef DONE =====
+===== [2026-09-01 01:14:36] VARIANT v2_gef (v2_gef_isomer_delta_np) START -> log: output/v2_gef_isomer_delta_np/v2_gef_pipeline.log =====
+===== [2026-09-01 03:38:21] VARIANT v2_gef DONE =====
+===== [2026-09-01 03:38:22] VARIANT v3_gef (v3_gef_isomer_delta_np) START -> log: output/v3_gef_isomer_delta_np/v3_gef_pipeline.log =====
+===== [2026-09-01 06:00:37] VARIANT v3_gef DONE =====
+===== [2026-09-01 06:00:37] VARIANT v4_gef (v4_gef_isomer_delta_np) START -> log: output/v4_gef_isomer_delta_np/v4_gef_pipeline.log =====
+===== [2026-09-01 08:20:28] VARIANT v4_gef DONE =====
+===== [2026-09-01 08:20:28] VARIANT v5_gef (v5_gef_isomer_delta_np) START -> log: output/v5_gef_isomer_delta_np/v5_gef_pipeline.log =====
+===== [2026-09-01 10:25:19] VARIANT v5_gef DONE =====
+===== [2026-09-01 10:25:19] VARIANT v6_gef (v6_gef_isomer_delta_np) START -> log: output/v6_gef_isomer_delta_np/v6_gef_pipeline.log =====
+===== [2026-09-01 11:38:12] VARIANT v6_gef DONE =====
+===== [2026-09-01 11:38:12] VARIANT v1_ft (v1_ft_235UALL_power_delta_np) START -> log: output/v1_ft_235UALL_power_delta_np/v1_ft_pipeline.log =====
+===== [2026-09-01 11:45:17] VARIANT v1_ft DONE =====
+===== [2026-09-01 11:45:18] VARIANT v2_ft (v2_ft_235UALL_power_delta_np) START -> log: output/v2_ft_235UALL_power_delta_np/v2_ft_pipeline.log =====
+===== [2026-09-01 11:51:38] VARIANT v2_ft DONE =====
+===== [2026-09-01 11:51:38] VARIANT v3_ft (v3_ft_235UALL_power_delta_np) START -> log: output/v3_ft_235UALL_power_delta_np/v3_ft_pipeline.log =====
+===== [2026-09-01 11:57:41] VARIANT v3_ft DONE =====
+===== [2026-09-01 11:57:42] VARIANT v4_ft (v4_ft_235UALL_power_delta_np) START -> log: output/v4_ft_235UALL_power_delta_np/v4_ft_pipeline.log =====
+===== [2026-09-01 12:04:06] VARIANT v4_ft DONE =====
+===== [2026-09-01 12:04:06] VARIANT v5_ft (v5_ft_235UALL_power_delta_np) START -> log: output/v5_ft_235UALL_power_delta_np/v5_ft_pipeline.log =====
+===== [2026-09-01 12:10:07] VARIANT v5_ft DONE =====
+===== [2026-09-01 12:10:07] VARIANT v6_ft (v6_ft_235UALL_power_delta_np) START -> log: output/v6_ft_235UALL_power_delta_np/v6_ft_pipeline.log =====
+===== [2026-09-01 12:16:42] VARIANT v6_ft DONE =====
+ALL DONE [2026-09-01 12:16:42]

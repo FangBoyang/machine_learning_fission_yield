@@ -1,0 +1,10 @@
+# 变体 u_ft_freeze4：u warmup([10,9,9,9] G15 k3) 上微调 235UALL，冻结【4 层】(act_fun.0,1,2,3)
+# 直接继承 u_ft(freeze:[])——除 freeze 外所有超参/数据/架构完全一致，仅隔离"冻结层数"这一变量。
+# freeze: ['act_fun.0','act_fun.1','act_fun.2','act_fun.3'] 冻结前 4 层，仅输出层(act_fun.4, 9→1)可训练，
+# 即只微调最后一层样条→标量映射，最激进的"保 GEF 知识"策略。lr 沿用 u_ft 的 0.001。
+inherit: u_ft_235UALL_power_delta_np.yaml
+experiment:
+  name: u_ft_freeze4_235UALL_power_delta_np
+  description: "u 架构[4,10,9,9,9,1]@G15 微调 235UALL：冻结 4 层(act_fun.0..3)，仅输出层可训练，lr 同 u_ft=0.001"
+finetune:
+  freeze: ['act_fun.0', 'act_fun.1', 'act_fun.2', 'act_fun.3']   # 冻前 4 层；仅输出层 act_fun.4 可训练

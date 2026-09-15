@@ -1,0 +1,233 @@
+{
+  "ensemble": {
+    "name": "w_ens_seed_p3",
+    "n_members": 6,
+    "members": [
+      "w1_ft_235UALL_power",
+      "w2_ft_235UALL_power",
+      "w3_ft_235UALL_power",
+      "w4_ft_235UALL_power",
+      "w5_ft_235UALL_power",
+      "w6_ft_235UALL_power"
+    ],
+    "missing_members": [],
+    "dropped_members": [],
+    "eval_set": "val (held-out)",
+    "n_samples": 619,
+    "average_space": "original",
+    "methods": [
+      "mean_equal",
+      "median",
+      "r2_weighted"
+    ],
+    "canonical_method": "mean_equal"
+  },
+  "per_member": [
+    {
+      "name": "w1_ft_235UALL_power",
+      "model_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\w1_ft_235UALL_power\\models\\kan_best_w1_ft_235UALL_power.pth",
+      "n_params": 9222,
+      "r2": 0.9807931940722138,
+      "rmse": 0.01520041825193119,
+      "mae": 0.0046865612080962534,
+      "high_yield_r2": 0.972176757100402,
+      "high_yield_rmse": 0.030354304804305086
+    },
+    {
+      "name": "w2_ft_235UALL_power",
+      "model_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\w2_ft_235UALL_power\\models\\kan_best_w2_ft_235UALL_power.pth",
+      "n_params": 9222,
+      "r2": 0.978008229992093,
+      "rmse": 0.016265149390133474,
+      "mae": 0.004969350209790253,
+      "high_yield_r2": 0.9681287521614673,
+      "high_yield_rmse": 0.03248747445051639
+    },
+    {
+      "name": "w3_ft_235UALL_power",
+      "model_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\w3_ft_235UALL_power\\models\\kan_best_w3_ft_235UALL_power.pth",
+      "n_params": 9222,
+      "r2": 0.9800892427885306,
+      "rmse": 0.01547646793833486,
+      "mae": 0.004571512263393422,
+      "high_yield_r2": 0.9711364988980759,
+      "high_yield_rmse": 0.030916542676019673
+    },
+    {
+      "name": "w4_ft_235UALL_power",
+      "model_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\w4_ft_235UALL_power\\models\\kan_best_w4_ft_235UALL_power.pth",
+      "n_params": 9222,
+      "r2": 0.9775036237160505,
+      "rmse": 0.01645069489754081,
+      "mae": 0.004864000689522028,
+      "high_yield_r2": 0.9673934388140203,
+      "high_yield_rmse": 0.03286010271478507
+    },
+    {
+      "name": "w5_ft_235UALL_power",
+      "model_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\w5_ft_235UALL_power\\models\\kan_best_w5_ft_235UALL_power.pth",
+      "n_params": 9222,
+      "r2": 0.9834213412168596,
+      "rmse": 0.014122209847817853,
+      "mae": 0.004221008055984459,
+      "high_yield_r2": 0.9759834063111419,
+      "high_yield_rmse": 0.028201494422829022
+    },
+    {
+      "name": "w6_ft_235UALL_power",
+      "model_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\w6_ft_235UALL_power\\models\\kan_best_w6_ft_235UALL_power.pth",
+      "n_params": 9222,
+      "r2": 0.976393365304001,
+      "rmse": 0.016851749850287506,
+      "mae": 0.005126218246010049,
+      "high_yield_r2": 0.9657891728282609,
+      "high_yield_rmse": 0.0336587671541181
+    }
+  ],
+  "ensemble_metrics": {
+    "mean_equal": {
+      "r2": 0.9821457748216342,
+      "rmse": 0.014655426708729208,
+      "mae": 0.004358504247722763,
+      "high_yield_r2": 0.9741239918377245,
+      "high_yield_rmse": 0.029272853343336368,
+      "high_yield_threshold": 0.002904614550061524
+    },
+    "median": {
+      "r2": 0.9809190314583683,
+      "rmse": 0.015150542072375997,
+      "mae": 0.004478836182110275,
+      "high_yield_r2": 0.9723416193692906,
+      "high_yield_rmse": 0.030264241351935364,
+      "high_yield_threshold": 0.002904614550061524
+    },
+    "r2_weighted": {
+      "r2": 0.9821517842107444,
+      "rmse": 0.014652960133654734,
+      "mae": 0.004357638209643522,
+      "high_yield_r2": 0.97413271077571,
+      "high_yield_rmse": 0.029267921174224172,
+      "high_yield_threshold": 0.002904614550061524
+    }
+  },
+  "best_single": {
+    "name": "w5_ft_235UALL_power",
+    "model_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\w5_ft_235UALL_power\\models\\kan_best_w5_ft_235UALL_power.pth",
+    "n_params": 9222,
+    "r2": 0.9834213412168596,
+    "rmse": 0.014122209847817853,
+    "mae": 0.004221008055984459,
+    "high_yield_r2": 0.9759834063111419,
+    "high_yield_rmse": 0.028201494422829022
+  },
+  "gain_vs_best_single": {
+    "r2": -0.0012755663952254137,
+    "high_yield_r2": -0.00185941447341742
+  },
+  "consistency": {
+    "val_indices_identical": true,
+    "x_eval_identical": true,
+    "scalers_identical": true,
+    "target_space": [
+      "raw"
+    ],
+    "target_power": [
+      0.35
+    ]
+  },
+  "uncertainty": {
+    "canonical_method": "mean_equal",
+    "sigma_ddof": 1,
+    "overall": {
+      "label": "all",
+      "n": 619,
+      "coverage_1sigma": 0.7098865478119936,
+      "coverage_2sigma": 0.8346839546191248,
+      "target_1sigma": 0.6827,
+      "target_2sigma": 0.9545,
+      "k_68": 0.9159126197449255,
+      "k_95": 3.9856437140312604,
+      "z_rms": 189.2665907881708,
+      "sigma_mean": 0.0023590128075957357,
+      "abs_err_mean": 0.004358504247722763
+    },
+    "high_yield": {
+      "label": "high_yield",
+      "n": 155,
+      "coverage_1sigma": 0.3741935483870968,
+      "coverage_2sigma": 0.6129032258064516,
+      "target_1sigma": 0.6827,
+      "target_2sigma": 0.9545,
+      "k_68": 2.428408566707984,
+      "k_95": 5.477410862930355,
+      "z_rms": 2.7648759510235257,
+      "sigma_mean": 0.009128777097871781,
+      "abs_err_mean": 0.016980828358528894
+    },
+    "bins": [
+      {
+        "bin": 1,
+        "n": 123,
+        "y_min": 0.0,
+        "y_max": 4.6200001289908865e-12,
+        "y_mean": 3.2821307459471934e-13,
+        "sigma_mean": 9.830863167879067e-06,
+        "abs_err_mean": 4.5018777947993295e-06,
+        "coverage_1sigma": 0.991869918699187,
+        "sigma_over_abs_err": 2.1837250178660783
+      },
+      {
+        "bin": 2,
+        "n": 124,
+        "y_min": 4.789999993870531e-12,
+        "y_max": 1.589999953921506e-07,
+        "y_mean": 2.091025518341698e-08,
+        "sigma_mean": 2.624157708370209e-06,
+        "abs_err_mean": 1.6750200175186276e-06,
+        "coverage_1sigma": 0.9590163934426229,
+        "sigma_over_abs_err": 1.5666425958643961
+      },
+      {
+        "bin": 3,
+        "n": 124,
+        "y_min": 1.700000069604357e-07,
+        "y_max": 4.059999992023222e-05,
+        "y_mean": 8.712201611779569e-06,
+        "sigma_mean": 4.874973052199974e-05,
+        "abs_err_mean": 7.963690650087945e-05,
+        "coverage_1sigma": 0.75,
+        "sigma_over_abs_err": 0.6121499774914207
+      },
+      {
+        "bin": 4,
+        "n": 124,
+        "y_min": 4.2100000428035855e-05,
+        "y_max": 0.009864257648587227,
+        "y_mean": 0.0018527579742083381,
+        "sigma_mean": 0.0006625769597129087,
+        "abs_err_mean": 0.0011948563088107968,
+        "coverage_1sigma": 0.49193548387096775,
+        "sigma_over_abs_err": 0.5545243849215232
+      },
+      {
+        "bin": 5,
+        "n": 124,
+        "y_min": 0.009914970025420189,
+        "y_max": 0.9154092073440552,
+        "y_mean": 0.1752632554290035,
+        "sigma_mean": 0.011052337311186653,
+        "abs_err_mean": 0.020476738203151695,
+        "coverage_1sigma": 0.3629032258064516,
+        "sigma_over_abs_err": 0.5397508725039774
+      }
+    ],
+    "corr_sigma_yield": 0.8754095503218625,
+    "note": "σ = 成员间标准差（认知不确定度代理）；覆盖良好时 cov1≈68%、cov2≈95%、z_rms≈1。k_68/k_95 = 使覆盖率达到 68%/95% 所需的 σ 缩放系数。"
+  },
+  "outputs": {
+    "perpoint_csv": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\w_ens_seed_p3\\results\\ensemble_perpoint_w_ens_seed_p3.csv",
+    "figure": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\w_ens_seed_p3\\results\\ensemble_sigma_w_ens_seed_p3.png",
+    "summary_md": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\w_ens_seed_p3\\results\\ensemble_summary_w_ens_seed_p3.md"
+  },
+  "timestamp": "2026-09-01 22:18:58"
+}

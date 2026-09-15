@@ -1,0 +1,24 @@
+# v_gef seed=5: 复制 p3_gef_isomer_delta_np，仅 model.seed 不同，其余全照抄 p3。
+inherit: n_power_delta_np.yaml
+experiment:
+  name: v5_gef_isomer_delta_np
+  description: "复制 p3_gef(GEF异构合并,[16,16]/grid15/k3,p=0.35,full_train,monitor=train_loss,epochs2000/patience400)，仅 model.seed=5。"
+data:
+  source: csv
+  header: true
+  csv_path: data/GEF_isomer_merged.csv
+  split: full_train
+model:
+  hidden_layers: [16, 16]
+  grid: 15
+  k: 3
+  seed: 5
+target:
+  power: 0.35
+train:
+  epochs: 2000
+  early_stopping:
+    patience: 400
+    min_delta: 5e-6
+    monitor: train_loss
+  checkpoint_every: 50

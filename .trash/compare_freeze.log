@@ -1,0 +1,30 @@
+[waiter 19:59:16] 等待 freeze1-4 重跑完成 (轮询 ALL DONE, 上限 150min)...
+[waiter 20:07:47] 检测到 ALL DONE，开始对比分析
+[waiter 20:07:47] 运行 GEF post-finetune 评估...
+o_ft_235UALL_power_delta_np                          | GEF post-ft R2=0.9234 RMSE=0.0371 MAE=0.0154 highR2=0.8081
+p_ft_235UALL_power_delta_np                          | GEF post-ft R2=0.9324 RMSE=0.0234 MAE=0.0073 highR2=0.9006
+q_ft_235UALL_power_delta_np                          | GEF post-ft R2=0.9398 RMSE=0.0221 MAE=0.0069 highR2=0.9115
+r_ft_235UALL_power_delta_np                          | GEF post-ft R2=0.9222 RMSE=0.0251 MAE=0.0079 highR2=0.8856
+s_ft_235UALL_power_delta_np                          | GEF post-ft R2=0.9120 RMSE=0.0267 MAE=0.0085 highR2=0.8708
+t_ft_235UALL_power_delta_np                          | GEF post-ft R2=0.9072 RMSE=0.0274 MAE=0.0087 highR2=0.8636
+t2_freeze_first_lowlr_ft_235UALL_power_delta_np      | GEF post-ft R2=0.9217 RMSE=0.0252 MAE=0.0077 highR2=0.8849
+u_ft_235UALL_power_delta_np                          | GEF post-ft R2=0.9288 RMSE=0.0240 MAE=0.0077 highR2=0.8954
+u_ft_freeze1_235UALL_power_delta_np                  | GEF post-ft R2=0.9344 RMSE=0.0231 MAE=0.0071 highR2=0.9037
+u_ft_freeze2_235UALL_power_delta_np                  | GEF post-ft R2=0.9628 RMSE=0.0174 MAE=0.0053 highR2=0.9453
+u_ft_freeze3_235UALL_power_delta_np                  | GEF post-ft R2=0.9385 RMSE=0.0223 MAE=0.0067 highR2=0.9095
+u_ft_freeze4_235UALL_power_delta_np                  | GEF post-ft R2=0.9881 RMSE=0.0098 MAE=0.0031 highR2=0.9824
+
+已保存: F:\computer_science\machine_learning_fission_yield\pipeline\output\gef_postfinetune_eval.json
+[waiter 20:07:56] 运行 freeze01234 对比...
+variant    frz 235U val R2      RMSE       MAE   hiY R2    impR2    gain  GEFpostR2  forgetΔ
+--------------------------------------------------------------------------------------------
+freeze0      0      0.9771    0.0166   0.00497   0.9668   0.9673  0.0903     0.9288  +0.0696
+freeze1      1      0.9676    0.0197   0.00619   0.9530   0.9685  0.0915     0.9344  +0.0640
+freeze2      2      0.9440    0.0260   0.00794   0.9188   0.9462  0.0692     0.9628  +0.0357
+freeze3      3      0.9414    0.0265   0.00849   0.9153   0.9525  0.0755     0.9385  +0.0600
+freeze4      4      0.9106    0.0328   0.00994   0.8705   0.8845  0.0075     0.9881  +0.0104
+
+GEF warmup 基线 (u_gef) R2 = 0.9985；forgetΔ = 基线 - GEF post-ft R2
+
+已保存: F:\computer_science\machine_learning_fission_yield\pipeline\output\compare_u_ft_freeze.md
+[waiter 20:07:56] 对比分析完成 -> output/compare_u_ft_freeze.md

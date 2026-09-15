@@ -1,0 +1,25 @@
+# 变体 p2：基于 p，探索目标幂次 p=0.15（GEF 域）。
+# 数据源 GEF_isomer_merged.csv（与 p 同，异构合并到基态）。其余架构/训练策略与 p 完全一致。
+# p=0.15 比 p=0.25 更强压缩动态范围，把损失权重更多推向低/中产额核素。
+inherit: n_power_delta_np.yaml
+experiment:
+  name: p2_gef_isomer_delta_np
+  description: "基于p：GEF_isomer_merged.csv, [16,16]/grid15/k3, p=0.15(更强压缩/偏向低产额), full_train, monitor=train_loss, epochs2000/patience400"
+data:
+  source: csv
+  header: true
+  csv_path: data/GEF_isomer_merged.csv
+  split: full_train
+model:
+  hidden_layers: [16, 16]
+  grid: 15
+  k: 3
+target:
+  power: 0.15
+train:
+  epochs: 2000
+  early_stopping:
+    patience: 400
+    min_delta: 5e-6
+    monitor: train_loss
+  checkpoint_every: 50

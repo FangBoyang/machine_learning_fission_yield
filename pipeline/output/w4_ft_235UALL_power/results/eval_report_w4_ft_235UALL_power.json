@@ -1,0 +1,77 @@
+{
+  "model_info": {
+    "name": "w4_ft_235UALL_power",
+    "model_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\w4_ft_235UALL_power\\models\\kan_best_w4_ft_235UALL_power.pth",
+    "architecture": [
+      16,
+      16
+    ],
+    "parameters": 9222,
+    "features": [
+      "Z_norm",
+      "A_norm",
+      "E_norm"
+    ],
+    "target_space": "raw"
+  },
+  "eval_set": "val (held-out)",
+  "ensemble": null,
+  "uncertainty": null,
+  "metrics": {
+    "normalized_space": {
+      "r2": 0.9844870567321777,
+      "mse": 0.01790890097618103
+    },
+    "original_space": {
+      "r2": 0.9775035977363586,
+      "rmse": 0.0164506943180606,
+      "mae": 0.004864000715315342
+    },
+    "high_yield_region": {
+      "threshold": 0.002904614433646202,
+      "sample_count": 155,
+      "r2": 0.9673934578895569,
+      "rmse": 0.032860104267405474
+    }
+  },
+  "important_region": {
+    "range": [
+      3096,
+      4127
+    ],
+    "sample_count": 1031,
+    "r2": 0.9605318307876587,
+    "rmse": 0.041800910262481,
+    "mae": 0.018741993233561516,
+    "high_yield_r2": 0.8659654855728149,
+    "high_yield_rmse": 0.0712410588834451,
+    "note": "in-sample (该区在 finetune 中属于训练集)",
+    "zero_shot_r2": 0.8788230419158936,
+    "zero_shot_rmse": 0.07324403442597276,
+    "zero_shot_high_yield_r2": 0.5612404346466064,
+    "finetune_gain_r2": 0.08170878887176514
+  },
+  "zero_shot_pretrained": {
+    "model": "w4_gef_isomer",
+    "path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\w4_gef_isomer\\models\\kan_best_w4_gef_isomer.pth",
+    "r2": 0.9010393619537354,
+    "rmse": 0.03450318752675212,
+    "mae": 0.010758510790765285,
+    "high_yield_r2": 0.856601893901825,
+    "high_yield_rmse": 0.06891092815435002,
+    "note": "零样本：预训练基未微调直接预测（对照微调增益）"
+  },
+  "data_stats": {
+    "eval_samples": 619,
+    "true_yield_range": [
+      0.0,
+      0.9154092073440552
+    ],
+    "pred_yield_range": [
+      0.0,
+      0.8948988318443298
+    ]
+  },
+  "visualization_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\w4_ft_235UALL_power\\results\\eval_w4_ft_235UALL_power_val_held-out.png",
+  "timestamp": "2026-09-01 21:46:51"
+}

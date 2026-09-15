@@ -1,0 +1,15 @@
+============================================================
+KAN 模型训练（配置驱动，支持续训/网格细化/LBFGS）
+============================================================
+[1] 加载预处理数据: F:\computer_science\machine_learning_fission_yield\pipeline\output\w1_gef_isomer\data\preprocessed_w1_gef_isomer.pkl
+    样本数: 9333, 特征维度: 3
+    特征: ['Z_norm', 'A_norm', 'E_norm']
+[2] 构建 KAN 模型: width=[[3, 0], [16, 0], [16, 0], [1, 0]] (grid=15, k=3)
+    参数量: 9,222, 设备: cpu
+C:\Users\86138\AppData\Roaming\Python\Python312\site-packages\torch\optim\lr_scheduler.py:62: UserWarning: The verbose parameter is deprecated. Please use get_last_lr() to access the learning rate.
+  warnings.warn(
+[3] 优化器: AdamW, 调度器: CosineHoldAtMin, 损失: MSELoss
+
+[4] 开始训练（共 2000 轮，batch=512，早停 patience=400, min_delta=5e-06, monitor=train_loss）；续训关闭
+    Epoch    1/2000 | loss: 6.6573e-01 | lr: 5.00e-02 | grid: 15 | 早停计数: 0/400
+    Epoch   20/2000 | loss: 8.3517e-03 | lr: 4.97e-02 | grid: 15 | 早停计数: 4/400

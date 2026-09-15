@@ -1,0 +1,903 @@
+===== [2026-08-30 20:34:27] VARIANT p2_gef (p2_gef_isomer_delta_np) START =====
+>>> [2026-08-30 20:34:27] STAGE p2_gef-01 01_preprocess.py START
+============================================================
+数据预处理（配置驱动，通用数据源）
+============================================================
+[1] 读取通用 CSV 数据 (source=csv): F:\computer_science\machine_learning_fission_yield\data/GEF_isomer_merged.csv
+    样本数: 9333, 列名: ['Z_norm', 'A_norm', 'E_norm', 'Yield', 'Error']
+
+[2] 从 data/ 加载 scalers ...
+C:\Users\86138\.conda\envs\fpy_kan\Lib\site-packages\sklearn\base.py:463: InconsistentVersionWarning: Trying to unpickle estimator MinMaxScaler from version 1.6.1 when using version 1.8.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+    已从 data/ 载入 scalers: ['standard_Z', 'standard_A', 'delta_np', 'Yield_power']
+
+[3] 计算 delta_np 特征 ...
+    delta_np 范围: [0.083333, 1.918919]
+
+[4] 构建特征 X 与目标 y ...
+    特征顺序: ['Z_norm', 'A_norm', 'E_norm', 'delta_np'], 维度: 4
+    目标空间: raw, 幂次 p: 0.15, scaler key: Yield_power
+    归一化目标范围: [-1.072328, 2.827056]
+
+[5] 划分训练/验证集 ...
+    full_train: 训练集 9333（无验证集）
+C:\Users\86138\.conda\envs\fpy_kan\Lib\site-packages\sklearn\base.py:463: InconsistentVersionWarning: Trying to unpickle estimator MinMaxScaler from version 1.6.1 when using version 1.8.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+
+[6] 保存预处理数据 ...
+    已保存: F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\data\preprocessed_p2_gef_isomer_delta_np.pkl
+
+============================================================
+预处理完成！摘要信息
+============================================================
+变体名    : p2_gef_isomer_delta_np
+数据源    : csv (data/ scalers)
+样本数    : 9333 (train=9333, val=0)
+特征维度  : 4 (['Z_norm', 'A_norm', 'E_norm', 'delta_np'])
+目标空间  : raw (p=0.15, key=Yield_power)
+输出文件  : F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\data\preprocessed_p2_gef_isomer_delta_np.pkl
+============================================================
+>>> [2026-08-30 20:34:32] STAGE p2_gef-01 01_preprocess.py EXIT=0
+>>> [2026-08-30 20:34:32] STAGE p2_gef-02 02_train.py START
+============================================================
+KAN 模型训练（配置驱动，支持续训/网格细化/LBFGS）
+============================================================
+[1] 加载预处理数据: F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\data\preprocessed_p2_gef_isomer_delta_np.pkl
+    样本数: 9333, 特征维度: 4
+    特征: ['Z_norm', 'A_norm', 'E_norm', 'delta_np']
+[2] 构建 KAN 模型: width=[[4, 0], [16, 0], [16, 0], [1, 0]] (grid=15, k=3)
+    参数量: 9,660, 设备: cpu
+C:\Users\86138\AppData\Roaming\Python\Python312\site-packages\torch\optim\lr_scheduler.py:62: UserWarning: The verbose parameter is deprecated. Please use get_last_lr() to access the learning rate.
+  warnings.warn(
+[3] 优化器: AdamW, 调度器: CosineHoldAtMin, 损失: MSELoss
+
+[4] 开始训练（共 5000 轮，batch=512，早停 patience=800, min_delta=5e-06, monitor=train_loss）；续训关闭
+    Epoch    1/5000 | loss: 6.8459e-01 | lr: 5.00e-02 | grid: 15 | 早停计数: 0/800
+    Epoch   20/5000 | loss: 2.5848e-02 | lr: 4.97e-02 | grid: 15 | 早停计数: 1/800
+    Epoch   40/5000 | loss: 3.1617e-02 | lr: 4.88e-02 | grid: 15 | 早停计数: 5/800
+    Epoch   60/5000 | loss: 1.9468e-02 | lr: 4.73e-02 | grid: 15 | 早停计数: 0/800
+    Epoch   80/5000 | loss: 2.4391e-02 | lr: 4.52e-02 | grid: 15 | 早停计数: 9/800
+===== [2026-08-30 20:38:35] VARIANT p2_gef (p2_gef_isomer_delta_np) START =====
+>>> [2026-08-30 20:38:35] STAGE p2_gef-01 01_preprocess.py START
+============================================================
+数据预处理（配置驱动，通用数据源）
+============================================================
+[1] 读取通用 CSV 数据 (source=csv): F:\computer_science\machine_learning_fission_yield\data/GEF_isomer_merged.csv
+    样本数: 9333, 列名: ['Z_norm', 'A_norm', 'E_norm', 'Yield', 'Error']
+
+[2] 从 data/ 加载 scalers ...
+C:\Users\86138\.conda\envs\fpy_kan\Lib\site-packages\sklearn\base.py:463: InconsistentVersionWarning: Trying to unpickle estimator MinMaxScaler from version 1.6.1 when using version 1.8.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+    已从 data/ 载入 scalers: ['standard_Z', 'standard_A', 'delta_np', 'Yield_power']
+
+[3] 计算 delta_np 特征 ...
+    delta_np 范围: [0.083333, 1.918919]
+
+[4] 构建特征 X 与目标 y ...
+    特征顺序: ['Z_norm', 'A_norm', 'E_norm', 'delta_np'], 维度: 4
+    目标空间: raw, 幂次 p: 0.15, scaler key: Yield_power
+    归一化目标范围: [-1.072328, 2.827056]
+
+[5] 划分训练/验证集 ...
+    full_train: 训练集 9333（无验证集）
+C:\Users\86138\.conda\envs\fpy_kan\Lib\site-packages\sklearn\base.py:463: InconsistentVersionWarning: Trying to unpickle estimator MinMaxScaler from version 1.6.1 when using version 1.8.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+
+[6] 保存预处理数据 ...
+    已保存: F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\data\preprocessed_p2_gef_isomer_delta_np.pkl
+
+============================================================
+预处理完成！摘要信息
+============================================================
+变体名    : p2_gef_isomer_delta_np
+数据源    : csv (data/ scalers)
+样本数    : 9333 (train=9333, val=0)
+特征维度  : 4 (['Z_norm', 'A_norm', 'E_norm', 'delta_np'])
+目标空间  : raw (p=0.15, key=Yield_power)
+输出文件  : F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\data\preprocessed_p2_gef_isomer_delta_np.pkl
+============================================================
+>>> [2026-08-30 20:38:38] STAGE p2_gef-01 01_preprocess.py EXIT=0
+>>> [2026-08-30 20:38:39] STAGE p2_gef-02 02_train.py START
+============================================================
+KAN 模型训练（配置驱动，支持续训/网格细化/LBFGS）
+============================================================
+[1] 加载预处理数据: F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\data\preprocessed_p2_gef_isomer_delta_np.pkl
+    样本数: 9333, 特征维度: 4
+    特征: ['Z_norm', 'A_norm', 'E_norm', 'delta_np']
+[2] 构建 KAN 模型: width=[[4, 0], [16, 0], [16, 0], [1, 0]] (grid=15, k=3)
+    参数量: 9,660, 设备: cpu
+C:\Users\86138\AppData\Roaming\Python\Python312\site-packages\torch\optim\lr_scheduler.py:62: UserWarning: The verbose parameter is deprecated. Please use get_last_lr() to access the learning rate.
+  warnings.warn(
+[3] 优化器: AdamW, 调度器: CosineHoldAtMin, 损失: MSELoss
+
+[4] 开始训练（共 2000 轮，batch=512，早停 patience=400, min_delta=5e-06, monitor=train_loss）；续训关闭
+    Epoch    1/2000 | loss: 6.8459e-01 | lr: 5.00e-02 | grid: 15 | 早停计数: 0/400
+    Epoch   20/2000 | loss: 2.5848e-02 | lr: 4.97e-02 | grid: 15 | 早停计数: 1/400
+    Epoch   40/2000 | loss: 3.1617e-02 | lr: 4.88e-02 | grid: 15 | 早停计数: 5/400
+    Epoch   60/2000 | loss: 1.9468e-02 | lr: 4.73e-02 | grid: 15 | 早停计数: 0/400
+    Epoch   80/2000 | loss: 2.4391e-02 | lr: 4.52e-02 | grid: 15 | 早停计数: 9/400
+    Epoch  100/2000 | loss: 2.0396e-02 | lr: 4.27e-02 | grid: 15 | 早停计数: 7/400
+    Epoch  120/2000 | loss: 1.9698e-02 | lr: 3.97e-02 | grid: 15 | 早停计数: 4/400
+    Epoch  140/2000 | loss: 1.9845e-02 | lr: 3.64e-02 | grid: 15 | 早停计数: 24/400
+    Epoch  160/2000 | loss: 1.5496e-02 | lr: 3.27e-02 | grid: 15 | 早停计数: 6/400
+===== [2026-08-30 20:50:41] VARIANT p2_gef (p2_gef_isomer_delta_np) START =====
+>>> [2026-08-30 20:50:41] STAGE p2_gef-01 01_preprocess.py START
+============================================================
+数据预处理（配置驱动，通用数据源）
+============================================================
+[1] 读取通用 CSV 数据 (source=csv): F:\computer_science\machine_learning_fission_yield\data/GEF_isomer_merged.csv
+    样本数: 9333, 列名: ['Z_norm', 'A_norm', 'E_norm', 'Yield', 'Error']
+
+[2] 从 data/ 加载 scalers ...
+C:\Users\86138\.conda\envs\fpy_kan\Lib\site-packages\sklearn\base.py:463: InconsistentVersionWarning: Trying to unpickle estimator MinMaxScaler from version 1.6.1 when using version 1.8.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+    已从 data/ 载入 scalers: ['standard_Z', 'standard_A', 'delta_np', 'Yield_power']
+
+[3] 计算 delta_np 特征 ...
+    delta_np 范围: [0.083333, 1.918919]
+
+[4] 构建特征 X 与目标 y ...
+    特征顺序: ['Z_norm', 'A_norm', 'E_norm', 'delta_np'], 维度: 4
+    目标空间: raw, 幂次 p: 0.15, scaler key: Yield_power
+    归一化目标范围: [-1.072328, 2.827056]
+
+[5] 划分训练/验证集 ...
+    full_train: 训练集 9333（无验证集）
+C:\Users\86138\.conda\envs\fpy_kan\Lib\site-packages\sklearn\base.py:463: InconsistentVersionWarning: Trying to unpickle estimator MinMaxScaler from version 1.6.1 when using version 1.8.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+
+[6] 保存预处理数据 ...
+    已保存: F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\data\preprocessed_p2_gef_isomer_delta_np.pkl
+
+============================================================
+预处理完成！摘要信息
+============================================================
+变体名    : p2_gef_isomer_delta_np
+数据源    : csv (data/ scalers)
+样本数    : 9333 (train=9333, val=0)
+特征维度  : 4 (['Z_norm', 'A_norm', 'E_norm', 'delta_np'])
+目标空间  : raw (p=0.15, key=Yield_power)
+输出文件  : F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\data\preprocessed_p2_gef_isomer_delta_np.pkl
+============================================================
+>>> [2026-08-30 20:50:46] STAGE p2_gef-01 01_preprocess.py EXIT=0
+>>> [2026-08-30 20:50:46] STAGE p2_gef-02 02_train.py START
+============================================================
+KAN 模型训练（配置驱动，支持续训/网格细化/LBFGS）
+============================================================
+[1] 加载预处理数据: F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\data\preprocessed_p2_gef_isomer_delta_np.pkl
+    样本数: 9333, 特征维度: 4
+    特征: ['Z_norm', 'A_norm', 'E_norm', 'delta_np']
+[2] 构建 KAN 模型: width=[[4, 0], [16, 0], [16, 0], [1, 0]] (grid=15, k=3)
+    参数量: 9,660, 设备: cpu
+C:\Users\86138\AppData\Roaming\Python\Python312\site-packages\torch\optim\lr_scheduler.py:62: UserWarning: The verbose parameter is deprecated. Please use get_last_lr() to access the learning rate.
+  warnings.warn(
+[3] 优化器: AdamW, 调度器: CosineHoldAtMin, 损失: MSELoss
+
+[4] 开始训练（共 2000 轮，batch=512，早停 patience=400, min_delta=5e-06, monitor=train_loss）；续训关闭
+    Epoch    1/2000 | loss: 6.8459e-01 | lr: 5.00e-02 | grid: 15 | 早停计数: 0/400
+    Epoch   20/2000 | loss: 2.5848e-02 | lr: 4.97e-02 | grid: 15 | 早停计数: 1/400
+    Epoch   40/2000 | loss: 3.1617e-02 | lr: 4.88e-02 | grid: 15 | 早停计数: 5/400
+    Epoch   60/2000 | loss: 1.9468e-02 | lr: 4.73e-02 | grid: 15 | 早停计数: 0/400
+    Epoch   80/2000 | loss: 2.4391e-02 | lr: 4.52e-02 | grid: 15 | 早停计数: 9/400
+    Epoch  100/2000 | loss: 2.0396e-02 | lr: 4.27e-02 | grid: 15 | 早停计数: 7/400
+    Epoch  120/2000 | loss: 1.9698e-02 | lr: 3.97e-02 | grid: 15 | 早停计数: 4/400
+    Epoch  140/2000 | loss: 1.9845e-02 | lr: 3.64e-02 | grid: 15 | 早停计数: 24/400
+    Epoch  160/2000 | loss: 1.5496e-02 | lr: 3.27e-02 | grid: 15 | 早停计数: 6/400
+    Epoch  180/2000 | loss: 1.5380e-02 | lr: 2.89e-02 | grid: 15 | 早停计数: 15/400
+    Epoch  200/2000 | loss: 1.4813e-02 | lr: 2.50e-02 | grid: 15 | 早停计数: 2/400
+    Epoch  220/2000 | loss: 1.1518e-02 | lr: 2.11e-02 | grid: 15 | 早停计数: 3/400
+    Epoch  240/2000 | loss: 1.0263e-02 | lr: 1.73e-02 | grid: 15 | 早停计数: 3/400
+    Epoch  260/2000 | loss: 9.0886e-03 | lr: 1.37e-02 | grid: 15 | 早停计数: 3/400
+    Epoch  280/2000 | loss: 7.4732e-03 | lr: 1.03e-02 | grid: 15 | 早停计数: 13/400
+    Epoch  300/2000 | loss: 4.8383e-03 | lr: 7.33e-03 | grid: 15 | 早停计数: 0/400
+    Epoch  320/2000 | loss: 4.1354e-03 | lr: 4.78e-03 | grid: 15 | 早停计数: 2/400
+    Epoch  340/2000 | loss: 3.0560e-03 | lr: 2.73e-03 | grid: 15 | 早停计数: 3/400
+    Epoch  360/2000 | loss: 2.2914e-03 | lr: 1.23e-03 | grid: 15 | 早停计数: 0/400
+    Epoch  380/2000 | loss: 1.9935e-03 | lr: 3.18e-04 | grid: 15 | 早停计数: 1/400
+    Epoch  400/2000 | loss: 1.8353e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 8/400
+    Epoch  420/2000 | loss: 1.8704e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 28/400
+    Epoch  440/2000 | loss: 1.8468e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 18/400
+    Epoch  460/2000 | loss: 1.8456e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 38/400
+    Epoch  480/2000 | loss: 1.8249e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 7/400
+    Epoch  500/2000 | loss: 1.8403e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 27/400
+    Epoch  520/2000 | loss: 1.8409e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 47/400
+    Epoch  540/2000 | loss: 1.8399e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 67/400
+    Epoch  560/2000 | loss: 1.8305e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 3/400
+    Epoch  580/2000 | loss: 1.8248e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 23/400
+    Epoch  600/2000 | loss: 1.8606e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 17/400
+    Epoch  620/2000 | loss: 1.8234e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 37/400
+    Epoch  640/2000 | loss: 1.8179e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 57/400
+    Epoch  660/2000 | loss: 1.8828e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 77/400
+    Epoch  680/2000 | loss: 1.8552e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 97/400
+    Epoch  700/2000 | loss: 1.8327e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 117/400
+    Epoch  720/2000 | loss: 1.7901e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 19/400
+    Epoch  740/2000 | loss: 1.8098e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 5/400
+    Epoch  760/2000 | loss: 1.7991e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 25/400
+    Epoch  780/2000 | loss: 1.8057e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 45/400
+    Epoch  800/2000 | loss: 1.7975e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 17/400
+    Epoch  820/2000 | loss: 1.8039e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 37/400
+    Epoch  840/2000 | loss: 1.7914e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 10/400
+    Epoch  860/2000 | loss: 1.8046e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 30/400
+    Epoch  880/2000 | loss: 1.9120e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 50/400
+    Epoch  900/2000 | loss: 1.8080e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 70/400
+    Epoch  920/2000 | loss: 1.7661e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 5/400
+    Epoch  940/2000 | loss: 1.8400e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 9/400
+    Epoch  960/2000 | loss: 1.8067e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 29/400
+    Epoch  980/2000 | loss: 1.7921e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 49/400
+    Epoch 1000/2000 | loss: 1.7641e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 69/400
+    Epoch 1020/2000 | loss: 1.7484e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 12/400
+    Epoch 1040/2000 | loss: 1.7604e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 9/400
+    Epoch 1060/2000 | loss: 1.7787e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 29/400
+    Epoch 1080/2000 | loss: 1.7872e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 49/400
+    Epoch 1100/2000 | loss: 1.8096e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 7/400
+    Epoch 1120/2000 | loss: 1.7702e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 27/400
+    Epoch 1140/2000 | loss: 1.7792e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 47/400
+    Epoch 1160/2000 | loss: 1.7379e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 67/400
+    Epoch 1180/2000 | loss: 1.7354e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 87/400
+    Epoch 1200/2000 | loss: 1.7655e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 107/400
+    Epoch 1220/2000 | loss: 1.7849e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 127/400
+    Epoch 1240/2000 | loss: 1.7432e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 8/400
+    Epoch 1260/2000 | loss: 1.7240e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 28/400
+    Epoch 1280/2000 | loss: 1.7934e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 48/400
+    Epoch 1300/2000 | loss: 1.7569e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 68/400
+    Epoch 1320/2000 | loss: 1.7875e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 2/400
+    Epoch 1340/2000 | loss: 1.7392e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 22/400
+    Epoch 1360/2000 | loss: 1.7781e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 42/400
+    Epoch 1380/2000 | loss: 1.7650e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 8/400
+    Epoch 1400/2000 | loss: 1.7263e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 28/400
+    Epoch 1420/2000 | loss: 1.7785e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 48/400
+    Epoch 1440/2000 | loss: 1.7665e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 68/400
+    Epoch 1460/2000 | loss: 1.7237e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 88/400
+    Epoch 1480/2000 | loss: 1.7340e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 108/400
+    Epoch 1500/2000 | loss: 1.7532e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 6/400
+    Epoch 1520/2000 | loss: 1.7031e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 26/400
+    Epoch 1540/2000 | loss: 1.7016e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 46/400
+    Epoch 1560/2000 | loss: 1.7013e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 15/400
+    Epoch 1580/2000 | loss: 1.7006e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 35/400
+    Epoch 1600/2000 | loss: 1.6879e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 13/400
+    Epoch 1620/2000 | loss: 1.6805e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 0/400
+    Epoch 1640/2000 | loss: 1.7018e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 8/400
+    Epoch 1660/2000 | loss: 1.7219e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 28/400
+    Epoch 1680/2000 | loss: 1.6878e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 48/400
+    Epoch 1700/2000 | loss: 1.6977e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 68/400
+    Epoch 1720/2000 | loss: 1.6843e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 88/400
+    Epoch 1740/2000 | loss: 1.6957e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 108/400
+    Epoch 1760/2000 | loss: 1.6865e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 128/400
+    Epoch 1780/2000 | loss: 1.6989e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 148/400
+    Epoch 1800/2000 | loss: 1.6778e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 7/400
+    Epoch 1820/2000 | loss: 1.6966e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 14/400
+    Epoch 1840/2000 | loss: 1.7017e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 34/400
+    Epoch 1860/2000 | loss: 1.6695e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 54/400
+    Epoch 1880/2000 | loss: 1.6819e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 74/400
+    Epoch 1900/2000 | loss: 1.6600e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 94/400
+    Epoch 1920/2000 | loss: 1.7050e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 114/400
+    Epoch 1940/2000 | loss: 1.6733e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 134/400
+    Epoch 1960/2000 | loss: 1.6677e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 154/400
+    Epoch 1980/2000 | loss: 1.6705e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 10/400
+    Epoch 2000/2000 | loss: 1.6522e-03 | lr: 1.00e-05 | grid: 15 | 早停计数: 30/400
+
+    训练完成：最佳损失 1.6472e-03（adam epoch/step 1970），用时 13975.0s
+
+============================================================
+训练完成！摘要信息
+============================================================
+变体名    : p2_gef_isomer_delta_np
+最终 grid : 15
+最终 loss  : 1.6522e-03
+最佳 loss  : 1.6472e-03 (adam epoch/step 1970)
+best 模型  : F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\models\kan_best_p2_gef_isomer_delta_np.pth
+latest 模型: F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\models\kan_latest_p2_gef_isomer_delta_np.pth
+resume 点 : F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\models\kan_resume_p2_gef_isomer_delta_np.pth（可设 train.resume=true 续训）
+final 模型 : F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\models\kan_final_p2_gef_isomer_delta_np.pth
+============================================================
+>>> [2026-08-31 00:43:47] STAGE p2_gef-02 02_train.py EXIT=0
+>>> [2026-08-31 00:43:47] STAGE p2_gef-03 03_evaluate.py START
+============================================================
+KAN 模型评估（配置驱动）
+============================================================
+[1] 加载预处理数据: F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\data\preprocessed_p2_gef_isomer_delta_np.pkl
+[2] 加载模型: F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\models\kan_best_p2_gef_isomer_delta_np.pth
+    架构: KAN[16, 16] (grid=15, k=3)
+    参数量: 9,660, 设备: cpu
+[3] 评估集: train (in-sample), 样本数 9333
+    目标空间: raw，负值裁剪阈值: 0.0
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+[4] 指标 -> 归一化空间 R²=0.9983, MSE=1.674e-03
+    原始空间 R²=0.9952, RMSE=6.275e-03, MAE=1.758e-03
+    高产额区(阈值>5.34e-03) R²=0.9929, RMSE=1.255e-02
+[5] 已保存评估图: F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\results\eval_p2_gef_isomer_delta_np_train_in-sample.png
+[8] 已保存评估报告: F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\results\eval_report_p2_gef_isomer_delta_np.json
+
+============================================================
+评估完成！摘要信息
+============================================================
+变体名        : p2_gef_isomer_delta_np
+评估集        : train (in-sample)
+归一化空间 R²  : 0.9983 (MSE=1.674e-03)
+原始空间 R²    : 0.9952 (RMSE=6.275e-03, MAE=1.758e-03)
+高产额区 R²    : 0.9929 (阈值>5.34e-03)
+评估图        : F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\results\eval_p2_gef_isomer_delta_np_train_in-sample.png
+报告          : F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\results\eval_report_p2_gef_isomer_delta_np.json
+============================================================
+>>> [2026-08-31 00:43:58] STAGE p2_gef-03 03_evaluate.py EXIT=0
+>>> [2026-08-31 00:43:58] STAGE p2_gef-04 04_energy_dep.py START
+============================================================
+裂变产额能量依赖性分析（配置驱动）
+============================================================
+[1] 加载模型: F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\models\kan_best_p2_gef_isomer_delta_np.pth
+    架构: KAN[16, 16] (grid=15, k=3)
+    特征: ['Z_norm', 'A_norm', 'E_norm', 'delta_np'], 使用delta_np=True, 目标空间=raw
+[2] 加载基准核素表: F:\computer_science\machine_learning_fission_yield\data/235UALL.csv
+    核素数: 1032（与外部 04g/04i 的 iloc[:1032] 一致）
+C:\Users\86138\.conda\envs\fpy_kan\Lib\site-packages\sklearn\base.py:463: InconsistentVersionWarning: Trying to unpickle estimator MinMaxScaler from version 1.6.1 when using version 1.8.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+[3] 物理 Z 范围: [23, 71], A 范围: [66, 172]
+[4] 预计算 delta_np（mode=discrete）: 范围 [0.083, 1.919]
+C:\Users\86138\.conda\envs\fpy_kan\Lib\site-packages\sklearn\base.py:463: InconsistentVersionWarning: Trying to unpickle estimator MinMaxScaler from version 1.6.1 when using version 1.8.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+C:\Users\86138\.conda\envs\fpy_kan\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but MinMaxScaler was fitted with feature names
+  warnings.warn(
+[5] 激发能网格: 0~14 MeV, 步长 1.0, 共 15 点
+[6] 预测输入构建完成: 15480 行 (1032核素 × 15能量点), 4 维
+[7] 预测完成。原始空间产额范围: [0.00e+00, 9.42e-01]
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+[9] 已保存图1: F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\results\yield_vs_A_p2_gef_isomer_delta_np.png
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+findfont: Font family 'Helvetica' not found.
+    已保存图2: F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\results\yield_vs_Z_p2_gef_isomer_delta_np.png
+[10] 已保存逐点预测 CSV: F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\results\energy_dep_p2_gef_isomer_delta_np.csv
+     已保存聚合 CSV: F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\results\yield_sum_by_A_p2_gef_isomer_delta_np.csv
+     已保存聚合 CSV: F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\results\yield_sum_by_Z_p2_gef_isomer_delta_np.csv
+
+============================================================
+能量依赖性分析完成！摘要信息
+============================================================
+变体名        : p2_gef_isomer_delta_np
+模型架构      : KAN[16, 16] (grid=15, k=3)
+基准核素表    : F:\computer_science\machine_learning_fission_yield\data/235UALL.csv（1032 唯一核素）
+能量网格      : 0~14 MeV，步长 1.0，15 点
+目标空间      : raw，使用delta_np=True
+预测产额范围  : [0.00e+00, 9.42e-01]
+逐点预测 CSV  : F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\results\energy_dep_p2_gef_isomer_delta_np.csv
+按A聚合 CSV   : F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\results\yield_sum_by_A_p2_gef_isomer_delta_np.csv
+按Z聚合 CSV   : F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\results\yield_sum_by_Z_p2_gef_isomer_delta_np.csv
+图1 (vs A)    : F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\results\yield_vs_A_p2_gef_isomer_delta_np.png
+图2 (vs Z)    : F:\computer_science\machine_learning_fission_yield\pipeline\output\p2_gef_isomer_delta_np\results\yield_vs_Z_p2_gef_isomer_delta_np.png
+完成时间      : 2026-08-31 00:44:09
+============================================================
+>>> [2026-08-31 00:44:10] STAGE p2_gef-04 04_energy_dep.py EXIT=0
+===== [2026-08-31 00:44:10] VARIANT p2_gef DONE =====

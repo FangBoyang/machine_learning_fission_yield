@@ -1,0 +1,34 @@
+# 变体 u：4 隐藏层，G=15, k=3，按 GEF 参数平衡确定宽度
+# 隐藏层 = [10, 9, 9, 9]  -> 参数量 8880（≈ GEF 9333，Δ-453，约 5%，属平衡带）
+# 等宽 [4,w,w,w,w,1] 无法落在 9333（w=9→8516, w=10→10232），故取近等宽 [10,9,9,9]。
+# 数据源 GEF，100% 训练（full_train，无 val），早停判据 train_loss。
+inherit: n_power_delta_np.yaml
+experiment:
+  name: u_gef_isomer_delta_np
+  description: "4隐藏层 G15 k3，宽度[10,9,9,9]按GEF参数平衡≈8880，source=gef, full_train, monitor=train_loss"
+data:
+  source: csv
+  header: true
+  csv_path: data/GEF_isomer_merged.csv
+  split: full_train
+model:
+  hidden_layers: [10, 9, 9, 9]
+  grid: 15
+  k: 3
+target:
+  power: 0.25
+train:
+  epochs: 1500
+  optimizer:
+    lr: 0.01
+  scheduler:
+    type: CosineHoldAtMin
+    T_max: 400
+    eta_min: 1e-5
+  early_stopping:
+    patience: 400
+    min_delta: 5e-6
+    monitor: train_loss
+  lbfgs:
+    enabled: false
+  checkpoint_every: 50

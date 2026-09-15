@@ -1,0 +1,25 @@
+# 变体 p1：p 的完全复刻（超参数与 p 完全一致）。
+# 数据源 GEF_isomer_merged.csv（异构合并到基态，与 p 同），架构 [16,16]/grid15/k3，p=0.25。
+# 仅 experiment.name 改为 p1 以形成独立变体 / 输出目录；其余全部继承 n（与 p 一致）。
+inherit: n_power_delta_np.yaml
+experiment:
+  name: p1_gef_isomer_delta_np
+  description: "p 的完全复刻：GEF_isomer_merged.csv, [16,16]/grid15/k3, p=0.25, full_train, monitor=train_loss, epochs5000/patience800"
+data:
+  source: csv            # 异构合并文件带表头，必须用 csv 分支
+  header: true
+  csv_path: data/GEF_isomer_merged.csv
+  split: full_train      # GEF 硬约束：100% 训练，无验证集
+model:
+  hidden_layers: [16, 16]
+  grid: 15
+  k: 3
+target:
+  power: 0.25            # 与 p 一致（对 t=y^0.25 做 MSE）
+train:
+  epochs: 5000
+  early_stopping:
+    patience: 800        # warmup 多跑一些
+    min_delta: 5e-6
+    monitor: train_loss
+  checkpoint_every: 50   # 周期落 latest+resume，便于安全中断后续训

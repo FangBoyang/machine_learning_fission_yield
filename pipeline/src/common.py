@@ -15,6 +15,7 @@ import copy
 import pickle
 import yaml
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn as nn
 from kan import KAN
@@ -307,6 +308,98 @@ def apply_split(X, y, cfg, error=None):
         meta['error_train'] = error[idx_train]
         meta['error_val'] = error[idx_val]
     return X_train, y_train, X_val, y_val, meta
+
+
+# ===================== 4d. augment_yield_noise =====================
+def augment_yield_noise(df, cfg):
+    """按原始产额分档复制 + 加相对高斯噪声（学长的「第二条路」）。
+
+    配置块 data.augment：
+      enabled          : false 时原样返回（向后兼容，v/w 等既有变体零影响）
+      seed             : 噪声随机种子
+      quantile_edges   : 分档分位边界，如 [0.5, 0.9] → 低/中/高 三档
+      n_copies         : 每档「副本」份数（不含原件），长度须为 len(edges)+1
+      rel_sigma        : 每档相对噪声 σ/y，长度同 n_copies；0 表示该档副本为纯复制
+      noise_mode       : multiplicative（ỹ = y·(1+σz)，clip 到 ≥0）
+                         | lognormal（ỹ = y·exp(-σ²/2 + σz)，严格为正且均值保持）
+
+    噪声始终加在【原始产额空间】。注意目标变换 t = Y^p 会压缩相对扰动：
+    原始空间 σ_rel 对应变换后约 p·σ_rel，故低产额点在标准化单位下几乎不受影响，
+    这正是「产额大的部分才有效」的由来。
+
+    关键设计：
+    - 原件（干净）始终保留在 dataset 中，副本是额外追加的。
+    - 新增列 df['Yield_original'] 恒为「源行的干净产额」：副本行也带干净值，
+      因此 03 的 R² 仍是在原始 GEF 数据上计算（只是高产区按副本数被重复计数）。
+    - df['Yield'] 在副本行被覆盖为带噪值，训练目标由此列生成。
+
+    返回 (df_aug, aug_source_index)；未启用时 aug_source_index 为 None。
+    aug_source_index[i] = 增广后第 i 行来自原始 df 的哪一行（用于去重指标/审计）。
+    """
+    a = (cfg['data'].get('augment') or {})
+    df = df.copy()
+    df['Yield_original'] = np.asarray(df['Yield'].values, dtype=float)
+    if not a.get('enabled', False):
+        return df, None
+
+    # 防泄漏：增广在 apply_split 之前执行，若再划分 held_out，同一原始行的副本
+    # 会同时落入 train/val（标签不同但输入相同），直接判定为泄漏并拒绝。
+    split_raw = cfg['data'].get('split', {}) or {}
+    split_mode = split_raw.get('mode') if isinstance(split_raw, dict) else str(split_raw)
+    if split_mode == 'held_out':
+        raise ValueError("data.augment.enabled=true 与 data.split.mode=held_out 冲突："
+                         "同一原始行的副本会同时落入 train 与 val，造成数据泄漏。")
+
+    seed = int(a.get('seed', 42))
+    rng = np.random.RandomState(seed)
+    y = df['Yield_original'].values.astype(float)
+    N = len(y)
+
+    q_edges = [float(q) for q in a.get('quantile_edges', [])]
+    n_tiers = len(q_edges) + 1
+    copies = [int(c) for c in a.get('n_copies', [])]
+    sigmas = [float(s) for s in a.get('rel_sigma', [])]
+    if len(copies) != n_tiers or len(sigmas) != n_tiers:
+        raise ValueError(
+            f"data.augment: n_copies/rel_sigma 长度须为 {n_tiers}"
+            f"（= len(quantile_edges)={len(q_edges)} + 1），实得 {len(copies)}/{len(sigmas)}")
+    if any(c < 0 for c in copies):
+        raise ValueError(f"data.augment: n_copies 不可为负，实得 {copies}")
+    if any(s < 0 for s in sigmas):
+        raise ValueError(f"data.augment: rel_sigma 不可为负，实得 {sigmas}")
+    noise_mode = a.get('noise_mode', 'multiplicative')
+    if noise_mode not in ('multiplicative', 'lognormal'):
+        raise ValueError(f"data.augment: 不支持的 noise_mode={noise_mode}"
+                         f"（可选 multiplicative / lognormal）")
+
+    # 分档：digitize 返回 0..n_tiers-1（y < e0 → 0；e0 ≤ y < e1 → 1；…）
+    if q_edges:
+        tier = np.digitize(y, np.quantile(y, q_edges))
+    else:
+        tier = np.zeros(N, dtype=int)
+
+    frames = [df]                      # 原件（干净）始终保留
+    src_idx = [np.arange(N)]
+    for t in range(n_tiers):
+        K, s = copies[t], sigmas[t]
+        if K <= 0:
+            continue
+        idx = np.where(tier == t)[0]
+        if len(idx) == 0:
+            continue
+        for _ in range(K):
+            sub = df.iloc[idx].copy()
+            if s > 0:
+                if noise_mode == 'lognormal':
+                    sub['Yield'] = y[idx] * np.exp(-0.5 * s * s + s * rng.randn(len(idx)))
+                else:
+                    sub['Yield'] = np.clip(y[idx] * (1.0 + s * rng.randn(len(idx))), 0.0, None)
+            frames.append(sub)
+            src_idx.append(idx)
+
+    out = pd.concat(frames, ignore_index=True)
+    aug_source_index = np.concatenate(src_idx).astype(np.int32)
+    return out, aug_source_index
 
 
 # ===================== 4e. load_pretrained_model =====================

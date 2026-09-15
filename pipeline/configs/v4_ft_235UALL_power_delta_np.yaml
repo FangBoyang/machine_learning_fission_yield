@@ -1,0 +1,37 @@
+# v_ft seed=4: 复制 p3_ft_235UALL_power_delta_np，仅 model.seed 不同；
+# 且 init_from/reuse_scalers_from 指向 v4_gef_isomer_delta_np（见 v1_ft 注释）。
+inherit: j_power_delta_np.yaml
+experiment:
+  name: v4_ft_235UALL_power_delta_np
+  description: "复制 p3_ft(235U finetune,[16,16]/grid15/k3,p=0.35,val前3096行,val_loss早停,patience100)，model.seed=4；init_from/reuse=v4_gef_isomer_delta_np"
+data:
+  source: csv
+  csv_path: data/235UALL.csv
+  header: true
+  columns: [Z, A, E, Yield, Error]
+  split:
+    mode: held_out
+    val_from_first_n: 3096
+    val_ratio: 0.2
+    seed: 42
+model:
+  hidden_layers: [16, 16]
+  grid: 15
+  k: 3
+  seed: 4
+target:
+  power: 0.35
+finetune:
+  init_from: v4_gef_isomer_delta_np
+  reuse_scalers_from: v4_gef_isomer_delta_np
+  freeze: []
+eval:
+  eval_set: val
+  important_range: [3096, 4127]
+train:
+  optimizer:
+    lr: 0.001
+  early_stopping:
+    monitor: val_loss
+    patience: 100
+  checkpoint_every: 50

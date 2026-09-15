@@ -1,0 +1,36 @@
+# 变体 p1_ft：p1_gef_isomer_delta_np 的 235UALL finetune（p1 的完全复刻，对应 p_ft）。
+# 超参数与 p_ft 完全一致，仅 init_from / reuse_scalers_from 指向 p1 warmup。
+inherit: j_power_delta_np.yaml
+experiment:
+  name: p1_ft_235UALL_power_delta_np
+  description: "基于p1_gef_isomer_delta_np(GEF异构合并warmup,[16,16]/grid15/k3)的235UALL finetune：复用scalers+权重，val仅来自前3096行，val_loss早停"
+data:
+  source: csv
+  csv_path: data/235UALL.csv
+  header: true
+  columns: [Z, A, E, Yield, Error]
+  split:
+    mode: held_out
+    val_from_first_n: 3096
+    val_ratio: 0.2
+    seed: 42
+model:
+  hidden_layers: [16, 16]
+  grid: 15
+  k: 3
+target:
+  power: 0.25            # 与 p1 warmup 一致（对 t=y^0.25 做 MSE）
+finetune:
+  init_from: p1_gef_isomer_delta_np
+  reuse_scalers_from: p1_gef_isomer_delta_np
+  freeze: []             # full finetune
+eval:
+  eval_set: val
+  important_range: [3096, 4127]
+train:
+  optimizer:
+    lr: 0.001
+  early_stopping:
+    monitor: val_loss
+    patience: 300
+  checkpoint_every: 50

@@ -1,0 +1,52 @@
+{
+  "model_info": {
+    "name": "w3_gef_isomer",
+    "model_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\w3_gef_isomer\\models\\kan_best_w3_gef_isomer.pth",
+    "architecture": [
+      16,
+      16
+    ],
+    "parameters": 9222,
+    "features": [
+      "Z_norm",
+      "A_norm",
+      "E_norm"
+    ],
+    "target_space": "raw"
+  },
+  "eval_set": "train (in-sample)",
+  "ensemble": null,
+  "uncertainty": null,
+  "metrics": {
+    "normalized_space": {
+      "r2": 0.9996058344841003,
+      "mse": 0.0003941562899854034
+    },
+    "original_space": {
+      "r2": 0.9993267059326172,
+      "rmse": 0.0023381721600241544,
+      "mae": 0.0006318792584352195
+    },
+    "high_yield_region": {
+      "threshold": 0.005342515185475349,
+      "sample_count": 2334,
+      "r2": 0.9990102648735046,
+      "rmse": 0.00467371487564975
+    }
+  },
+  "important_region": null,
+  "zero_shot_pretrained": null,
+  "data_stats": {
+    "eval_samples": 9333,
+    "true_yield_range": [
+      0.0,
+      0.8999999761581421
+    ],
+    "pred_yield_range": [
+      0.0,
+      0.8921144008636475
+    ]
+  },
+  "visualization_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\w3_gef_isomer\\results\\eval_w3_gef_isomer_train_in-sample.png",
+  "timestamp": "2026-09-01 17:47:28"
+}

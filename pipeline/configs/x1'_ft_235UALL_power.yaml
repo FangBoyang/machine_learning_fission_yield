@@ -1,0 +1,12 @@
+# x1'_ft_235UALL_power —— x1_ft 的对照组：warmup 起点换成纯重复采样版 x1'_gef_isomer。
+#
+# 与 x1_ft 的唯一差别：init_from / reuse_scalers_from 指向 x1'_gef_isomer（而非 x1_gef_isomer）。
+# split.seed=42 与 w/v/x 一致 -> 验证集逐点对齐，可与 w1_ft / x1_ft 直接对比。
+# finetune 侧不开增广：235UALL 是实验数据本身已有噪声，且 data.augment 与 held_out 冲突。
+inherit: w1_ft_235UALL_power.yaml
+experiment:
+  name: "x1'_ft_235UALL_power"
+  description: "x1_ft对照组：warmup改为纯重复采样版x1'_gef_isomer，其余逐字一致，seed=1"
+finetune:
+  init_from: "x1'_gef_isomer"
+  reuse_scalers_from: "x1'_gef_isomer"

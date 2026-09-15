@@ -1,0 +1,6 @@
+PIPELINE START [2026-09-09 14:51:38]
+===== [2026-09-09 14:51:38] VARIANT x1p_gef (x1'_gef_isomer) START -> log: output/x1'_gef_isomer/x1p_gef_pipeline.log =====
+===== [2026-09-09 17:25:55] VARIANT x1p_gef DONE =====
+===== [2026-09-09 17:25:55] VARIANT x1p_ft (x1'_ft_235UALL_power) START -> log: output/x1'_ft_235UALL_power/x1p_ft_pipeline.log =====
+===== [2026-09-09 17:31:53] VARIANT x1p_ft DONE =====
+ALL DONE [2026-09-09 17:31:53]

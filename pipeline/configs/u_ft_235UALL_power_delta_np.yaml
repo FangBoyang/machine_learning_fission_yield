@@ -1,0 +1,41 @@
+# 变体 u finetune：在 u_gef_isomer_delta_np(warmup) 基础上微调 235UALL
+# 架构继承 warmup：4 隐藏层 [10,9,9,9], G=15, k=3。
+# 全解冻（freeze: []），沿用 GEF 缩放器，target 复用 GEF 缩放器（幂次 0.25）。
+inherit: n_power_delta_np.yaml
+experiment:
+  name: u_ft_235UALL_power_delta_np
+  description: "u warmup([10,9,9,9] G15 k3) 上微调 235UALL：全解冻，held_out val, monitor=val_loss"
+data:
+  source: csv
+  csv_path: data/235UALL.csv
+  header: true
+  columns: [Z, A, E, Yield, Error]
+  split:
+    mode: held_out
+    val_from_first_n: 3096
+    val_ratio: 0.2
+    seed: 42
+model:
+  hidden_layers: [10, 9, 9, 9]
+  grid: 15
+  k: 3
+target:
+  power: 0.25
+finetune:
+  init_from: u_gef_isomer_delta_np
+  reuse_scalers_from: u_gef_isomer_delta_np
+  freeze: []
+eval:
+  eval_set: val
+  important_range: [3096, 4127]
+train:
+  optimizer:
+    lr: 0.001
+  scheduler:
+    type: CosineHoldAtMin
+    T_max: 400
+    eta_min: 1e-5
+  early_stopping:
+    monitor: val_loss
+    patience: 100
+  checkpoint_every: 50

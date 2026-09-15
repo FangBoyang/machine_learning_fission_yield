@@ -1,0 +1,67 @@
+{
+  "model_info": {
+    "name": "w_ens_seed_p3",
+    "model_path": "ensemble(6): w1_ft_235UALL_power, w2_ft_235UALL_power, w3_ft_235UALL_power, w4_ft_235UALL_power, w5_ft_235UALL_power, w6_ft_235UALL_power",
+    "architecture": [
+      16,
+      16
+    ],
+    "parameters": 9222,
+    "features": [
+      "Z_norm",
+      "A_norm",
+      "E_norm"
+    ],
+    "target_space": "raw"
+  },
+  "eval_set": "val (held-out)",
+  "ensemble": {
+    "n_members": 6,
+    "members": [
+      "w1_ft_235UALL_power",
+      "w2_ft_235UALL_power",
+      "w3_ft_235UALL_power",
+      "w4_ft_235UALL_power",
+      "w5_ft_235UALL_power",
+      "w6_ft_235UALL_power"
+    ],
+    "average_space": "original"
+  },
+  "uncertainty": {
+    "sigma_mean": 0.0023590128403156996,
+    "sigma_max": 0.038691505789756775,
+    "note": "成员间标准差（集成离散度，认知不确定度代理）"
+  },
+  "metrics": {
+    "normalized_space": {
+      "r2": 0.9879153966903687,
+      "mse": 0.013951070606708527
+    },
+    "original_space": {
+      "r2": 0.9821457862854004,
+      "rmse": 0.014655424974751998,
+      "mae": 0.004358504433184862
+    },
+    "high_yield_region": {
+      "threshold": 0.002904614433646202,
+      "sample_count": 155,
+      "r2": 0.974124014377594,
+      "rmse": 0.029272851432314614
+    }
+  },
+  "important_region": null,
+  "zero_shot_pretrained": null,
+  "data_stats": {
+    "eval_samples": 619,
+    "true_yield_range": [
+      0.0,
+      0.9154092073440552
+    ],
+    "pred_yield_range": [
+      0.0,
+      0.9132431149482727
+    ]
+  },
+  "visualization_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\w_ens_seed_p3\\results\\eval_w_ens_seed_p3_val_held-out_ensemble6.png",
+  "timestamp": "2026-09-01 22:19:08"
+}

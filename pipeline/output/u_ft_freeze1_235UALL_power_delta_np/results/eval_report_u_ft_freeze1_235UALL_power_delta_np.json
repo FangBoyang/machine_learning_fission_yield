@@ -1,0 +1,78 @@
+{
+  "model_info": {
+    "name": "u_ft_freeze1_235UALL_power_delta_np",
+    "model_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\u_ft_freeze1_235UALL_power_delta_np\\models\\kan_best_u_ft_freeze1_235UALL_power_delta_np.pth",
+    "architecture": [
+      10,
+      9,
+      9,
+      9
+    ],
+    "parameters": 8880,
+    "features": [
+      "Z_norm",
+      "A_norm",
+      "E_norm",
+      "delta_np"
+    ],
+    "target_space": "raw"
+  },
+  "eval_set": "val (held-out)",
+  "metrics": {
+    "normalized_space": {
+      "r2": 0.9788188934326172,
+      "mse": 0.023664306849241257
+    },
+    "original_space": {
+      "r2": 0.9676036834716797,
+      "rmse": 0.019741299761341872,
+      "mae": 0.0061916266568005085
+    },
+    "high_yield_region": {
+      "threshold": 0.002904614433646202,
+      "sample_count": 155,
+      "r2": 0.9530365467071533,
+      "rmse": 0.03943631450219027
+    }
+  },
+  "important_region": {
+    "range": [
+      3096,
+      4127
+    ],
+    "sample_count": 1031,
+    "r2": 0.9685282707214355,
+    "rmse": 0.037326966930104094,
+    "mae": 0.016095764935016632,
+    "high_yield_r2": 0.8854381442070007,
+    "high_yield_rmse": 0.0658630849035445,
+    "note": "in-sample (该区在 finetune 中属于训练集)",
+    "zero_shot_r2": 0.8770105838775635,
+    "zero_shot_rmse": 0.07378975587703852,
+    "zero_shot_high_yield_r2": 0.5569254159927368,
+    "finetune_gain_r2": 0.09151768684387207
+  },
+  "zero_shot_pretrained": {
+    "model": "u_gef_isomer_delta_np",
+    "path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\u_gef_isomer_delta_np\\models\\kan_best_u_gef_isomer_delta_np.pth",
+    "r2": 0.90276700258255,
+    "rmse": 0.03420068572670831,
+    "mae": 0.010604198090732098,
+    "high_yield_r2": 0.8591148853302002,
+    "high_yield_rmse": 0.06830443831447092,
+    "note": "零样本：预训练基未微调直接预测（对照微调增益）"
+  },
+  "data_stats": {
+    "eval_samples": 619,
+    "true_yield_range": [
+      0.0,
+      0.9154092073440552
+    ],
+    "pred_yield_range": [
+      0.0,
+      0.9230191707611084
+    ]
+  },
+  "visualization_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\u_ft_freeze1_235UALL_power_delta_np\\results\\eval_u_ft_freeze1_235UALL_power_delta_np_val_held-out.png",
+  "timestamp": "2026-08-30 20:00:18"
+}

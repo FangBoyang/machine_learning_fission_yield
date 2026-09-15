@@ -1,0 +1,12 @@
+# x4_ft_235UALL_power —— 复制 w4_ft，唯一改动：warmup 起点换成增广版 x4_gef_isomer。
+#
+# split.seed=42 与 w/v 一致 -> 验证集逐点对齐，可与 w4_ft 直接 paired 比较。
+# finetune 侧不开增广：235UALL 是实验数据（本身已有噪声），不应再加人工噪声；
+#   且 data.augment 与 split.mode=held_out 冲突，01 会直接报错拒绝。
+inherit: w4_ft_235UALL_power.yaml
+experiment:
+  name: x4_ft_235UALL_power
+  description: "复制w4_ft(235U finetune,[16,16]/grid15/k3,p=0.35,val前3096行,val_loss早停,patience100)，warmup改为增广版x4_gef_isomer，seed=4"
+finetune:
+  init_from: x4_gef_isomer
+  reuse_scalers_from: x4_gef_isomer

@@ -1,0 +1,10 @@
+# 变体 u_ft_freeze3：u warmup([10,9,9,9] G15 k3) 上微调 235UALL，冻结【3 层】(act_fun.0,1,2)
+# 直接继承 u_ft(freeze:[])——除 freeze 外所有超参/数据/架构完全一致，仅隔离"冻结层数"这一变量。
+# freeze: ['act_fun.0','act_fun.1','act_fun.2'] 冻结前 3 层(4→10,10→9,9→9)，保留 GEF 的输入表示与前 2 组合层，
+# 其余 2 个组合层(act_fun.3,4) 全部可训练，适配 235UALL(~3k 训练样本)。lr 沿用 u_ft 的 0.001。
+inherit: u_ft_235UALL_power_delta_np.yaml
+experiment:
+  name: u_ft_freeze3_235UALL_power_delta_np
+  description: "u 架构[4,10,9,9,9,1]@G15 微调 235UALL：冻结 3 层(act_fun.0..2)，lr 同 u_ft=0.001"
+finetune:
+  freeze: ['act_fun.0', 'act_fun.1', 'act_fun.2']   # 冻前 3 层；后 2 组合层全可训练

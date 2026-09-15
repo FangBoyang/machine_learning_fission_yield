@@ -1,0 +1,68 @@
+{
+  "model_info": {
+    "name": "v_ens_seed_p3",
+    "model_path": "ensemble(6): v1_ft_235UALL_power_delta_np, v2_ft_235UALL_power_delta_np, v3_ft_235UALL_power_delta_np, v4_ft_235UALL_power_delta_np, v5_ft_235UALL_power_delta_np, v6_ft_235UALL_power_delta_np",
+    "architecture": [
+      16,
+      16
+    ],
+    "parameters": 9660,
+    "features": [
+      "Z_norm",
+      "A_norm",
+      "E_norm",
+      "delta_np"
+    ],
+    "target_space": "raw"
+  },
+  "eval_set": "val (held-out)",
+  "ensemble": {
+    "n_members": 6,
+    "members": [
+      "v1_ft_235UALL_power_delta_np",
+      "v2_ft_235UALL_power_delta_np",
+      "v3_ft_235UALL_power_delta_np",
+      "v4_ft_235UALL_power_delta_np",
+      "v5_ft_235UALL_power_delta_np",
+      "v6_ft_235UALL_power_delta_np"
+    ],
+    "average_space": "original"
+  },
+  "uncertainty": {
+    "sigma_mean": 0.002389526693150401,
+    "sigma_max": 0.04129204899072647,
+    "note": "成员间标准差（集成离散度，认知不确定度代理）"
+  },
+  "metrics": {
+    "normalized_space": {
+      "r2": 0.986430287361145,
+      "mse": 0.015665512531995773
+    },
+    "original_space": {
+      "r2": 0.9803034663200378,
+      "rmse": 0.01539298177782069,
+      "mae": 0.004998303949832916
+    },
+    "high_yield_region": {
+      "threshold": 0.002904614433646202,
+      "sample_count": 155,
+      "r2": 0.971453070640564,
+      "rmse": 0.030746523381397352
+    }
+  },
+  "important_region": null,
+  "zero_shot_pretrained": null,
+  "data_stats": {
+    "eval_samples": 619,
+    "true_yield_range": [
+      0.0,
+      0.9154092073440552
+    ],
+    "pred_yield_range": [
+      0.0,
+      0.9282734990119934
+    ]
+  },
+  "visualization_path": "F:\\computer_science\\machine_learning_fission_yield\\pipeline\\output\\v_ens_seed_p3\\results\\eval_v_ens_seed_p3_val_held-out_ensemble6.png",
+  "timestamp": "2026-09-01 13:17:26"
+}

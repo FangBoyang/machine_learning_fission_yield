@@ -1,0 +1,10 @@
+PIPELINE START [2026-08-30 19:58:33]
+===== [2026-08-30 19:58:33] VARIANT u_ft_freeze1 (u_ft_freeze1_235UALL_power_delta_np) START -> log: output/u_ft_freeze1_235UALL_power_delta_np/u_ft_freeze1_pipeline.log =====
+===== [2026-08-30 20:00:24] VARIANT u_ft_freeze1 DONE =====
+===== [2026-08-30 20:00:24] VARIANT u_ft_freeze2 (u_ft_freeze2_235UALL_power_delta_np) START -> log: output/u_ft_freeze2_235UALL_power_delta_np/u_ft_freeze2_pipeline.log =====
+===== [2026-08-30 20:01:59] VARIANT u_ft_freeze2 DONE =====
+===== [2026-08-30 20:01:59] VARIANT u_ft_freeze3 (u_ft_freeze3_235UALL_power_delta_np) START -> log: output/u_ft_freeze3_235UALL_power_delta_np/u_ft_freeze3_pipeline.log =====
+===== [2026-08-30 20:04:17] VARIANT u_ft_freeze3 DONE =====
+===== [2026-08-30 20:04:17] VARIANT u_ft_freeze4 (u_ft_freeze4_235UALL_power_delta_np) START -> log: output/u_ft_freeze4_235UALL_power_delta_np/u_ft_freeze4_pipeline.log =====
+!! TRAIN FAILED u_ft_freeze4
+ALL DONE [2026-08-30 20:07:28]

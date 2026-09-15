@@ -1,0 +1,34 @@
+# w_gef seed=1 —— 复制 v1_gef，唯一实质改动：去掉 delta_np 特征。
+#
+# 用途：回答「delta_np 到底有没有用」的特征消融实验（导师要求尝试无 delta_np 版）。
+# 与 v 系列的差异仅在于输入特征集：[Z_norm, A_norm, E_norm]（3 维），无 delta_np。
+# 其余（架构/幂次/数据/划分/训练超参/seed）全部与 v 逐字一致，保证可比。
+#
+# 注意：base.yaml 默认 features 含 delta_np、use_delta_np=true，且项目里
+#   不存在「非 delta_np 的 power 父配置」，故必须在此显式覆盖这两项。
+inherit: n_power_delta_np.yaml
+experiment:
+  name: w1_gef_isomer
+  description: "复制v1_gef(GEF异构合并,[16,16]/grid15/k3,p=0.35,full_train,monitor=train_loss,epochs2000/patience400)，去掉delta_np，seed=1"
+data:
+  source: csv
+  header: true
+  csv_path: data/GEF_isomer_merged.csv
+  split: full_train
+  # ↓ 与 v 的唯一实质差异
+  features: [Z_norm, A_norm, E_norm]
+  use_delta_np: false
+model:
+  hidden_layers: [16, 16]
+  grid: 15
+  k: 3
+  seed: 1
+target:
+  power: 0.35
+train:
+  epochs: 2000
+  early_stopping:
+    patience: 400
+    min_delta: 5e-6
+    monitor: train_loss
+  checkpoint_every: 50

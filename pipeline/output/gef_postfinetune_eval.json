@@ -1,0 +1,167 @@
+{
+  "o_ft_235UALL_power_delta_np": {
+    "gef_base": "n_power_delta_np",
+    "n_params": 17440,
+    "architecture": [
+      20,
+      20
+    ],
+    "r2": 0.9234093427658081,
+    "rmse": 0.03711318479607136,
+    "mae": 0.015415403060615063,
+    "high_yield_r2": 0.8081111907958984,
+    "high_yield_rmse": 0.07344313711485734
+  },
+  "p_ft_235UALL_power_delta_np": {
+    "gef_base": "p_gef_isomer_delta_np",
+    "n_params": 9660,
+    "architecture": [
+      16,
+      16
+    ],
+    "r2": 0.9323858618736267,
+    "rmse": 0.023431225771330555,
+    "mae": 0.007330055348575115,
+    "high_yield_r2": 0.9006218314170837,
+    "high_yield_rmse": 0.046832930044378523
+  },
+  "q_ft_235UALL_power_delta_np": {
+    "gef_base": "q_gef_isomer_delta_np",
+    "n_params": 9588,
+    "architecture": [
+      16
+    ],
+    "r2": 0.9398068785667419,
+    "rmse": 0.022108016048157323,
+    "mae": 0.006911657750606537,
+    "high_yield_r2": 0.9115172028541565,
+    "high_yield_rmse": 0.04419113651251648
+  },
+  "r_ft_235UALL_power_delta_np": {
+    "gef_base": "r_gef_isomer_delta_np",
+    "n_params": 9140,
+    "architecture": [
+      58
+    ],
+    "r2": 0.922162652015686,
+    "rmse": 0.02514029746193423,
+    "mae": 0.007894273847341537,
+    "high_yield_r2": 0.8856242895126343,
+    "high_yield_rmse": 0.05024266273245306
+  },
+  "s_ft_235UALL_power_delta_np": {
+    "gef_base": "s_gef_isomer_delta_np",
+    "n_params": 9298,
+    "architecture": [
+      81
+    ],
+    "r2": 0.9120231866836548,
+    "rmse": 0.0267276333118664,
+    "mae": 0.008535356260836124,
+    "high_yield_r2": 0.8707519173622131,
+    "high_yield_rmse": 0.05340941716354252
+  },
+  "t_ft_235UALL_power_delta_np": {
+    "gef_base": "t_gef_isomer_delta_np",
+    "n_params": 9348,
+    "architecture": [
+      12,
+      12,
+      10
+    ],
+    "r2": 0.9072134494781494,
+    "rmse": 0.027448509907245598,
+    "mae": 0.008689708076417446,
+    "high_yield_r2": 0.8636096119880676,
+    "high_yield_rmse": 0.0548652841535787
+  },
+  "t2_freeze_first_lowlr_ft_235UALL_power_delta_np": {
+    "gef_base": "t_gef_isomer_delta_np",
+    "n_params": 9348,
+    "architecture": [
+      12,
+      12,
+      10
+    ],
+    "r2": 0.9217175245285034,
+    "rmse": 0.025212076204786778,
+    "mae": 0.007747480645775795,
+    "high_yield_r2": 0.8849037885665894,
+    "high_yield_rmse": 0.05040066955317743
+  },
+  "u_ft_235UALL_power_delta_np": {
+    "gef_base": "u_gef_isomer_delta_np",
+    "n_params": 8880,
+    "architecture": [
+      10,
+      9,
+      9,
+      9
+    ],
+    "r2": 0.9288445115089417,
+    "rmse": 0.02403701257178634,
+    "mae": 0.00769389234483242,
+    "high_yield_r2": 0.8954127430915833,
+    "high_yield_rmse": 0.048044666572927455
+  },
+  "u_ft_freeze1_235UALL_power_delta_np": {
+    "gef_base": "u_gef_isomer_delta_np",
+    "n_params": 8880,
+    "architecture": [
+      10,
+      9,
+      9,
+      9
+    ],
+    "r2": 0.9344386458396912,
+    "rmse": 0.0230727952132498,
+    "mae": 0.00713423453271389,
+    "high_yield_r2": 0.9036513566970825,
+    "high_yield_rmse": 0.04611355257176642
+  },
+  "u_ft_freeze2_235UALL_power_delta_np": {
+    "gef_base": "u_gef_isomer_delta_np",
+    "n_params": 8880,
+    "architecture": [
+      10,
+      9,
+      9,
+      9
+    ],
+    "r2": 0.9627794027328491,
+    "rmse": 0.017384728516304536,
+    "mae": 0.005287473089993,
+    "high_yield_r2": 0.9452661275863647,
+    "high_yield_rmse": 0.03475632623550253
+  },
+  "u_ft_freeze3_235UALL_power_delta_np": {
+    "gef_base": "u_gef_isomer_delta_np",
+    "n_params": 8880,
+    "architecture": [
+      10,
+      9,
+      9,
+      9
+    ],
+    "r2": 0.9384893774986267,
+    "rmse": 0.022348650629554465,
+    "mae": 0.00673650112003088,
+    "high_yield_r2": 0.9095416069030762,
+    "high_yield_rmse": 0.04468175994997849
+  },
+  "u_ft_freeze4_235UALL_power_delta_np": {
+    "gef_base": "u_gef_isomer_delta_np",
+    "n_params": 8880,
+    "architecture": [
+      10,
+      9,
+      9,
+      9
+    ],
+    "r2": 0.9880553483963013,
+    "rmse": 0.009848334195499306,
+    "mae": 0.0031130779534578323,
+    "high_yield_r2": 0.9824448823928833,
+    "high_yield_rmse": 0.019683751394392306
+  }
+}

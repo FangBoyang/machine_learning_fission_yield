@@ -1,0 +1,8 @@
+PIPELINE START [2026-08-29 22:19:46]
+===== [2026-08-29 22:19:46] VARIANT r (r_gef_isomer_delta_np) START -> log: output/r_gef_isomer_delta_np/r_pipeline.log =====
+===== [2026-08-30 01:07:20] VARIANT r DONE =====
+===== [2026-08-30 01:07:21] VARIANT s (s_gef_isomer_delta_np) START -> log: output/s_gef_isomer_delta_np/s_pipeline.log =====
+===== [2026-08-30 06:55:20] VARIANT s DONE =====
+===== [2026-08-30 06:55:20] VARIANT q (q_gef_isomer_delta_np) START -> log: output/q_gef_isomer_delta_np/q_pipeline.log =====
+===== [2026-08-30 08:55:40] VARIANT q DONE =====
+ALL DONE [2026-08-30 08:55:40]
