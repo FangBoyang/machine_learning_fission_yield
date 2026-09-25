@@ -4,62 +4,49 @@ This file provides guidance to CodeBuddy Code when working with code in this rep
 
 ## What this repo is
 
-A research codebase exploring **KAN (Kolmogorov-Arnold Networks)** — and per the README, GNNs as well — for predicting **fission yields (裂变产额)**. In practice every script here uses KAN via the `pykan` package (`from kan import KAN`); no GNN code is present yet. There is no package structure, no build system, no `src/` directory, and no test framework — it is a flat collection of standalone, top-level Python scripts run directly.
+A research codebase using **KAN (Kolmogorov-Arnold Networks)** — via the `pykan` package (`from kan import KAN`) — to predict **fission yields (裂变产额)**. The model learns the mapping `(Z, A, E) → Yield` where Z=charge, A=mass number, E=incident energy, plus the optional physics feature `delta_np` (Möller–Nix pairing correction). Targets are trained in raw yield space, log space, or a power-transformed space `t = y^p`.
 
-The model learns the mapping `(Z, A, E) → Yield` where Z=charge, A=mass number, E=incident energy, plus optional physics-derived features (e.g. `delta_np`, the Möller–Nix pairing correction). Targets are trained either in raw yield space (plain MSE) or log-transformed space.
+The **active code lives under `pipeline/`** — a config-driven workflow (`pipeline/src/01–05_*.py` + `pipeline/configs/*.yaml`, orchestrated by `pipeline/run_*.sh`). The earlier first-generation flat scripts (`NN{letter}_*.py` at the repo root) have been **archived and frozen** under `archive/` — see the Archive section at the end.
+
+## Repo layout
+
+| Path | What it is | Status |
+|------|-----------|--------|
+| `pipeline/src/` | `common.py` + `01_preprocess` / `02_train` / `03_evaluate` / `04_energy_dep` / `05_ensemble` | ACTIVE |
+| `pipeline/configs/` | One YAML per experiment variant (`base.yaml` is the root; children use `inherit:`) | ACTIVE |
+| `pipeline/output/` | Per-variant outputs: `<variant>/{data,models,results}/` + `<tag>_pipeline.log` | ACTIVE |
+| `pipeline/run_*.sh` | Runners that chain 01→02→03→04 for a set of variants | ACTIVE |
+| `data/` | Raw inputs `GEF.csv`, `GEF_isomer_merged.csv`, `235UALL.csv` + fitted scaler `.pkl` | ACTIVE |
+| `references/` | Research PDFs (KAN / UQ / BKAN papers) | reference |
+| `archive/` | Frozen first-generation flat scripts + their `models/`, `results/`, `preprocessed_*.pkl`, info `.txt`, logs | FROZEN |
+| `.trash/` | Retired scratch, diagnostics, superseded configs and outputs (project rule: deletion = move here, never `rm`) | scratch |
 
 ## Hard constraints
 
-- **Feature engineering is restricted by the advisor: inputs must be either the bare `(Z, A, E)` OR `(Z, A, E, delta_np)` only.** Do **not** add any other engineered features (e.g. parity/odd-even flags, derived ratios, mass-conservation terms, or other physics proxies) unless the advisor explicitly approves. When proposing or writing a new `01_*` data-loading variant, the feature set is either `Z/A/E` or `Z/A/E/delta_np` — nothing else. This is why existing `delta_np`-only and `ZAE`-only variants exist and why `00_feature_analysis.py`/`00_feature_analysis_GEF.py` stop at `delta_np`.
-
-## File naming convention (the core architecture)
-
-Files are named `NN{letter}_*.py`. The **number prefix is the pipeline stage** and the **letter suffix is an experiment variant**. Variants are designed to run as a matched set across all stages — read the matching data-loading, training, evaluation, and energy-dependence scripts together.
-
-| Prefix | Stage | Output |
-|--------|-------|--------|
-| `00_` | Experimental / feature analysis (EDA) | printed analysis, `results/...` plots |
-| `01_` | Data loading / preprocessing | `preprocessed_*.pkl` |
-| `02_` | Model training | `models/kan_*.pth` (+ `models/*_training_history.json`) |
-| `03_` | Model evaluation | `results/<variant>/` (PNG, JSON report) |
-| `04_` | Energy-dependence analysis | `results/<variant>/`, `results/*.csv` |
-
-Letter suffixes denote experiment variants, often stacked to encode the configuration:
-- `rawY` / `logY` — train in raw yield space (plain MSE) vs log-transformed yield space
-- `delta_np` — include `delta_np` (pairing correction) as an input feature
-- `ZAE` — use Z/A/E as features
-- `fulltrain` / `all_train` — train on the full dataset (no validation split; early-stop on train loss)
-- `warm_up` — warm-up training schedule variant
-- `rare_signal` — data split that protects rare-signal samples (see `data_split_info_rare_signal.txt`)
-- `finetune` — fine-tune on `235UALL.csv` (experimental data) after pre-training on `GEF.csv` (theoretical)
-- `smaller` — reduced network width (`12-12` instead of `24-24`), `grid=5`, `k=3` to suppress B-spline overfitting "sawtooth"
-
-Example matched set: `01i_data_loading_*` → `02i_train_*` → `03i_evaluate_*` → `04i_energy_dependence_*`. Each variant also writes a `gef_data_loading_info_*.txt` (or similar) describing its config; read that `.txt` to recover a variant's exact setup.
-
-**Convention to preserve:** when adding a new experiment, keep the numbered prefix, use a new letter suffix, and suffix all output filenames (PKL/PNG/JSON/model names) with the variant tag so results never overwrite each other. The `*_i_*` "smaller" scripts explicitly warn against mixing `*_smaller` preprocessing with non-smaller models.
+- **Feature engineering is restricted by the advisor: inputs must be either the bare `(Z, A, E)` OR `(Z, A, E, delta_np)` only.** Do **not** add any other engineered features (e.g. parity/odd-even flags, derived ratios, mass-conservation terms, or other physics proxies) unless the advisor explicitly approves. This is why the `v*` (with `delta_np`) and `w*` (without) config families exist, and why the EDA scripts stop at `delta_np`.
+- **Two-stage training order (advisor-mandated):** pre-train/warm-up on `GEF*` theoretical data → fine-tune on `235UALL.csv` experimental data. Do not skip or reorder the stages. GEF variants train on **100% of the data (no val/test split**; `split: full_train`), so GEF metrics are **in-sample** — never present them as generalization. The real held-out test is the 235UALL migration.
+- **Never delete or overwrite existing results.** Deletions must `mv` into `.trash/`, never `rm`. Before re-running a pipeline stage, check whether the outputs already exist and whether the change is actually material — redundant re-runs clobber results.
 
 ## Data flow
 
-1. **Raw inputs** live in `data/`:
-   - `235UALL.csv` — experimental data (columns: Z, A, E, Yield, Error). Used for EDA, baseline training, and fine-tuning.
-   - `GEF.csv` — GEF *theoretical* data (~18k–180k rows). The main training corpus.
-   - `standard_scalerZ.pkl` / `A` / `E` / `yield_scaler.pkl`, plus GEF-specific `delta_np_scaler.pkl`, `log_yield_scaler.pkl` — fitted `scikit-learn` scalers used for (de)normalization. Inspect them with `test_pkl_joblib.py`.
+1. **Raw inputs** in `data/`: `GEF.csv` (theoretical), `GEF_isomer_merged.csv` (isomer-merged theoretical, the current GEF source), `235UALL.csv` (experimental; columns Z, A, E, Yield, Error). Fitted `scikit-learn` scalers: `standard_scaler{Z,A,E}.pkl`, `yield_scaler.pkl`, `delta_np_scaler.pkl`, `log_yield_scaler.pkl`. Inspect them with `test_pkl_joblib.py`.
 
-2. **`01_*` scripts** load the CSV + scalers, build train/val/test splits, and pickle a `preprocessed_*.pkl` dict containing at least: `X_train/val/test` (numpy + tensors), `y_train/val/test`, `device`, `scalers`, `feature_names`, `target_name`, `data_info` (incl. `training_variant` and `paired_training_config`), and `raw_data` (e.g. original-space `Yield_original` for evaluation). Later GEF variants train on 100% of the data (no split).
+2. **`01_preprocess.py`** builds features + target (applying `target.space`/`target.power`), computes `delta_np`, optionally augments/splits, and pickles `pipeline/output/<variant>/data/preprocessed_<variant>.pkl`. Key helpers live in `common.py`: `make_features_and_target`, `compute_delta_np`, `apply_split`, `augment_yield_noise`, `load_scalers_from_pretrained`.
 
-3. **`02_*` scripts** load the matching `preprocessed_*.pkl`, build the KAN with `KAN(width=[input_dim, hidden..., 1], grid=, k=, seed=)`, and run a manual training loop: AdamW optimizer, `CosineAnnealingWarmRestarts(T_0=300)` scheduler, plain `nn.MSELoss()`, gradient clipping, and early stopping on training loss (`patience≈300`, `min_delta≈5e-6`). Best/final checkpoints save to `models/kan_*_best.pth` / `_final.pth` and **embed the scaler params** (`scaler_rawY_min/scale/mean`, etc.) so evaluation can inverse-transform without reloading the scaler file.
+3. **`02_train.py`** builds the KAN (`common.build_kan_from_ckpt` / config), runs the manual AdamW loop with `CosineAnnealingWarmRestarts` or `CosineHoldAtMin`, optional progressive grid refinement (`model.refine`) and optional LBFGS polish, gradient clipping, early stopping on train loss, and periodic checkpointing. Writes `pipeline/output/<variant>/models/kan_{best,final,latest,resume}_<variant>.pth`, embedding scaler params and the full config. Fine-tune variants init from a warm-up checkpoint (`finetune.init_from`) and may freeze matching params (`finetune.freeze`).
 
-4. **`03_*` scripts** load the matched `preprocessed_*.pkl` + `models/kan_*_best.pth`, predict, inverse-transform to original yield space, **`np.clip(y_pred, 0, None)`** to enforce the physical non-negativity of yields, compute metrics (R², RMSE, MAE, high-yield-region R² at the 75th percentile), and emit a 2×2 matplotlib figure + JSON report under `results/<variant>/`.
+4. **`03_evaluate.py`** loads the checkpoint (+ matching pkl), predicts, inverse-transforms to original yield space, **`np.clip(y_pred, 0, None)`** (physical non-negativity), computes R²/RMSE/MAE + high-yield-region R² (75th percentile), and writes a 2×2 PNG + JSON report under `pipeline/output/<variant>/results/`. Also supports ensemble mode.
 
-5. **`04_*` scripts** do energy-dependence analysis (yield vs E grouped by A/Z, CSV + PNG outputs in `results/`).
+5. **`04_energy_dep.py`** scans energy (default 0–14 MeV, step 1) at fixed nuclides, predicts, inverse-transforms, aggregates yield vs E by A and Z, and writes CSVs + PNGs under `pipeline/output/<variant>/results/`.
 
-## KAN construction notes
+6. **`05_ensemble.py`** builds a multi-seed ensemble (average in original yield space) and reports σ-based uncertainty calibration (σ coverage, k68/k95). Ensemble variants have **no `preprocessed_*.pkl` of their own** — they read each member's. It imports `03_evaluate.py` by file path (the numeric filename is not a valid module name).
 
-- Library: `pykan` (`from kan import KAN`). Install from source: `pip install git+https://github.com/KindXiaoming/pykan.git` (not on PyPI under that name in this project's era). Other deps: `torch`, `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `joblib`.
-- `model/` directory contains a **separate** pykan high-level-training artifact: `0.0_config.yml` (a pykan `KANConfig`: `width`, `grid`, `k`, `symbolic_enabled`, `affine_trainable`, etc.), `0.0_state` (saved model state), `0.0_cache_data`, `history.txt`. This is pykan's auto-save format from its `.fit()` API. The newer `*_i_*` training scripts instead use the **manual loop** and pass `save_act=False` to the KAN constructor to suppress pykan's automatic directory/folder creation. Treat `model/` and the manual-loop scripts as two parallel workflows.
-- `fix_training_save.py` is a one-off recovery utility for re-assembling training history after a crash; not part of the normal pipeline.
+## Pipeline configuration
 
-## Common commands
+- **Inheritance:** each `pipeline/configs/<variant>.yaml` optionally sets `inherit:` a parent; `common.load_config` resolves it relative to the child's directory and deep-merges (child states only deltas). `base.yaml` is the root of every chain. Keys mirror `data / target / model / train / postprocess / energy_dep`.
+- **Variant naming:** `experiment.name` is the variant tag; every output filename is suffixed with it so results never overwrite each other.
+- **Variant families** (letters trace the research evolution): `g` baseline, `h` no-`delta_np`, `i` compact, `j` target power transform, `k`/`l` grid-refine + LBFGS, `m`/`o`/`p` 235UALL finetune + power sweep, `n` corrected `delta_np`, `q`/`r`/`s` single-hidden-layer capacity comparisons, `t`/`u` deeper nets (freeze sweeps), `v`/`w` seed sweeps with/without `delta_np`, `x` yield-noise augmentation.
+- **Derived files:** `pipeline/dump_resolved.py` regenerates `configs/resolved/` (flattened configs) and `configs/CONFIG_TREE.md`. **These are currently stale** (they stop at family `s`; run `dump_resolved.py` to refresh).
 
 ## Environment prerequisite (MUST READ before running any pipeline script)
 
@@ -69,27 +56,51 @@ Example matched set: `01i_data_loading_*` → `02i_train_*` → `03i_evaluate_*`
 - Activate: `source /d/ProgramData/anaconda3/etc/profile.d/conda.sh && conda activate fpy_kan`
 - Or call the interpreter directly: `C:/Users/86138/.conda/envs/fpy_kan/python.exe`
 
-All scripts run from the repository root (they rely on relative paths like `data/`, `models/`, `results/`). There is no test runner — `test_pkl_joblib.py` is just a manual scaler-inspection utility, not a test suite.
+`pipeline/common.py` derives `PROJECT_ROOT` by walking up from its own location, and `output_path()` hardcodes `<PROJECT_ROOT>/pipeline/output/...` — so the pipeline is cwd-independent for paths, but **the runners assume cwd `pipeline/` with `PYTHONPATH=src`** (so `import common` resolves).
 
-Run a pipeline stage (whole variant chain):
+## Common commands
+
+Run a variant's stage chain (from the repo root, in `fpy_kan`):
 ```bash
-python 01i_data_loading_warm_up_delta_np_all_train_rawY_smaller.py   # preprocess
-python 02i_train_warm_up_delta_np_all_train_rawY_smaller.py          # train
-python 03i_evaluate_warm_up_delta_np_all_train_rawY_smaller.py       # evaluate
-python 04i_energy_dependence_warm_up_delta_np_all_train_rawY_smaller.py  # energy dep
+python -u pipeline/src/01_preprocess.py  --config pipeline/configs/<variant>.yaml
+python -u pipeline/src/02_train.py       --config pipeline/configs/<variant>.yaml
+python -u pipeline/src/03_evaluate.py    --config pipeline/configs/<variant>.yaml
+python -u pipeline/src/04_energy_dep.py  --config pipeline/configs/<variant>.yaml
 ```
+
+`-u` (or `PYTHONUNBUFFERED=1`) is **required** — otherwise stdout is buffered and a killed process loses its whole log.
+
+Multi-variant chaining is done by the runners, e.g. `bash pipeline/run_u.sh`, which set `PYTHONPATH=src`, `cd pipeline`, and append detailed logs to `pipeline/output/<variant>/<tag>_pipeline.log` plus an index log at the repo root (`run_*.log`).
 
 Inspect a fitted scaler pickle:
 ```bash
 python test_pkl_joblib.py
 ```
 
-To reproduce/report a variant's configuration, read its `gef_data_loading_info_*.txt` (or `*_data_loading_info*.txt`) rather than re-deriving it from the script.
+To reproduce/report a variant's exact configuration, read its resolved YAML under `pipeline/configs/resolved/` (or dump a config with `pipeline/dump_resolved.py`) rather than re-deriving it from the scripts.
 
 ## Gotchas
 
-- Scripts exit early with printed errors if expected `data/*.csv` / `*.pkl` / `preprocessed_*.pkl` inputs are missing — run `01_*` before `02_*`/`03_*`/`04_*` for the same variant.
-- Checkpoint key shapes differ across script generations: early scripts use `model_state_dict`/`test_loss`; later ones use `model_state`/`best_loss`/`config`. 03/`evaluate` scripts guard for both — preserve that when loading older checkpoints.
-- Yields must be clipped to `>= 0` after inverse-transform (physical constraint); losses in raw space naturally weight high-yield samples.
+- Scripts fail early if required `data/*.csv` / `*.pkl` inputs are missing — run `01_*` before `02_*`/`03_*`/`04_*` for the same variant.
+- Checkpoint key shapes differ across script generations: early scripts use `model_state_dict`/`test_loss`; later ones use `model_state`/`best_loss`/`config`. Loaders guard for both — preserve that when reading older checkpoints.
+- Yields must be clipped to `>= 0` after inverse-transform (physical constraint); losses in raw space naturally weight high-yield samples, which is why the `j`/`l` power-transform branch exists.
 - Device defaults to CPU (`torch.device('cuda' if ... else 'cpu')`); configs are tuned for CPU runs.
-- Large PKL/CSV/model files are committed in the repo (no `.gitignore`); be careful when adding more.
+- `.gitignore` now exists and ignores future `pipeline/output/**` binaries (`.pth`/`.pkl`/logs) and root `/run_*.log`. **It does not untrack already-committed files** (no `git rm --cached` was done), so the repo history still carries ~218 MB of checkpoints. Large PKL/CSV/model files remain in the working tree; be careful when adding more.
+- `pipeline/configs/resolved/` and `CONFIG_TREE.md` are generated and currently stale — regenerate with `pipeline/dump_resolved.py` after config changes.
+
+## Archive (`archive/`)
+
+The first-generation workflow was a flat set of top-level `NN{letter}_*.py` scripts (00 EDA → 01 load → 02 train → 03 eval → 04 energy-dep) that ran directly from the repo root and wrote to `models/` and `results/`. It was superseded by the config-driven `pipeline/`. It has been moved (via `git mv`, history preserved) and **frozen**:
+
+```
+archive/
+├── README.md      # provenance + "frozen, not runnable as-is" note
+├── scripts/       # the 41 NN*.py + fix_training_save.py + inverseNorm.py
+├── models/        # legacy .pth checkpoints + training histories
+├── results/       # legacy plots / JSON / CSV
+├── data/          # legacy preprocessed_*.pkl
+├── logs/          # legacy training logs
+└── config_info/   # legacy gef_data_loading_info*.txt + data_split_info_rare_signal.txt
+```
+
+**Do not treat `archive/` as the current architecture.** Its scripts assumed repo-root cwd and their `models/`/`results/`/`preprocessed_*.pkl` now live under `archive/`, so they are not runnable as-is. There is **no cross-dependency** between `archive/` and `pipeline/` — neither imports the other.

@@ -1,0 +1,30 @@
+# =====================================================================
+# .gitignore  （第一代归档时新增）
+#
+# 重要：.gitignore 只影响「未跟踪」文件。
+#   - 已经提交的东西（archive/ 下的 legacy 产物、以及 pipeline/output/
+#     下已有的全部产物）仍然被跟踪，本文件不会取消跟踪它们。
+#     刻意没有执行 git rm --cached。
+#   - archive/ 刻意不被忽略：归档文件保持被跟踪、保留历史。
+# =====================================================================
+
+# pipeline/run_*.sh 每次运行重写的索引日志（临时记账，非结果）
+/run_*.log
+
+# pipeline 生成的二进制产物：阻止「未来新增」进入 git
+pipeline/output/**/*.pth
+pipeline/output/**/*.pt
+pipeline/output/**/*.pkl
+pipeline/output/**/*.log
+pipeline/output/**/__pycache__/
+
+# 根级 legacy 输出（归档后不再产生）
+/preprocessed_*.pkl
+
+# Python 缓存
+__pycache__/
+*.py[cod]
+
+# OS / 编辑器
+.DS_Store
+Thumbs.db

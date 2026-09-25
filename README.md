@@ -24,7 +24,7 @@ source /d/ProgramData/anaconda3/etc/profile.d/conda.sh && conda activate fpy_kan
 | 步骤 | 脚本 | 作用 | 产出 |
 |------|------|------|------|
 | ① | `01_preprocess.py` | 读原始数据（GEF.csv / 235UALL.csv），复用/拟合 scaler，划分数据集 | `pipeline/output/<变体>/data/preprocessed_<变体>.pkl` |
-| ② | `02_train.py` | 训练 KAN 模型（最耗时的一步） | `models/kan_best_<变体>.pth` 等 4 个模型文件 |
+| ② | `02_train.py` | 训练 KAN 模型（最耗时的一步） | `pipeline/output/<变体>/models/kan_best_<变体>.pth` 等 4 个模型文件 |
 | ③ | `03_evaluate.py` | 评估：R² / RMSE / MAE，出图出报告 | `pipeline/output/<变体>/results/` 下 PNG + JSON |
 | ④ | `04_energy_dep.py` | 能量依赖分析 | `pipeline/output/<变体>/results/` 下 CSV + PNG |
 
