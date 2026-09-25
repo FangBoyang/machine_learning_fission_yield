@@ -29,7 +29,7 @@ The **active code lives under `pipeline/`** — a config-driven workflow (`pipel
 
 ## Data flow
 
-1. **Raw inputs** in `data/`: `GEF.csv` (theoretical), `GEF_isomer_merged.csv` (isomer-merged theoretical, the current GEF source), `235UALL.csv` (experimental; columns Z, A, E, Yield, Error). Fitted `scikit-learn` scalers: `standard_scaler{Z,A,E}.pkl`, `yield_scaler.pkl`, `delta_np_scaler.pkl`, `log_yield_scaler.pkl`. Inspect them with `test_pkl_joblib.py`.
+1. **Raw inputs** in `data/`: `GEF.csv` (theoretical), `GEF_isomer_merged.csv` (isomer-merged theoretical, the current GEF source), `235UALL.csv` (experimental; columns Z, A, E, Yield, Error). Fitted `scikit-learn` scalers: `standard_scaler{Z,A,E}.pkl`, `yield_scaler.pkl`, `delta_np_scaler.pkl`, `log_yield_scaler.pkl`. Their params are also embedded in every checkpoint and in each `preprocessed_*.pkl` (`scalers` field).
 
 2. **`01_preprocess.py`** builds features + target (applying `target.space`/`target.power`), computes `delta_np`, optionally augments/splits, and pickles `pipeline/output/<variant>/data/preprocessed_<variant>.pkl`. Key helpers live in `common.py`: `make_features_and_target`, `compute_delta_np`, `apply_split`, `augment_yield_noise`, `load_scalers_from_pretrained`.
 
@@ -72,9 +72,9 @@ python -u pipeline/src/04_energy_dep.py  --config pipeline/configs/<variant>.yam
 
 Multi-variant chaining is done by the runners, e.g. `bash pipeline/run_u.sh`, which set `PYTHONPATH=src`, `cd pipeline`, and append detailed logs to `pipeline/output/<variant>/<tag>_pipeline.log` plus an index log at the repo root (`run_*.log`).
 
-Inspect a fitted scaler pickle:
+Inspect a fitted scaler pickle (inline — there is no scaler-inspection script):
 ```bash
-python test_pkl_joblib.py
+python -c "import joblib; s=joblib.load('data/yield_scaler.pkl'); print(type(s), getattr(s,'mean_',None), getattr(s,'scale_',None))"
 ```
 
 To reproduce/report a variant's exact configuration, read its resolved YAML under `pipeline/configs/resolved/` (or dump a config with `pipeline/dump_resolved.py`) rather than re-deriving it from the scripts.
