@@ -18,6 +18,13 @@ pipeline/output/**/*.pkl
 pipeline/output/**/*.log
 pipeline/output/**/__pycache__/
 
+# bkan pipeline 的产物（同上；bkan/vendor/ 是源码，**不**忽略）
+bkan/output/**/*.pth
+bkan/output/**/*.pt
+bkan/output/**/*.pkl
+bkan/output/**/*.log
+bkan/output/**/__pycache__/
+
 # 根级 legacy 输出（归档后不再产生）
 /preprocessed_*.pkl
 

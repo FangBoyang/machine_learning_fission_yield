@@ -1,0 +1,52 @@
+# bkan/configs/base.yaml — BKAN pipeline 的根配置
+#
+# 数据/目标段的内容**刻意与 pipeline/configs/base.yaml 保持一致**，
+# 这样 bkan/src/check_equivalence.py 才能在"同一份设置"下比对两套代码。
+# 但本文件是**自包含**的（不 inherit pipeline 的配置），因为 pykan 那条线将退役。
+
+experiment:
+  name: "base"
+  description: "BKAN 默认配置"
+
+data:
+  source: gef
+  csv_path: "data/GEF.csv"
+  header: false
+  columns: [Z_norm, A_norm, E_norm, Yield, Error]
+  features: [Z_norm, A_norm, E_norm, delta_np]
+  use_delta_np: true
+  delta_np_mode: discrete
+  split: full_train          # GEF 硬约束：100% 训练
+
+target:
+  space: log                 # BKAN 只用 log / raw（不再用 y^p）
+  clip_min: 0.0
+
+sigma:
+  zero_yield: one            # Yield==0 的行 σ_ln 赋 1.0（不剔除）
+
+model:
+  backend: svgp_kan
+  hidden_layers: [4, 12, 1]  # 首维=输入维，末维=1
+  num_inducing: 32           # 每条 edge 的诱导点数
+  kernel: rbf
+  seed: 42
+
+train:
+  epochs: 2000
+  batch_size: 256
+  lr: 0.02
+  kl_weight: 0.01            # 库官方 examples 的默认值（见 README 的说明）
+  sparsity_weight: 0.05
+  warmup_epochs: 500         # 第一段 sparsity_weight=0（官方两段式）
+  grad_clip: 1.0
+  checkpoint_every: 100
+
+energy_dep:
+  reference_csv: "data/235UALL.csv"
+  E_range: [0, 14]
+  E_step: 1
+  batch_size: 256
+
+postprocess:
+  mass_conservation: false

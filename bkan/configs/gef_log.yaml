@@ -1,0 +1,11 @@
+# bkan_gef_log — BKAN 骨架冒烟变体
+#
+# 与 pipeline 的 g_logY_delta_np 使用**完全相同的数据设置**
+# （GEF.csv + Z/A/E/delta_np + log 目标空间 + full_train），
+# 以便 check_equivalence.py 在同设置下比对两套代码。
+
+inherit: base.yaml
+
+experiment:
+  name: bkan_gef_log
+  description: "BKAN 骨架：GEF.csv, Z/A/E/delta_np, log 空间, full_train"

@@ -1,0 +1,11 @@
+# _smoke — 冒烟测试：极短训练，只验证骨架能端到端跑通（不是实验配置）
+inherit: gef_log.yaml
+
+experiment:
+  name: bkan_smoke
+  description: "冒烟：20 轮，验证 02_train 骨架"
+
+train:
+  epochs: 20
+  warmup_epochs: 5
+  checkpoint_every: 0
